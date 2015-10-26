@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{% block title %}{% endblock %} - Teeworlds Web Panel</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="Alexandre Díaz">
+
+		<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+		
+		<!--[if lt IE 9]>
+			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
+	</head>
+
+	<body>
+		{% include "includes/nav.html" %}
+
+		<div class="container">
+			<div class="row">
+				{% block content %}
+					{% with messages = get_flashed_messages(with_categories=true) %}
+						{% if messages %}
+							{% for category, message in messages %}
+								<div class="alert alert-{{ category }}">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									{{ message }}
+								</div>
+							{% endfor %}
+						{% endif %}
+					{% endwith %}
+				{% endblock %}
+			</div>
+		</div>
+
+		<footer class="footer">
+			<div class="container">
+				<p class="text-muted credit"><small>Teeworlds Web Panel &copy; 2015 - <a target="_blank" href="http://www.gnu.org/licenses/agpl.html">AGPL License</a><small></p>
+			</div>
+		</footer>
+
+		<!-- Javascript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript">
+			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+			var $REFRESH_TIME = {{ twp.refresh_time }} * 1000;
+		</script>
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jqBootstrapValidation.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+		{% block script %}{% endblock %}
+	</body>
+</html>
