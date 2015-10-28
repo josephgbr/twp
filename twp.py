@@ -149,37 +149,35 @@ def maps():
 
 @app.route('/_refresh_cpu_host')
 def refresh_cpu_host():
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         return twp.host_cpu_percent()
     return jsonify({'notauth':True})
 
 @app.route('/_refresh_uptime_host')
 def refresh_uptime_host():
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_uptime())
     return jsonify({'notauth':True})
 
 @app.route('/_refresh_disk_host')
 def refresh_disk_host():
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
     return jsonify({'notauth':True})
 
 @app.route('/_refresh_memory_host')
 def refresh_memory_containers():
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_memory_usage())
     return jsonify({'notauth':True})
 
 @app.route('/_get_all_online_servers')
 def get_all_online_servers():
-    if session['logged_in']:
-        return jsonify(twp.get_tw_masterserver_list(IP))
-    return jsonify({'notauth':True})
+    return jsonify(twp.get_tw_masterserver_list(IP))
 
 @app.route('/_create_server_instance/<gm>')
 def create_server_instance(gm):
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         fileconfig = request.args.get('fileconfig')
         g.db.execute("INSERT INTO servers (fileconfig, gamemode) VALUES (?, ?)", [fileconfig, gm])
         g.db.commit()
@@ -188,7 +186,7 @@ def create_server_instance(gm):
 
 @app.route('/_remove_server/<id>')
 def remove_server(id):
-    if session['logged_in']:
+    if 'logged_in' in session and session['logged_in']:
         g.db.execute("DELETE FROM servers WHERE id=?", [id])
         g.db.commit()
         return jsonify({'success':True})
