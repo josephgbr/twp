@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-import platform, subprocess, time, os, mimetypes, string
+import platform, subprocess, time, os, string
 from requests import get
 from teeworlds import Teeworlds
 

@@ -79,12 +79,13 @@ def teardown_request(exception):
 
     if hasattr(g, 'db'):
         g.db.close()
-        
+
 
 # Routes
 @app.route("/")
 @app.route("/overview")
 def overview():
+    session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO, dist=twp.get_linux_distribution(), ip=IP)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -94,7 +95,7 @@ def login():
         request_username = request.form['username']
         request_passwd = str_to_hash(request.form['password'])
 
-        current_url = request.form['url']
+        current_url = session['prev_url']
 
         user = query_db('select username from users where username=? and password=?', [request_username, request_passwd], one=True)
 
@@ -113,48 +114,68 @@ def login():
 
 @app.route('/logout')
 def logout():
+    current_url = session['prev_url']
+    
     session.pop('logged_in', None)
     session.pop('last_activity', None)
     session.pop('name', None)
+    session.pop('prev_url', None)
     flash(u'You are logged out!', 'success')
-    return redirect(url_for('overview'))
+    
+    if current_url == url_for('logout'):
+        return redirect(url_for('overview'))
+    return redirect(current_url)
 
 @app.route('/about')
 def about():
+    session['prev_url'] = request.path;
     return redirect(url_for('overview'))
 
 @app.route('/servers')
 def servers():
+    session['prev_url'] = request.path;
     return render_template('servers.html', twp=TWP_INFO, servers_basepath=SERVERS_BASEPATH, servers=twp.get_local_servers(SERVERS_BASEPATH))
 
 @app.route('/players')
 def players():
+    session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO)
 
 @app.route('/maps')
 def maps():
+    session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO)
 
 
 @app.route('/_refresh_cpu_host')
 def refresh_cpu_host():
-    return twp.host_cpu_percent()
+    if session['logged_in']:
+        return twp.host_cpu_percent()
+    return jsonify({'notauth':True})
 
 @app.route('/_refresh_uptime_host')
 def refresh_uptime_host():
-    return jsonify(twp.host_uptime())
+    if session['logged_in']:
+        return jsonify(twp.host_uptime())
+    return jsonify({'notauth':True})
 
 @app.route('/_refresh_disk_host')
 def refresh_disk_host():
-    return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
+    if session['logged_in']:
+        return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
+    return jsonify({'notauth':True})
 
 @app.route('/_refresh_memory_host')
 def refresh_memory_containers():
-    return jsonify(twp.host_memory_usage())
+    if session['logged_in']:
+        return jsonify(twp.host_memory_usage())
+    return jsonify({'notauth':True})
 
 @app.route('/_get_all_online_servers')
 def get_all_online_servers():
-    return jsonify(twp.get_tw_masterserver_list(IP))
+    if session['logged_in']:
+        return jsonify(twp.get_tw_masterserver_list(IP))
+    return jsonify({'notauth':True})
 
 @app.route('/_create_server_instance/<gm>')
 def create_server_instance(gm):
@@ -163,13 +184,15 @@ def create_server_instance(gm):
         g.db.execute("INSERT INTO servers (fileconfig, gamemode) VALUES (?, ?)", [fileconfig, gm])
         g.db.commit()
         return jsonify({'success':True})
-    return jsonify({'error':True})
+    return jsonify({'notauth':True})
 
 @app.route('/_remove_server/<id>')
 def remove_server(id):
-    g.db.execute("DELETE FROM servers WHERE id=?", [id])
-    g.db.commit()
-    return jsonify({'success':True})
+    if session['logged_in']:
+        g.db.execute("DELETE FROM servers WHERE id=?", [id])
+        g.db.commit()
+        return jsonify({'success':True})
+    return jsonify({'notauth':True})
 
 
 # Security Checks

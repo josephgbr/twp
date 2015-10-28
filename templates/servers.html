@@ -31,6 +31,7 @@
 							<td>8303</td>
 							<td>{{gm_srv.fileconfig}}</td>
 							<td class="text-right">
+								{% if session.logged_in %}
 								<a class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_new_server"><i class="fa fa-gear"></i> Config</a>
 								<div class="dropdown btn-group">
 								    <a class="btn btn-xs btn-success" data-toggle="modal" data-target="#modal_new_server">
@@ -50,6 +51,7 @@
 								    </ul>
 								</div>
 								<a class="remove-server-instance" data-id="{{gm_srv.id}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+								{% endif %}
 							</td>
 						</tr>
 						{% endfor %}
