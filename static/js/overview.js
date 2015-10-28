@@ -33,15 +33,29 @@ function memory_color(value){
 }
 function mastersrv_servers(){
 	$.getJSON($SCRIPT_ROOT + '/_get_all_online_servers', function(data) {
-		$('#twmslist_load').hide();
-		console.log(data);
+		$('#twmslist-load').hide();
 		
-		var $table = $('#twmslist tbody');
-		var cont = 0;
-		for (reg in data['servers']) {
-			$table.append("<tr><td>"+reg+"</td><td>"+data['servers'][reg].name+"</td><td>"+data['servers'][reg].gametype+"</td><td class='text-right'>"+Math.round(data['servers'][reg].latency*1000)+"</td></tr>");
+		if (data['servers'].length > 0)
+		{
+			var $table = $('#twmslist tbody');
+			var cont = 0;
+			for (reg in data['servers']) {
+				var row = "<tr>";
+				row += "<td>"+reg+"</td>";
+				row += "<td>"+data['servers'][reg].name+"</td>";
+				row += "<td>"+data['servers'][reg].gametype+"</td>";
+				row += "<td>"+data['servers'][reg].players+"/"+data['servers'][reg].max_players+"</td>";
+				row += "<td>"+data['servers'][reg].map+"</td>";
+				row += "<td class='text-right'>"+Math.round(data['servers'][reg].latency*1000)+"</td>";
+				row += "</tr>";
+				$table.append(row);
+			}
+			$('#twmslist').show();
 		}
-		$('#twmslist').show();
+		else
+		{
+			$('#twmslist-empty').show();
+		}
 	});
 }
 function refresh(){
@@ -56,6 +70,7 @@ $(function() {
 	$('#disk-usage').hide();
 	$('#uptime').hide();
 	$('#twmslist').hide();
+	$('#twmslist-empty').hide();
 	
 	refresh();
 	mastersrv_servers();

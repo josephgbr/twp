@@ -1,20 +1,81 @@
 {% extends "layout.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Servers{% endblock %}
 {% block content %}
 <div class="span9">
 	{{ super() }}
-	<div class="row pull-right">
-		<a class="btn btn-success" data-toggle="modal" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> Create Server</a>
+	<div class="row">
+		{% for srv in servers %}
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				{{srv}}
+				{% if session.logged_in %}
+				<span class="pull-right">
+					<a class="btn btn-xs btn-primary" data-toggle="modal" data-gm="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> Create Instance</a>
+				</span>
+				{% endif %}
+			</div>
+			<div class="panel-body">
+				{% set gm_servers = get_servers(srv) %}
+				{% if gm_servers != [] %}
+				<table class="table table-condensed table-hover table-striped">
+					<thead>
+						<th>Status</th>
+						<th>Port</th>
+						<th>Server Name</th>
+						<th>&nbsp;</th>
+					</thead>
+					<tbody>
+						{% for gm_srv in gm_servers %}
+						<tr>
+							<td>Running</td>
+							<td>8303</td>
+							<td>{{gm_srv.fileconfig}}</td>
+							<td class="text-right">
+								<a class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_new_server"><i class="fa fa-gear"></i> Config</a>
+								<div class="dropdown btn-group">
+								    <a class="btn btn-xs btn-success" data-toggle="modal" data-target="#modal_new_server">
+								        <i class="fa fa-play"></i> Start
+								    </a>
+								    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
+								        <span class="caret"></span>
+								    </a>
+								    <ul class="dropdown-menu">
+								    	{% set server_bins = get_server_binaries(servers_basepath, gm_srv.gamemode) %}
+								    	{% for bin in server_bins %}
+								    	<li><a href="#">{{bin}}</a></li>
+								    	{% endfor %}
+								    	{% if server_bins == [] %}
+								    	<li class="text-center text-muted"><i class="fa fa-warning"></i> No binary found!</li>
+								    	{% endif %}
+								    </ul>
+								</div>
+								<a class="remove-server-instance" data-id="{{gm_srv.id}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% else %}
+				<p class="text-center text-muted">No instances defined!</p>
+				{% endif %}
+			</div>
+		</div>
+		{% endfor %}
+		{% if servers == [] %}
+		<div class="panel panel-warning">
+			<div class="panel-body text-center text-muted">
+				No servers found!
+			</div>
+		</div>
+		{% endif %}
 	</div>
 	
 	{% include "includes/modal_new_server.html" %}
 </div>
 {% endblock %}
 {% block script %}
-	<script type="text/javascript" src="{{ url_for('static', filename='js/servers.js') }}"></script>
 	<script type="text/javascript">
-	{% if servers == [] %}
-		$('#modal_new_server').modal('show');	
-	{% endif %}
+		var $SERVERS_BASEPATH = {{ servers_basepath|tojson|safe }};
 	</script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/servers.js') }}"></script>
 {% endblock %}

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, json
+import subprocess, time, re, hashlib, sqlite3, os, json, logging
+from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
-from requests import get
 try:
     import configparser
 except ImportError:
@@ -14,16 +14,28 @@ except ImportError:
 config = configparser.SafeConfigParser()
 config.readfp(open('twp.conf'))
 
-SECRET_KEY = '\xb13\xb6\xfb+Z\xe8\xd1n\x80\x9c\xe7KM\x1c\xc1\xa7\xf8\xbeY\x9a\xfa<.'
+
+SECRET_KEY = b'4f54ffe39b613241ff7f864c51ea443537b7db9626969157'
 
 TWP_INFO = {
-    'version':'0.1.0',
-    'refresh_time':config.getint('global', 'refresh_time')
+    'version': '0.1.0',
+    'refresh_time': config.getint('global', 'refresh_time')
 }
 DEBUG = config.getboolean('global', 'debug')
 HOST = config.get('global', 'host')
 PORT = config.getint('global', 'port')
+THREADED = config.getboolean('global', 'threaded')
 DATABASE = config.get('database', 'file')
+LOGFILE = config.get('log', 'file')
+LOGBYTES = config.getint('log', 'maxbytes')
+SSL = config.getboolean('global','ssl')
+PKEY = config.get('ssl','pkey')
+CERT = config.get('ssl','cert')
+if not os.path.isfile(PKEY) or not os.path.isfile(CERT):
+    SSL = False
+    
+IP = twp.get_public_ip();
+SERVERS_BASEPATH = config.get('overview', 'servers')
 
 
 # Start Flask App
@@ -73,7 +85,7 @@ def teardown_request(exception):
 @app.route("/")
 @app.route("/overview")
 def overview():
-    return render_template('index.html', twp=TWP_INFO, dist=twp.get_linux_distribution(), ip=get_public_ip())
+    return render_template('index.html', twp=TWP_INFO, dist=twp.get_linux_distribution(), ip=IP)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -113,8 +125,7 @@ def about():
 
 @app.route('/servers')
 def servers():
-    servers = query_db('select * from servers')
-    return render_template('servers.html', twp=TWP_INFO, gm_configs=twp.get_gametypes_configs(), servers=servers)
+    return render_template('servers.html', twp=TWP_INFO, servers_basepath=SERVERS_BASEPATH, servers=twp.get_local_servers(SERVERS_BASEPATH))
 
 @app.route('/players')
 def players():
@@ -141,17 +152,25 @@ def refresh_disk_host():
 def refresh_memory_containers():
     return jsonify(twp.host_memory_usage())
 
-@app.route('/_get_gametype_attrs/<gm>')
-def get_gametype_attrs(gm):
-    filename = '/configs/%s.json' % gm
-    with open(filename) as f:
-        return f.read()
-    return []
-
 @app.route('/_get_all_online_servers')
 def get_all_online_servers():
-    return jsonify(twp.get_tw_masterserver_list())
-    
+    return jsonify(twp.get_tw_masterserver_list(IP))
+
+@app.route('/_create_server_instance/<gm>')
+def create_server_instance(gm):
+    if session['logged_in']:
+        fileconfig = request.args.get('fileconfig')
+        g.db.execute("INSERT INTO servers (fileconfig, gamemode) VALUES (?, ?)", [fileconfig, gm])
+        g.db.commit()
+        return jsonify({'success':True})
+    return jsonify({'error':True})
+
+@app.route('/_remove_server/<id>')
+def remove_server(id):
+    g.db.execute("DELETE FROM servers WHERE id=?", [id])
+    g.db.commit()
+    return jsonify({'success':True})
+
 
 # Security Checks
 def check_session_limit():
@@ -165,15 +184,34 @@ def check_session_limit():
         else:
             session['last_activity'] = now
             
-            
+
+# Context Processors
+@app.context_processor
+def utility_processor():
+    def get_servers(gm):
+        servers = query_db('select * from servers where gamemode=?', [gm])
+        return servers
+    def get_server_binaries(dir, gm):
+        return twp.get_server_binaries(dir, gm)
+    return dict(get_servers=get_servers, get_server_binaries=get_server_binaries)
+
+
 # Tools
 def str_to_hash(strIn):
     return hashlib.sha512(strIn.encode()).hexdigest()
 
-def get_public_ip():
-    return get('https://api.ipify.org').text
-
 
 # Init Module
 if __name__ == "__main__":
-    app.run(host=app.config['HOST'], port=app.config['PORT'])
+    if len(LOGFILE) > 0:
+        handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
+    if app.config['SSL']: 
+        from OpenSSL import SSL
+        context = SSL.Context(SSL.SSLv23_METHOD)
+        context.use_privatekey_file(app.config['PKEY'])
+        context.use_certificate_file(app.config['CERT'])
+        app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'], ssl_context=context)
+    else:
+        app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'])

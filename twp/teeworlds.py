@@ -316,6 +316,7 @@ class ServerList(object):
 		output = ServerList()
 		if name: name = re.compile(name, re.IGNORECASE)
 		if gametype: gametype = re.compile(gametype, re.IGNORECASE)
+		if address: address = re.compile('%s:[0-9]{1,5}' % address, re.IGNORECASE)
 		for server in self.servers:
 			if (server.latency != -1) and \
 				(name == None or  name.search(server.name)) and \

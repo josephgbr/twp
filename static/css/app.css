@@ -15,12 +15,12 @@ body {
   background-color: #f5f5f5;
 }
 
-.vcenter {
-  display: inline-block;
-  vertical-align: middle;
-  float: none;
-}
 
 .credit {
-	text-align: center;
+  text-align: center;
+}
+
+.remove-server-instance {
+  color: #800000;
+  margin-left: 1.5em;
 }

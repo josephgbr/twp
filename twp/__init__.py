@@ -1,6 +1,28 @@
 # -*- coding: utf-8 -*-
-import platform, subprocess, time, os
+from __future__ import division
+import platform, subprocess, time, os, mimetypes, string
+from requests import get
 from teeworlds import Teeworlds
+
+## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
+def is_text_file(filename):
+    s=open(filename).read(512)
+    text_characters = "".join(map(chr, range(32, 127)) + list("\n\r\t\b"))
+    _null_trans = string.maketrans("", "")
+    if not s:
+        # Empty files are considered text
+        return True
+    if "\0" in s:
+        # Files with null bytes are likely binary
+        return False
+    # Get the non-text characters (maps a character to itself then
+    # use the 'remove' option to get rid of the text characters.)
+    t = s.translate(_null_trans, text_characters)
+    # If more than 30% non-text characters, then
+    # this is considered a binary file
+    if float(len(t))/float(len(s)) > 0.30:
+        return False
+    return True
 
 def host_memory_usage():
     '''
@@ -101,21 +123,31 @@ def get_linux_distribution():
     
     return '%s %s' % (platform.linux_distribution()[0], platform.linux_distribution()[1])
 
-def get_gametypes_configs():
-    gm_configs = []
-    for fl in os.listdir("./configs"):
-        if fl.endswith(".json"):
-            gm_configs.append(os.path.splitext(fl)[0])
-    return gm_configs
 
-def get_tw_masterserver_list():
+def get_local_servers(dir):
+    srvlist = []
+    for r in os.listdir(dir):
+        if not os.path.isfile(r):
+            srvlist.append(r)
+    return srvlist
+
+def get_server_binaries(dir, gm):
+    binlist = []
+    for r in os.listdir('%s/%s' % (dir, gm)):
+        if not is_text_file('%s/%s/%s' % (dir, gm, r)):
+            binlist.append(r)
+    return binlist
+
+def get_tw_masterserver_list(address=None):
     tw = Teeworlds(timeout=2)
     tw.query_masters()
     tw.run_loop()
     
     srvlist = {'servers':[]}
-    #mslist = tw.serverlist.find(address=)
-    for srv in tw.serverlist:
-        srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency });
+    mslist = tw.serverlist.find(address=address)
+    for srv in mslist:
+        srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
     return srvlist;
-    
+
+def get_public_ip():
+    return get('https://api.ipify.org').text
