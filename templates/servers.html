@@ -33,7 +33,7 @@
 							<td>{{srv_inst.fileconfig}}</td>
 							<td class="text-right">
 								{% if session.logged_in %}
-								<a class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_new_server"><i class="fa fa-gear"></i> Config</a>
+								<a class="btn btn-xs btn-default" data-id="{{srv_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-gear"></i> Config</a>
 								<div class="dropdown btn-group">
 								    <a id="btn-play-srv-{{srv_inst.id}}" class="btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
 								        <i class="fa fa-play"></i> Start
@@ -43,10 +43,10 @@
 								    </a>
 								    <ul class="dropdown-menu" data-id="{{srv_inst.id}}">
 								    	{% for bin in server_bins %}
-								    	<li><a href="#" class="menu-item-server-bin">{% if srv_inst.bin == bin %}<i class="fa fa-check"></i>{% endif %} {{bin}}</a></li>
+								    	<li class="{% if srv_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
 								    	{% endfor %}
 								    	{% if server_bins == [] %}
-								    	<li class="text-center text-muted"><i class="fa fa-warning"></i> No binary found!</li>
+								    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> No binaries found!</li>
 								    	{% endif %}
 								    </ul>
 								</div>
@@ -73,6 +73,7 @@
 	</div>
 	
 	{% include "includes/modal_new_server.html" %}
+	{% include "includes/modal_instance_configuration.html" %}
 </div>
 {% endblock %}
 {% block script %}

@@ -1,5 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#########################################################################################
+##    TWP v0.1.0 - Teeworlds Web Panel
+##    Copyright (C) 2015  Alexandre Díaz
+##
+##    This program is free software: you can redistribute it and/or modify
+##    it under the terms of the GNU Affero General Public License as
+##    published by the Free Software Foundation, either version 3 of the
+##    License.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU Affero General Public License for more details.
+##
+##    You should have received a copy of the GNU Affero General Public License
+##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#########################################################################################
 import twp
 import subprocess, time, re, hashlib, sqlite3, os, json, logging
 from logging.handlers import RotatingFileHandler
@@ -207,6 +224,24 @@ def set_server_binary(id, binfile):
             g.db.commit()
             return jsonify({'success':True})
         return jsonify({'invalidBinary':True})
+    return jsonify({'notauth':True})
+
+@app.route('/_save_server_config', methods=['POST'])
+def save_server_config():
+    if 'logged_in' in session and session['logged_in']:
+        srvid = int(request.form['srvid'])
+        alaunch = True if 'alsrv' in request.form and request.form['alsrv'] == 'on' else False;
+        srvcfg = request.form['srvcfg'];
+        g.db.execute("UPDATE servers SET alaunch=? WHERE id=?", [alaunch, srvid])
+        g.db.commit()
+        return jsonify({'success':True})
+    return jsonify({'notauth':True})
+
+@app.route('/_get_server_config/<int:id>')
+def get_server_config(id):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db('select alaunch from servers where id=?', [id], one=True)
+        return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':'Esto es una prueba! %d' % id})
     return jsonify({'notauth':True})
 
 
