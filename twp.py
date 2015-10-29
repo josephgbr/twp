@@ -81,7 +81,7 @@ def teardown_request(exception):
         g.db.close()
 
 
-# Routes
+# Routing
 @app.route("/")
 @app.route("/overview")
 def overview():
@@ -93,9 +93,9 @@ def login():
     if request.method == 'POST':
         app.logger.debug('A value for debugging')
         request_username = request.form['username']
-        request_passwd = str_to_hash(request.form['password'])
+        request_passwd = str_sha512_hex_encode(request.form['password'])
 
-        current_url = session['prev_url']
+        current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
 
         user = query_db('select username from users where username=? and password=?', [request_username, request_passwd], one=True)
 
@@ -114,7 +114,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    current_url = session['prev_url']
+    current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
     
     session.pop('logged_in', None)
     session.pop('last_activity', None)
@@ -175,21 +175,38 @@ def refresh_memory_containers():
 def get_all_online_servers():
     return jsonify(twp.get_tw_masterserver_list(IP))
 
-@app.route('/_create_server_instance/<gm>')
+@app.route('/_create_server_instance/<string:gm>')
 def create_server_instance(gm):
     if 'logged_in' in session and session['logged_in']:
+        bin = None
+        srv_bins = twp.get_server_binaries(SERVERS_BASEPATH, gm)
+        if len(srv_bins) == 1:
+            bin = srv_bins[0]
+        
         fileconfig = request.args.get('fileconfig')
-        g.db.execute("INSERT INTO servers (fileconfig, gamemode) VALUES (?, ?)", [fileconfig, gm])
+        g.db.execute("INSERT INTO servers (fileconfig, gamemode, bin) VALUES (?, ?, ?)", [fileconfig, gm, bin])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
-@app.route('/_remove_server/<id>')
+@app.route('/_remove_server/<int:id>')
 def remove_server(id):
     if 'logged_in' in session and session['logged_in']:
         g.db.execute("DELETE FROM servers WHERE id=?", [id])
         g.db.commit()
         return jsonify({'success':True})
+    return jsonify({'notauth':True})
+
+@app.route('/_set_server_binary/<int:id>/<string:binfile>')
+def set_server_binary(id, binfile):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db('select gamemode from servers where id=?', [id], one=True)
+        srv_bins = twp.get_server_binaries(SERVERS_BASEPATH, srv['gamemode'])
+        if binfile in srv_bins:
+            g.db.execute("UPDATE servers SET bin=? WHERE id=?", [binfile, id])
+            g.db.commit()
+            return jsonify({'success':True})
+        return jsonify({'invalidBinary':True})
     return jsonify({'notauth':True})
 
 
@@ -209,16 +226,16 @@ def check_session_limit():
 # Context Processors
 @app.context_processor
 def utility_processor():
-    def get_servers(gm):
+    def get_server_instances(gm):
         servers = query_db('select * from servers where gamemode=?', [gm])
         return servers
     def get_server_binaries(dir, gm):
         return twp.get_server_binaries(dir, gm)
-    return dict(get_servers=get_servers, get_server_binaries=get_server_binaries)
+    return dict(get_server_instances=get_server_instances, get_server_binaries=get_server_binaries)
 
 
 # Tools
-def str_to_hash(strIn):
+def str_sha512_hex_encode(strIn):
     return hashlib.sha512(strIn.encode()).hexdigest()
 
 

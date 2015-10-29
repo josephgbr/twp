@@ -15,8 +15,9 @@
 				{% endif %}
 			</div>
 			<div class="panel-body">
-				{% set gm_servers = get_servers(srv) %}
-				{% if gm_servers != [] %}
+				{% set server_instances = get_server_instances(srv) %}
+				{% if server_instances != [] %}
+				{% set server_bins = get_server_binaries(servers_basepath, srv) %}
 				<table class="table table-condensed table-hover table-striped">
 					<thead>
 						<th>Status</th>
@@ -25,32 +26,31 @@
 						<th>&nbsp;</th>
 					</thead>
 					<tbody>
-						{% for gm_srv in gm_servers %}
+						{% for srv_inst in server_instances %}
 						<tr>
 							<td>Running</td>
 							<td>8303</td>
-							<td>{{gm_srv.fileconfig}}</td>
+							<td>{{srv_inst.fileconfig}}</td>
 							<td class="text-right">
 								{% if session.logged_in %}
 								<a class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_new_server"><i class="fa fa-gear"></i> Config</a>
 								<div class="dropdown btn-group">
-								    <a class="btn btn-xs btn-success" data-toggle="modal" data-target="#modal_new_server">
+								    <a id="btn-play-srv-{{srv_inst.id}}" class="btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
 								        <i class="fa fa-play"></i> Start
 								    </a>
 								    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
 								        <span class="caret"></span>
 								    </a>
-								    <ul class="dropdown-menu">
-								    	{% set server_bins = get_server_binaries(servers_basepath, gm_srv.gamemode) %}
+								    <ul class="dropdown-menu" data-id="{{srv_inst.id}}">
 								    	{% for bin in server_bins %}
-								    	<li><a href="#">{{bin}}</a></li>
+								    	<li><a href="#" class="menu-item-server-bin">{% if srv_inst.bin == bin %}<i class="fa fa-check"></i>{% endif %} {{bin}}</a></li>
 								    	{% endfor %}
 								    	{% if server_bins == [] %}
 								    	<li class="text-center text-muted"><i class="fa fa-warning"></i> No binary found!</li>
 								    	{% endif %}
 								    </ul>
 								</div>
-								<a class="remove-server-instance" data-id="{{gm_srv.id}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+								<a class="remove-server-instance" data-gm="{{srv}}" data-id="{{srv_inst.id}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
 								{% endif %}
 							</td>
 						</tr>

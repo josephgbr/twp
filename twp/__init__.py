@@ -109,9 +109,9 @@ def host_uptime():
     
     f = open('/proc/uptime')
     uptime = int(f.readlines()[0].split('.')[0])
-    minutes = uptime / 60 % 60
-    hours = uptime / 60 / 60 % 24
-    days = uptime / 60 / 60 / 24
+    minutes = int(uptime / 60 % 60)
+    hours = int(uptime / 60 / 60 % 24)
+    days = int(uptime / 60 / 60 / 24)
     f.close()
     return {'day': days, 
             'time': '%d:%02d' % (hours, minutes)}
