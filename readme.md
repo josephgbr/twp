@@ -10,4 +10,4 @@ The project uses:
 - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and more...
-- [Font Awesome v4.4.0](http://fontawesome.io/) for nice icons
+- [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
