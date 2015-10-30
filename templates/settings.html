@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="span9">
+	{{ super() }}
+	<div class="row">
+		<div class="col-md-12">
+			<h1><i class="fa fa-cogs"></i> Settings</h1>
+		</div>
+	</div>
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">Administrator Password</div>
+			<div class="panel-body">
+				<form action="/settings" method="POST" class="form-vertical">
+					<div class="form-group">
+						<div class="col-md-4">
+							<label for="admin-pass" class="control-label">Old password:</label>
+							<div class="controls">
+								<input type="password" id="admin-pass-old" name="admin-pass-old" class="form-control" required />
+								<p class="help-block"></p>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4">
+							<label for="admin-pass-new" class="control-label">New password:</label>
+							<div class="controls">
+								<input type="password" id="admin-pass-new" name="admin-pass-new" class="form-control" required />
+								<p class="help-block"></p>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-4">
+							<label for="admin-pass-new-repeat" class="control-label">Repeat new password:</label>
+							<div class="controls">
+								<input type="password" id="admin-pass-new-repeat" name="admin-pass-new-repeat" data-validation-match-match="admin-pass-new" class="form-control" required />
+								<p class="help-block"></p>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-12 text-right" style="margin-top:0.5em;">
+							<button type="submit" class="btn btn-primary">Change</button>
+						</div>
+					</div>
+				</form>
+		  	</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -17,9 +17,9 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 from __future__ import division
-import platform, subprocess, time, os, string
+import platform, subprocess, time, os, string, psutil, StringIO, re, threading
 from requests import get
-from teeworlds import Teeworlds
+from teeworlds import Teeworlds, TWServerRequest
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
 def is_text_file(filename):
@@ -40,6 +40,9 @@ def is_text_file(filename):
     if float(len(t))/float(len(s)) > 0.30:
         return False
     return True
+
+def get_public_ip():
+    return get('http://api.ipify.org').text
 
 def host_memory_usage():
     '''
@@ -151,7 +154,8 @@ def get_local_servers(dir):
 def get_server_binaries(dir, gm):
     binlist = []
     for r in os.listdir('%s/%s' % (dir, gm)):
-        if not is_text_file('%s/%s/%s' % (dir, gm, r)):
+        fullpath = '%s/%s/%s' % (dir, gm, r)
+        if os.path.isfile(fullpath) and not is_text_file(fullpath):
             binlist.append(r)
     return binlist
 
@@ -166,5 +170,44 @@ def get_tw_masterserver_list(address=None):
         srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
     return srvlist;
 
-def get_public_ip():
-    return get('http://api.ipify.org').text
+def check_servers():
+    if psutil.pid_exists(pid):
+        return True
+    return True
+
+def get_data_config_basics(data):
+    strIO = StringIO.StringIO(data)
+    content = strIO.readlines()
+    strIO.close()
+    
+    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'dm'}
+    for line in content:
+        matchObj = re.search('([^\s]+)\s([^\r\n]+)', line)
+        if matchObj:
+            varname = matchObj.group(1).lower()
+            
+            if varname == 'sv_name':
+                cfgbasic['name'] = matchObj.group(2)
+            elif varname == 'sv_port':
+                cfgbasic['port'] = matchObj.group(2)
+            elif varname == 'sv_gametype':
+                cfgbasic['gametype'] = matchObj.group(2)
+    return cfgbasic
+
+def get_server_net_info(ip, servers):
+    twreq = TWServerRequest(timeout=0.001)
+    
+    servers_info = []
+    for server in servers:
+        twreq.query_port(ip, int(server['port']))
+        twreq.run_loop()
+        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid']})
+    return servers_info
+
+def set_interval(func, sec):
+    def func_wrapper():
+        set_interval(func, sec)
+        func()
+    t = threading.Timer(sec, func_wrapper)
+    t.start()
+    return t

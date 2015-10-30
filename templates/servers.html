@@ -22,35 +22,43 @@
 					<thead>
 						<th>Status</th>
 						<th>Port</th>
+						<th>Game Type</th>
 						<th>Server Name</th>
 						<th>&nbsp;</th>
 					</thead>
 					<tbody>
 						{% for srv_inst in server_instances %}
-						<tr>
-							<td>Running</td>
-							<td>8303</td>
-							<td>{{srv_inst.fileconfig}}</td>
-							<td class="text-right">
+						<tr id="srv-line-{{srv_inst.rowid}}" class="{% if srv_inst.status == 'Running' %}success{% endif %}">
+							<td class="col-md-1 srv-status">{{srv_inst.status}}</td>
+							<td class="col-md-1 srv-port">{{srv_inst.port}}</td>
+							<td class="col-md-1 srv-gametype">{{srv_inst.gametype}}</td>
+							<td class="col-md-6 srv-name">{{srv_inst.name}}</td>
+							<td class="col-md-3 text-right">
 								{% if session.logged_in %}
-								<a class="btn btn-xs btn-default" data-id="{{srv_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-gear"></i> Config</a>
-								<div class="dropdown btn-group">
-								    <a id="btn-play-srv-{{srv_inst.id}}" class="btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
-								        <i class="fa fa-play"></i> Start
-								    </a>
-								    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
-								        <span class="caret"></span>
-								    </a>
-								    <ul class="dropdown-menu" data-id="{{srv_inst.id}}">
-								    	{% for bin in server_bins %}
-								    	<li class="{% if srv_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
-								    	{% endfor %}
-								    	{% if server_bins == [] %}
-								    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> No binaries found!</li>
-								    	{% endif %}
-								    </ul>
-								</div>
-								<a class="remove-server-instance" data-gm="{{srv}}" data-id="{{srv_inst.id}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+									{% if srv_inst.status == 'Stopped' %}
+									<a class="btn btn-xs btn-default" data-id="{{srv_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
+									<div class="dropdown btn-group">
+									    <a id="btn-play-srv-{{srv_inst.rowid}}" class="btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
+									        <i class="fa fa-play"></i> Start
+									    </a>
+									    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
+									        <span class="caret"></span>
+									    </a>
+									    <ul class="dropdown-menu" data-id="{{srv_inst.rowid}}">
+									    	{% for bin in server_bins %}
+									    	<li class="{% if srv_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
+									    	{% endfor %}
+									    	{% if server_bins == [] %}
+									    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> No binaries found!</li>
+									    	{% endif %}
+									    </ul>
+									</div>
+									<a class="remove-server-instance" data-gm="{{srv}}" data-id="{{srv_inst.rowid}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+									{% elif srv_inst.status == 'Running' %}
+										<a id="btn-stop-srv-{{srv_inst.rowid}}" class="btn btn-xs btn-danger">
+									        <i class="fa fa-stop"></i> Stop
+									    </a>
+									{% endif %}
 								{% endif %}
 							</td>
 						</tr>

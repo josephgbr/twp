@@ -151,6 +151,7 @@ def about():
 @app.route('/servers')
 def servers():
     session['prev_url'] = request.path;
+    check_servers_status()
     return render_template('servers.html', twp=TWP_INFO, servers_basepath=SERVERS_BASEPATH, servers=twp.get_local_servers(SERVERS_BASEPATH))
 
 @app.route('/players')
@@ -162,6 +163,17 @@ def players():
 def maps():
     session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO)
+
+@app.route('/settings', methods=['GET','POST'])
+def settings():
+    if 'logged_in' in session and session['logged_in']:
+        if request.method == 'POST':
+            flash(u'Settings updates succesfully', 'info')
+        else:
+            session['prev_url'] = request.path;
+            return render_template('settings.html', twp=TWP_INFO)
+    else:
+        return redirect(url_for('overview'))
 
 
 @app.route('/_refresh_cpu_host')
@@ -201,7 +213,34 @@ def create_server_instance(gm):
             bin = srv_bins[0]
         
         fileconfig = request.args.get('fileconfig')
-        g.db.execute("INSERT INTO servers (fileconfig, gamemode, bin) VALUES (?, ?, ?)", [fileconfig, gm, bin])
+        try:
+            f = open(fileconfig, "r")
+            srvcfg = f.read();
+            f.close();
+        except IOError:
+            srvcfg = ""
+            
+        cfgbasic = twp.get_data_config_basics(srvcfg)
+        
+        fport = int(cfgbasic['port'])
+        while True:
+            srvMatch = query_db('select rowid from servers where gametype like ? and port=?', [cfgbasic['gametype'], str(fport)], one=True)
+            if not srvMatch:
+                break
+            fport += 1
+            
+        if not fport == int(cfgbasic['port']):
+            if srvcfg == "":
+                try:
+                    f = open(fileconfig, "w")
+                    srvcfg = f.write("sv_port %d\n" % fport);
+                    f.close();
+                except IOError:
+                    return jsonify({'error':True, 'errormsg':e})
+            else:
+                return jsonify({'error':True, 'errormsg':"Can't exits two servers with the same 'Game Type' and 'Port'.<br/>Please check configuration file and try again."})
+                
+        g.db.execute("INSERT INTO servers (fileconfig, gamemode, bin, port, name, gametype) VALUES (?,?,?,?,?,?)", [fileconfig, gm, bin, str(fport), cfgbasic['name'], cfgbasic['gametype']])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
@@ -209,7 +248,7 @@ def create_server_instance(gm):
 @app.route('/_remove_server/<int:id>')
 def remove_server(id):
     if 'logged_in' in session and session['logged_in']:
-        g.db.execute("DELETE FROM servers WHERE id=?", [id])
+        g.db.execute("DELETE FROM servers WHERE rowid=?", [id])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
@@ -217,10 +256,10 @@ def remove_server(id):
 @app.route('/_set_server_binary/<int:id>/<string:binfile>')
 def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select gamemode from servers where id=?', [id], one=True)
+        srv = query_db('select gamemode from servers where rowid=?', [id], one=True)
         srv_bins = twp.get_server_binaries(SERVERS_BASEPATH, srv['gamemode'])
         if binfile in srv_bins:
-            g.db.execute("UPDATE servers SET bin=? WHERE id=?", [binfile, id])
+            g.db.execute("UPDATE servers SET bin=? WHERE rowid=?", [binfile, id])
             g.db.commit()
             return jsonify({'success':True})
         return jsonify({'invalidBinary':True})
@@ -232,16 +271,39 @@ def save_server_config():
         srvid = int(request.form['srvid'])
         alaunch = True if 'alsrv' in request.form and request.form['alsrv'] == 'on' else False;
         srvcfg = request.form['srvcfg'];
-        g.db.execute("UPDATE servers SET alaunch=? WHERE id=?", [alaunch, srvid])
-        g.db.commit()
-        return jsonify({'success':True})
+        srv = query_db('select fileconfig from servers where rowid=?', [srvid], one=True)
+        if srv:
+            cfgbasic = twp.get_data_config_basics(srvcfg)
+            
+            srvMatch = query_db('select rowid from servers where gametype like ? and port=? and rowid<>?', [cfgbasic['gametype'], cfgbasic['port'], srvid], one=True)
+            if srvMatch:
+                return jsonify({'error':True, 'errormsg':"Can't exits two servers with the same 'Game Type' and 'Port'.<br/>Please check configuration and try again."})
+            
+            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=? WHERE rowid=?", [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], srvid])
+            g.db.commit()
+            try:
+                cfgfile = open(srv['fileconfig'], "w")
+                cfgfile.write(srvcfg)
+                cfgfile.close()
+            except IOError as e:
+                return jsonify({'error':True, 'errormsg':e})
+            return jsonify({'success':True, 'name':cfgbasic['name'], 'port':cfgbasic['port'], 'gametype':cfgbasic['gametype'], 'id':srvid})
+        return jsonify({'error':True, 'errormsg':'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_config/<int:id>')
 def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select alaunch from servers where id=?', [id], one=True)
-        return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':'Esto es una prueba! %d' % id})
+        srv = query_db('select alaunch,fileconfig from servers where rowid=?', [id], one=True)
+        if srv:
+            try:
+                cfgfile = open(srv['fileconfig'], "r")
+                srvcfg = cfgfile.read()
+                cfgfile.close()
+            except IOError as e:
+                srvcfg = e
+            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg})
+        return jsonify({'error':True, 'errormsg':'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
 
 
@@ -262,20 +324,39 @@ def check_session_limit():
 @app.context_processor
 def utility_processor():
     def get_server_instances(gm):
-        servers = query_db('select * from servers where gamemode=?', [gm])
+        servers = query_db('select rowid,* from servers where gamemode=?', [gm])
         return servers
+    def get_server_basics(id):
+        srv = query_db('select port, name, gametype from servers where rowid=?', [id], one=True)
+        if srv:
+            return {'port':srv['port'], 'name':srv['name'], 'gametype':srv['gametype']}
     def get_server_binaries(dir, gm):
         return twp.get_server_binaries(dir, gm)
-    return dict(get_server_instances=get_server_instances, get_server_binaries=get_server_binaries)
+    return dict(get_server_instances=get_server_instances, 
+                get_server_binaries=get_server_binaries, 
+                get_server_basics=get_server_basics)
 
 
 # Tools
 def str_sha512_hex_encode(strIn):
     return hashlib.sha512(strIn.encode()).hexdigest()
 
+def check_servers_status():
+    app.logger.info("Checking Servers Status...")
+    servers = query_db('select rowid,port from servers')
+    net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
+    for server in net_servers_info:
+        srvdb = query_db('select * from servers where rowid=?', [server['srvid']], one=True)
+        g.db.execute("UPDATE servers SET status=? WHERE rowid=?", ['Stopped', server['srvid']])
+        g.db.commit()
+        srvdb = query_db('select * from servers where rowid=? and gametype like ?', [server['srvid'], server['netinfo'].gametype], one=True)
+        if srvdb:
+            g.db.execute("UPDATE servers SET status=? WHERE rowid=?", ['Running', server['srvid']])
+            g.db.commit()
+
 
 # Init Module
-if __name__ == "__main__":
+if __name__ == "__main__":    
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)

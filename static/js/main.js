@@ -18,12 +18,15 @@
  ********************************************************************************************
  */
 $(function(){
-	$("input").not("[type=submit]").jqBootstrapValidation();
+
 });
 
-function check_auth(data)
+function check_server_data(data)
 {
-	if (data && data['notauth'])
+	if (!data || data == undefined)
+		return;
+	
+	if (data['notauth'])
 	{
 		bootbox.dialog({
 			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> The session has expired <i class='fa fa-warning'></i></p>",
@@ -35,6 +38,21 @@ function check_auth(data)
 					callback: function() {
 						window.location.reload();
 					}
+				}
+			}
+		});
+	}
+	else if (data['error'])
+	{
+		var errormsg = data['errormsg']?data['errormsg']:"Interal error has ocurred!";
+		
+		bootbox.dialog({
+			message: "<p class='text-center' style='color:#800000;'>"+errormsg+"</p>",
+			title: "Error - Ooops! <i class='fa fa-frown-o'></i>",
+			buttons: {
+				success: {
+					label: "Damn",
+					className: "btn-default"
 				}
 			}
 		});

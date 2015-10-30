@@ -139,6 +139,9 @@ class HandlerStorage(object):
 	def find(self, **kwargs):
 		return [handler for handler in self.handlers if handler.match(**kwargs)]
 	
+	def clear(self):
+		del self.handlers[:]
+	
 	def __repr__(self):
 		return str(self.handlers)
 
@@ -367,6 +370,9 @@ class PlayerList(object):
 	def reverse(self):
 		self.players.reverse()
 	
+	def clear(self):
+		del self.players[:]
+	
 	def __iter__(self):
 		return iter(self.players)
 	
@@ -444,6 +450,60 @@ class Teeworlds(object):
 		if not isinstance(handler, Handler):
 			raise Exception('Expecting instance of class Handler')
 		self.handlers.add(handler)
+
+		
+## TWP MODIF
+class TWServerRequest(object):
+    def __init__(self, timeout=5):
+        self.timeout = timeout
+        self.handlers = HandlerStorage()
+        self.playerlist = PlayerList()
+        self.server = None
+        self.socket = MultiSocket(timeout=timeout)
+    
+    def query_port(self, ip, port):
+        self.handlers.clear()
+        self.playerlist.clear()
+
+        self.server = Server(self, (ip, port), master=self)
+        self.server.request()
+    
+    def run_loop(self):
+        last_recv = time.time()
+        last_send = 0
+        while True:
+            try:
+                (r, w, x) = self.socket.select(MultiSocket.READ | MultiSocket.WRITE)
+                cur_time = time.time()
+                if w and cur_time > last_send + 0.005:
+                    last_send = cur_time
+                    self.socket.process_queue(1)
+                if not r:
+                    if cur_time > last_recv + self.timeout:
+                        break
+                    time.sleep(0.001)
+                else:
+                    last_recv = cur_time
+                    for sock in r:
+                        try:
+                            (data, address) = sock.recvfrom(1492)
+                            log('debug', "received data from socket: byteslen=" + str(len(data)) + " bytes=" + ' '.join([ "{0:2x}".format(ord(x)) for x in data[0:20] ]))
+                            for handler in self.handlers.find(data=data, address=address):
+                                log('debug', "calling handler " + repr(handler) + " with address=" + str(address))
+                                handler.call(address, data)
+                        except socket.error as e:
+                            # Errno 10054 happens when we get ICMP port unreachable, we don't care about that
+                            if e.errno != 10054:
+                                raise
+            except socket.timeout:
+                break
+    
+    def add_handler(self, handler):
+        # improve this
+        if not isinstance(handler, Handler):
+            raise Exception('Expecting instance of class Handler')
+        self.handlers.add(handler)
+## END: TWP MODIF
 
 
 if __name__ == "__main__":

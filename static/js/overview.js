@@ -19,6 +19,8 @@
  */
 function refreshMemoryHost(){
 	$.getJSON($SCRIPT_ROOT + '/_refresh_memory_host', function(data) {
+		check_server_data(data);
+		
 		$('#memory-usage').text(data.used +' / '+ data.total +' MB').fadeIn();
 		$('#memory-usage-bar').css({'width':data.percent+'%'});
 		$('#memory-cache-usage-bar').css({'width':data.percent_cached+'%'});
@@ -26,18 +28,24 @@ function refreshMemoryHost(){
 }
 function refreshCPUHost(){
 	$.get($SCRIPT_ROOT + '/_refresh_cpu_host', function(data) {
+		check_server_data(data);
+		
 		$('#cpu-usage').text(data +'%').fadeIn();
 		$('#cpu-usage-bar').css({'width':data +'%'});
 	});
 }
 function refreshDiskHost(){
 	$.getJSON($SCRIPT_ROOT + '/_refresh_disk_host', function(data) {
+		check_server_data(data);
+		
 		$('#disk-usage').text(data.used +' ('+ data.free +' free)').fadeIn();
 		$('#disk-usage-bar').css({'width':data.percent});
 	});
 }
 function refreshUptimeHost(){
 	$.getJSON($SCRIPT_ROOT + '/_refresh_uptime_host', function(data) {
+		check_server_data(data);
+		
 		$('#uptime').text('Uptime: ' + data.day +' day(s) '+ data.time).fadeIn();
 	});
 }
@@ -52,6 +60,7 @@ function memory_color(value){
 }
 function mastersrv_servers(){
 	$.getJSON($SCRIPT_ROOT + '/_get_all_online_servers', function(data) {
+		check_server_data(data);
 		$('#twmslist-load').hide();
 		
 		if (data['servers'].length > 0)

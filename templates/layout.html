@@ -11,9 +11,6 @@
 		<link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 		
-		<!--[if lt IE 9]>
-			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
 		<link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
 	</head>
 
@@ -39,7 +36,7 @@
 
 		<footer class="footer">
 			<div class="container">
-				<p class="text-muted credit"><small>Teeworlds Web Panel &copy; 2015 - <a target="_blank" href="http://www.gnu.org/licenses/agpl.html">AGPL License</a><small></p>
+				<p class="text-muted credit"><small>Teeworlds Web Panel &copy; 2015 - <a target="_blank" href="https://www.gnu.org/licenses/agpl.html">AGPL License</a> - Proudly hosted on <a href="https://github.com/CytraL/twp"><i class="fa fa-github"></i> GitHub</a><small></p>
 			</div>
 		</footer>
 
@@ -52,7 +49,6 @@
 		</script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.3.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='js/jqBootstrapValidation.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/bootbox.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 		{% block script %}{% endblock %}

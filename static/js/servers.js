@@ -29,7 +29,7 @@ $(function(){
 		var gametype = $('#modal_new_server #gamemode').val();
 		var configfile = $(".modal-body #cfgfile").val();
 		$.getJSON($SCRIPT_ROOT + '/_create_server_instance/'+gametype+'?fileconfig='+configfile, function(data) {
-			check_auth(data);
+			check_server_data(data);
 
 			if (data['success'])
 			{
@@ -52,7 +52,7 @@ $(function(){
 			    	className: "btn-danger",
 			    	callback: function() {
 						$.getJSON($SCRIPT_ROOT + '/_remove_server/'+srvid, function(data) {
-							check_auth(data);
+							check_server_data(data);
 							
 							if (data['success'])
 							{
@@ -76,7 +76,7 @@ $(function(){
 		var srvbin = $this.text().trim();
 		
 		$.getJSON($SCRIPT_ROOT + '/_set_server_binary/'+srvid+'/'+srvbin, function(data) {
-			check_auth(data);
+			check_server_data(data);
 		
 			if (data['success'])
 			{
@@ -93,12 +93,17 @@ $(function(){
 	     var srvid = $(this).data('id');
 	     $('#form-server-config #srvid').val(srvid);
 	     $.getJSON($SCRIPT_ROOT + '/_get_server_config/'+srvid, function(data) {
-	    	 check_auth(data);
+	    	 check_server_data(data);
 	    	 
 	    	 if (data['success'])
 	    	 {
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', data['alsrv']);
-		    	 $("#modal_instance_configuration #srvcfg").text(data['srvcfg']);
+		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
+	    	 }
+	    	 else
+	    	 {
+		    	 $("#modal_instance_configuration #alsrv").prop('checked', false);
+		    	 $("#modal_instance_configuration #srvcfg").val("");
 	    	 }
 	     });
 	});
@@ -106,11 +111,23 @@ $(function(){
 	$(document).on("click", "#modal_instance_configuration .btn-primary", function() {
 		$this = $(this);
 
-		$.post('/_save_server_config', $('#form-server-config').serialize(), function(data) {
-			check_auth(data);
+		$.post($SCRIPT_ROOT + '/_save_server_config', $('#form-server-config').serialize(), function(data) {
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				var srvline_id = '#srv-line-'+data['id'];
+				var $port = $(srvline_id+' .srv-port');
+				var $name = $(srvline_id+' .srv-name');
+				var $gametype = $(srvline_id+' .srv-gametype');
+				
+				$port.text(data['port']);
+				$name.text(data['name']);
+				$gametype.text(data['gametype']);
+				
+				$('#modal_instance_configuration').modal('hide');
+			}
 		});
-		
-		$('#modal_instance_configuration').modal('hide');
 	});
 	
 });
