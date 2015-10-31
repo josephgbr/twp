@@ -70,8 +70,8 @@ $(function(){
 	});
 	
 	$(document).on("click", ".menu-item-server-bin", function() {
-		$this = $(this);
-		$parent_ul = $this.parent().parent();
+		var $this = $(this);
+		var $parent_ul = $this.parent().parent();
 		var srvid = $parent_ul.data('id');
 		var srvbin = $this.text().trim();
 		
@@ -109,7 +109,7 @@ $(function(){
 	});
 	
 	$(document).on("click", "#modal_instance_configuration .btn-primary", function() {
-		$this = $(this);
+		var $this = $(this);
 
 		$.post($SCRIPT_ROOT + '/_save_server_config', $('#form-server-config').serialize(), function(data) {
 			check_server_data(data);
@@ -128,6 +128,30 @@ $(function(){
 				$('#modal_instance_configuration').modal('hide');
 			}
 		});
+	});
+	
+	$(document).on("click", ".start-instance", function() {
+		var srvid = $(this).data('id');
+	     $.getJSON($SCRIPT_ROOT + '/_start_server_instance/'+srvid, function(data) {
+	    	 check_server_data(data);
+	    	 
+	    	 if (data['success'])
+	    	 {
+		    	 window.location.reload();
+	    	 }
+	     });
+	});
+	
+	$(document).on("click", ".stop-instance", function() {
+		var srvid = $(this).data('id');
+	     $.getJSON($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, function(data) {
+	    	 check_server_data(data);
+	    	 
+	    	 if (data['success'])
+	    	 {
+		    	 window.location.reload();
+	    	 }
+	     });
 	});
 	
 });

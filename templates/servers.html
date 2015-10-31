@@ -38,7 +38,7 @@
 									{% if srv_inst.status == 'Stopped' %}
 									<a class="btn btn-xs btn-default" data-id="{{srv_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
 									<div class="dropdown btn-group">
-									    <a id="btn-play-srv-{{srv_inst.rowid}}" class="btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
+									    <a id="btn-play-srv-{{srv_inst.rowid}}" data-id="{{srv_inst.rowid}}" class="start-instance btn btn-xs btn-success {% if srv_inst.bin == None %}disabled{% endif %}">
 									        <i class="fa fa-play"></i> Start
 									    </a>
 									    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
@@ -55,7 +55,7 @@
 									</div>
 									<a class="remove-server-instance" data-gm="{{srv}}" data-id="{{srv_inst.rowid}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
 									{% elif srv_inst.status == 'Running' %}
-										<a id="btn-stop-srv-{{srv_inst.rowid}}" class="btn btn-xs btn-danger">
+										<a id="btn-stop-srv-{{srv_inst.rowid}}" data-id="{{srv_inst.rowid}}" class="stop-instance btn btn-xs btn-danger">
 									        <i class="fa fa-stop"></i> Stop
 									    </a>
 									{% endif %}

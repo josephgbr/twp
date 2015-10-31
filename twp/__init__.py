@@ -201,7 +201,7 @@ def get_server_net_info(ip, servers):
     for server in servers:
         twreq.query_port(ip, int(server['port']))
         twreq.run_loop()
-        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid']})
+        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig']})
     return servers_info
 
 def set_interval(func, sec):

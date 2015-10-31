@@ -18,9 +18,10 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, json, logging
+import subprocess, time, re, hashlib, sqlite3, os, json, logging, time
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask_apscheduler import APScheduler
 try:
     import configparser
 except ImportError:
@@ -43,16 +44,32 @@ HOST = config.get('global', 'host')
 PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
 DATABASE = config.get('database', 'file')
+SERVERS_BASEPATH = config.get('overview', 'servers')
 LOGFILE = config.get('log', 'file')
 LOGBYTES = config.getint('log', 'maxbytes')
 SSL = config.getboolean('global','ssl')
 PKEY = config.get('ssl','pkey')
 CERT = config.get('ssl','cert')
-if not os.path.isfile(PKEY) or not os.path.isfile(CERT):
-    SSL = False
+SSL = False if not os.path.isfile(PKEY) or not os.path.isfile(CERT) else SSL
+SCHEDULER_VIEWS_ENABLED = True
+SCHEDULER_EXECUTORS = {
+    'default': {'type': 'threadpool', 'max_workers': 20}
+}
+JOBS = [
+    {
+        'id': 'relaunch_servers_offline',
+        'func': '__main__:relaunch_servers_offline',
+        'trigger': {
+            'type': 'cron',
+            'second': 10
+        }
+    }
+]
     
 IP = twp.get_public_ip();
-SERVERS_BASEPATH = config.get('overview', 'servers')
+
+# Server Instances
+srv_instances = {}
 
 
 # Start Flask App
@@ -180,25 +197,25 @@ def settings():
 def refresh_cpu_host():
     if 'logged_in' in session and session['logged_in']:
         return twp.host_cpu_percent()
-    return jsonify({'notauth':True})
+    return jsonify({})
 
 @app.route('/_refresh_uptime_host')
 def refresh_uptime_host():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_uptime())
-    return jsonify({'notauth':True})
+    return jsonify({})
 
 @app.route('/_refresh_disk_host')
 def refresh_disk_host():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
-    return jsonify({'notauth':True})
+    return jsonify({})
 
 @app.route('/_refresh_memory_host')
 def refresh_memory_containers():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_memory_usage())
-    return jsonify({'notauth':True})
+    return jsonify({})
 
 @app.route('/_get_all_online_servers')
 def get_all_online_servers():
@@ -269,7 +286,7 @@ def set_server_binary(id, binfile):
 def save_server_config():
     if 'logged_in' in session and session['logged_in']:
         srvid = int(request.form['srvid'])
-        alaunch = True if 'alsrv' in request.form and request.form['alsrv'] == 'on' else False;
+        alaunch = 1 if 'alsrv' in request.form and request.form['alsrv'] == 'on' else 0;
         srvcfg = request.form['srvcfg'];
         srv = query_db('select fileconfig from servers where rowid=?', [srvid], one=True)
         if srv:
@@ -303,6 +320,28 @@ def get_server_config(id):
             except IOError as e:
                 srvcfg = e
             return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg})
+        return jsonify({'error':True, 'errormsg':'Operation Invalid: Server not exists!'})
+    return jsonify({'notauth':True})
+
+@app.route('/_start_server_instance/<int:id>')
+def start_server(id):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db('select rowid,fileconfig,gamemode,bin from servers WHERE rowid=?', [id], one=True)
+        if srv:
+            if not srv['bin']:
+                return jsonify({'error':True, 'errormsg':'Undefined server binary file!'})
+            srv_instances.update({ srv['rowid']:subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,srv['gamemode'],srv['bin']), '-f', srv['fileconfig']], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) })
+            return jsonify({'success':True})
+        return jsonify({'error':True, 'errormsg':'Operation Invalid: Server not exists!'})
+    return jsonify({'notauth':True})
+
+@app.route('/_stop_server_instance/<int:id>')
+def stop_server(id):
+    if 'logged_in' in session and session['logged_in']:
+        if id in srv_instances.keys():
+            proc = srv_instances[id]
+            proc.kill()
+            return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
 
@@ -342,21 +381,55 @@ def str_sha512_hex_encode(strIn):
     return hashlib.sha512(strIn.encode()).hexdigest()
 
 def check_servers_status():
-    app.logger.info("Checking Servers Status...")
-    servers = query_db('select rowid,port from servers')
+    g.db.execute("UPDATE servers SET status='Stopped'")
+    servers = query_db('select rowid,port,fileconfig,alaunch from servers')
     net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
     for server in net_servers_info:
-        srvdb = query_db('select * from servers where rowid=?', [server['srvid']], one=True)
-        g.db.execute("UPDATE servers SET status=? WHERE rowid=?", ['Stopped', server['srvid']])
-        g.db.commit()
+        try:
+            cfgfile = open(server['fileconfig'], "r")
+            srvcfg = cfgfile.read()
+            cfgfile.close()
+        except Exception:
+            srvcfg = ""
+        cfgbasic = twp.get_data_config_basics(srvcfg)      
+        g.db.execute("UPDATE servers SET name=? WHERE rowid=?",[cfgbasic['name'],server['srvid']])
+        
         srvdb = query_db('select * from servers where rowid=? and gametype like ?', [server['srvid'], server['netinfo'].gametype], one=True)
         if srvdb:
-            g.db.execute("UPDATE servers SET status=? WHERE rowid=?", ['Running', server['srvid']])
-            g.db.commit()
+            g.db.execute("UPDATE servers SET status='Running', name=? WHERE rowid=?", [server['netinfo'].name, server['srvid']])
+    g.db.commit()
+
+def relaunch_servers_offline():
+    if not hasattr(g, 'db'):
+        g.db = connect_db()
+    
+    servers = query_db('select rowid,* from servers')
+    net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
+    online_ids = []
+    for server in net_servers_info:
+        srvdb = query_db('select * from servers where rowid=? and gametype like ?', [server['srvid'], server['netinfo'].gametype], one=True)
+        if srvdb:
+            online_ids.append(server['srvid'])
+    for server in servers:
+        if server['rowid'] not in online_ids:
+            srv_instances.pop(server['rowid'])
+            if server['alaunch'] == 1 and not server['bin'] == None:
+                g.db.execute("INSERT INTO issues (server_id, date) VALUES (?,?)", [server['rowid'], str(time.strftime('%m/%d/%Y %H:%M:%S'))])
+                g.db.commit()
+                srv_instances.update({ server['rowid']:subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,server['gamemode'],server['bin']), '-f', server['fileconfig']], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) })
+            
+    if hasattr(g, 'db'):
+        g.db.close()
+    
+
+# Start Scheduler
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
 
 # Init Module
-if __name__ == "__main__":    
+if __name__ == "__main__":
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)
@@ -369,3 +442,6 @@ if __name__ == "__main__":
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'], ssl_context=context)
     else:
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'])
+    
+    for proc in srv_instances.values():
+        proc.kill()
