@@ -18,20 +18,20 @@
 		{% include "includes/nav.html" %}
 
 		<div class="container">
-			<div class="row">
-				{% block content %}
-					{% with messages = get_flashed_messages(with_categories=true) %}
-						{% if messages %}
-							{% for category, message in messages %}
-								<div class="alert alert-{{ category }}">
-									<button type="button" class="close" data-dismiss="alert">&times;</button>
-									{{ message }}
-								</div>
-							{% endfor %}
-						{% endif %}
-					{% endwith %}
-				{% endblock %}
-			</div>
+			{% block content %}
+				{% with messages = get_flashed_messages(with_categories=true) %}
+					{% if messages %}
+					<div class="row">
+						{% for category, message in messages %}
+							<div class="alert alert-{{ category }}">
+								<button type="button" class="close" data-dismiss="alert">&times;</button>
+								{{ message }}
+							</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+				{% endwith %}
+			{% endblock %}
 		</div>
 
 		<footer class="footer">

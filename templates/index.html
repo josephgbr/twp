@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Overview{% endblock %}
 {% block content %}
-<div class="span9">
+<div class="row">
 	{{ super() }}
 	{% if session.logged_in %}
 	<div class="panel panel-default">

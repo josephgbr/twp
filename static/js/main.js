@@ -18,7 +18,13 @@
  ********************************************************************************************
  */
 $(function(){
-
+	
+	$(document).on("keypress", ".deny-enter :input:not(textarea)", function(event) {
+	    if (event.keyCode == 13) {
+	        event.preventDefault();
+	    }
+	});
+	
 });
 
 function check_server_data(data)

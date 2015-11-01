@@ -19,16 +19,35 @@
  */
 $(function(){
 
+	$(document).on("change", "#install-mod input[type='file']", function() {
+	     var $this = $(this);
+	     var $parent = $this.parent();
+	     var filename =  $this.val().replace(/^.*[\\\/]/, '');
+	     
+	     $parent.removeClass('btn-default').addClass('btn-success disabled');
+	     $parent.html("<i class='fa fa-refresh fa-spin'></i> Installing '"+filename+"'...");
+	     $('#install-mod').submit();
+	});
+	
 	$(document).on("click", "a[data-target=#modal_new_server]", function() {
-	     var gametype = $(this).data('gm');
-	     $('#modal_new_server #gamemode').val(gametype);
-	     $(".modal-body #cfgfile").val($SERVERS_BASEPATH+'/'+gametype+'/server.cfg');
+	     var mod = $(this).data('mod');
+	     $('#modal_new_server #mod').val(mod);
+	     var $cfglist = $('#modal_new_server #configs');
+	     $cfglist.children().remove();
+	     
+	     $.getJSON($SCRIPT_ROOT + '/_get_mod_configs/'+mod, function(data) {
+    		 for (i in data['configs'])
+    			 $cfglist.append("<option value='"+data['configs'][i]+"'>"+data['configs'][i]+"</option>");
+	     });
 	});
 	
 	$(document).on("click", "#modal_new_server .btn-success", function() {
-		var gametype = $('#modal_new_server #gamemode').val();
+		var srvmod = $('#modal_new_server #mod').val();
 		var configfile = $(".modal-body #cfgfile").val();
-		$.getJSON($SCRIPT_ROOT + '/_create_server_instance/'+gametype+'?fileconfig='+configfile, function(data) {
+		if (!configfile)
+			return;
+		
+		$.getJSON($SCRIPT_ROOT + '/_create_server_instance/'+srvmod+'?fileconfig='+configfile, function(data) {
 			check_server_data(data);
 
 			if (data['success'])
@@ -41,17 +60,17 @@ $(function(){
 	
 	$(document).on("click", ".remove-server-instance", function() {
 		var srvid = $(this).data('id');
-		var srvgm = $(this).data('gm');
+		var srvmod = $(this).data('mod');
 		
 		bootbox.dialog({
 			message: "Are you sure?",
-			title: "Delete "+srvgm+" Server Instance",
+			title: "Delete '"+srvmod+"' Server Instance",
 			buttons: {
 			    success: {
 			    	label: "Delete",
 			    	className: "btn-danger",
 			    	callback: function() {
-						$.getJSON($SCRIPT_ROOT + '/_remove_server/'+srvid, function(data) {
+						$.getJSON($SCRIPT_ROOT + '/_remove_server_instance/'+srvid, function(data) {
 							check_server_data(data);
 							
 							if (data['success'])

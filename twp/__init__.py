@@ -17,7 +17,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 from __future__ import division
-import platform, subprocess, time, os, string, psutil, StringIO, re, threading
+import platform, subprocess, time, os, string, StringIO, re, threading
 from requests import get
 from teeworlds import Teeworlds, TWServerRequest
 
@@ -151,13 +151,21 @@ def get_local_servers(dir):
             srvlist.append(r)
     return srvlist
 
-def get_server_binaries(dir, gm):
+def get_mod_binaries(dir, mod_folder):
     binlist = []
-    for r in os.listdir('%s/%s' % (dir, gm)):
-        fullpath = '%s/%s/%s' % (dir, gm, r)
+    for r in os.listdir('%s/%s' % (dir, mod_folder)):
+        fullpath = '%s/%s/%s' % (dir, mod_folder, r)
         if os.path.isfile(fullpath) and not is_text_file(fullpath):
             binlist.append(r)
     return binlist
+
+def get_mod_configs(dir, mod_folder):
+    cfglist = []
+    for r in os.listdir('%s/%s' % (dir, mod_folder)):
+        fullpath = '%s/%s/%s' % (dir, mod_folder, r)
+        if os.path.isfile(fullpath) and is_text_file(fullpath) and r.endswith('.conf'):
+            cfglist.append(r)
+    return cfglist
 
 def get_tw_masterserver_list(address=None):
     tw = Teeworlds(timeout=2)
@@ -169,11 +177,6 @@ def get_tw_masterserver_list(address=None):
     for srv in mslist:
         srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
     return srvlist;
-
-def check_servers():
-    if psutil.pid_exists(pid):
-        return True
-    return True
 
 def get_data_config_basics(data):
     strIO = StringIO.StringIO(data)
@@ -201,7 +204,7 @@ def get_server_net_info(ip, servers):
     for server in servers:
         twreq.query_port(ip, int(server['port']))
         twreq.run_loop()
-        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig']})
+        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 'base_folder':server['base_folder']})
     return servers_info
 
 def set_interval(func, sec):

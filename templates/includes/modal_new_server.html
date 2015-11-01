@@ -7,10 +7,13 @@
 				<h4 class="modal-title">Create Server Instance</h4>
 			</div>
 			<div class="modal-body">
-				<form action="/_create_server" method="post">
+				<form class="deny-enter">
+					<input type="hidden" id="mod" />
 					<div class="form-group">
-				    	<label for="cfgfile">Configuration File:</label>
-						<input type="text" class="form-control" id="cfgfile" name="cfgfile" required />
+				    	<label for="cfgfile">Configuration File Name:</label>
+						<input type="text" class="form-control" id="cfgfile" name="cfgfile" list="configs" required />
+						<datalist id="configs"></datalist>
+						<span class="help-block">Without file extension.</span>
 					</div>
 				</form>
 			</div>
@@ -18,7 +21,6 @@
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-success">Create instance</button>
 			</div>
-			<input type="hidden" id="gamemode" />
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
