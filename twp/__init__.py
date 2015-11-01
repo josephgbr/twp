@@ -183,7 +183,9 @@ def parse_data_config_basics(data):
     content = strIO.readlines()
     strIO.close()
     
-    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'dm'}
+    emtpyfile = True if content == [] else False
+    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'dm', 'empty':emtpyfile}
+
     for line in content:
         if len(line) == 0 or line[0] == '#':
             continue

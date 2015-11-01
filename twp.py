@@ -279,9 +279,10 @@ def create_server_instance(mod_folder):
             if not srvMatch:
                 break
             fport += 1
-            
+        # Try write the new port in the configuration file
+        # TODO: Create a method for write configuration files
         if not fport == int(cfgbasic['port']):
-            if srvcfg == "":
+            if cfgbasic['empty']:
                 try:
                     f = open(fullpath_fileconfig, "w")
                     srvcfg = f.write("sv_port %d\n" % fport);
