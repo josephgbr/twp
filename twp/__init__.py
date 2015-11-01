@@ -177,15 +177,17 @@ def get_tw_masterserver_list(address=None):
     for srv in mslist:
         srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
     return srvlist;
-
-def get_data_config_basics(data):
+    
+def parse_data_config_basics(data):
     strIO = StringIO.StringIO(data)
     content = strIO.readlines()
     strIO.close()
     
     cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'dm'}
     for line in content:
-        matchObj = re.search('([^\s]+)\s([^\r\n]+)', line)
+        if len(line) == 0 or line[0] == '#':
+            continue
+        matchObj = re.search('([^\s]+)\s([^#\r\n]+)', line)
         if matchObj:
             varname = matchObj.group(1).lower()
             
@@ -196,6 +198,15 @@ def get_data_config_basics(data):
             elif varname == 'sv_gametype':
                 cfgbasic['gametype'] = matchObj.group(2)
     return cfgbasic
+
+def get_data_config_basics(fileconfig):
+    try:
+        cfgfile = open(filename, "r")
+        srvcfg = cfgfile.read()
+        cfgfile.close()
+    except Exception:
+        srvcfg = ""
+    return parse_data_config_basics(srvcfg)
 
 def get_server_net_info(ip, servers):
     twreq = TWServerRequest(timeout=0.001)

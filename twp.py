@@ -57,7 +57,7 @@ CERT = config.get('ssl','cert')
 SSL = False if not os.path.isfile(PKEY) or not os.path.isfile(CERT) else SSL
 SCHEDULER_VIEWS_ENABLED = True
 SCHEDULER_EXECUTORS = {
-    'default': {'type': 'threadpool', 'max_workers': 20}
+    'default': {'type': 'threadpool', 'max_workers': 5}
 }
 JOBS = [
     {
@@ -189,14 +189,15 @@ def maps():
 def settings():
     if 'logged_in' in session and session['logged_in']:
         if request.method == 'POST':
-            flash(u'Settings updates succesfully', 'info')
+            flash(u'Settings updates successfully', 'info')
         else:
             session['prev_url'] = request.path;
         return render_template('settings.html', twp=TWP_INFO)
     else:
         flash(u'Can\'t access to settings page', 'danger')
         return redirect(url_for('overview'))
-    
+
+## TODO: NOT WORKS! WHY????? F*CKKK
 @app.route('/install_mod', methods=['POST'])
 def install_mod():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('servers')
@@ -209,7 +210,7 @@ def install_mod():
                 
                 app.logger.info("Extract: %s" % filename)
                 #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                flash(u'Mod installed successfullly', 'info')
+                flash(u'Mod installed successfully', 'info')
                 return redirect(current_url)
             else:
                 flash(u'Error: Can\'t install selected mod package', 'danger')
@@ -218,6 +219,7 @@ def install_mod():
     else:
         flash(u'Error: You haven\'t permissions for install new mods!', 'danger')
     return redirect(current_url)
+##
 
 
 @app.route('/_refresh_cpu_host')
@@ -255,6 +257,7 @@ def create_server_instance(mod_folder):
         if not fileconfig or fileconfig == "":
             return jsonify({'error':True, 'errormsg':'Invalid configuration file name.'})
         
+        # Search for mod binaries, if only exists one use it
         bin = None
         srv_bins = twp.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
         if len(srv_bins) == 1:
@@ -262,19 +265,14 @@ def create_server_instance(mod_folder):
         
         fullpath_fileconfig = '%s/%s/%s.conf' % (SERVERS_BASEPATH,mod_folder, fileconfig)
         
+        # Check if other server are using the same configuration file
         srvMatch = query_db('select rowid from servers where fileconfig=?', [fullpath_fileconfig], one=True)
         if srvMatch:
             return jsonify({'error':True, 'errormsg':"Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again."})
+                    
+        cfgbasic = twp.get_data_config_basics(fullpath_fileconfig)
         
-        try:
-            f = open(fullpath_fileconfig, "r")
-            srvcfg = f.read();
-            f.close();
-        except IOError:
-            srvcfg = ""
-            
-        cfgbasic = twp.get_data_config_basics(srvcfg)
-        
+        # Check if the port are be using by other server with the same gametype
         fport = int(cfgbasic['port'])
         while True:
             srvMatch = query_db('select rowid from servers where gametype like ? and port=?', [cfgbasic['gametype'], str(fport)], one=True)
@@ -292,7 +290,8 @@ def create_server_instance(mod_folder):
                     return jsonify({'error':True, 'errormsg':str(e)})
             else:
                 return jsonify({'error':True, 'errormsg':"Can't exits two servers with the same 'Game Type' and 'Port'.<br/>Please check or change configuration file and try again."})
-                
+        
+        # If all checks good, create the new instance
         g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype) VALUES (?,?,?,?,?,?)", [fullpath_fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype']])
         g.db.commit()
         return jsonify({'success':True})
@@ -310,6 +309,7 @@ def remove_server_instance(id):
 def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        # Check that is a correct binary name (exists in mod folder)
         srv_bins = twp.get_mod_binaries(SERVERS_BASEPATH, srv['base_folder'])
         if binfile in srv_bins:
             g.db.execute("UPDATE servers SET bin=? WHERE rowid=?", [binfile, id])
@@ -326,7 +326,7 @@ def save_server_config():
         srvcfg = request.form['srvcfg'];
         srv = query_db('select fileconfig,base_folder from servers where rowid=?', [srvid], one=True)
         if srv:
-            cfgbasic = twp.get_data_config_basics(srvcfg)
+            cfgbasic = twp.parse_data_config_basics(srvcfg)
             
             srvMatch = query_db('select rowid from servers where gametype like ? and port=? and rowid<>?', [cfgbasic['gametype'], cfgbasic['port'], srvid], one=True)
             if srvMatch:
@@ -426,17 +426,14 @@ def utility_processor():
 
 # Jobs
 def check_servers_status():
+    # By default all server are offline
     g.db.execute("UPDATE servers SET status='Stopped'")
     servers = query_db('select rowid,port,fileconfig,alaunch,base_folder from servers')
     net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
     for server in net_servers_info:
-        try:
-            cfgfile = open(server['fileconfig'], "r")
-            srvcfg = cfgfile.read()
-            cfgfile.close()
-        except Exception:
-            srvcfg = ""
-        cfgbasic = twp.get_data_config_basics(srvcfg)      
+        # FIXME: Improve this
+        # Get the name of the configuration file if online get the name from the server
+        cfgbasic = twp.get_data_config_basics(server['fileconfig'])      
         g.db.execute("UPDATE servers SET name=? WHERE rowid=?",[cfgbasic['name'], server['srvid']])
         g.db.execute("UPDATE servers SET status='Running', name=? WHERE rowid=? and gametype like ?", [server['netinfo'].name, server['srvid'], server['netinfo'].gametype])
     g.db.commit()
@@ -448,17 +445,22 @@ def relaunch_servers_offline():
     servers = query_db('select rowid,* from servers')
     net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
     online_ids = []
+    # Check Teeworlds Requests
     for server in net_servers_info:
+        # It's online because have a 'gametype'
         srvdb = query_db('select * from servers where rowid=? and gametype like ?', [server['srvid'], server['netinfo'].gametype], one=True)
         if srvdb:
             online_ids.append(server['srvid'])
+    # Trye reopen server
     for server in servers:
         if server['rowid'] not in online_ids:
             if server['rowid'] in srv_instances:
                 srv_instances.pop(server['rowid'])
             if server['alaunch'] == 1 and not server['bin'] == None:
+                # Report issue
                 g.db.execute("INSERT INTO issues (server_id, date) VALUES (?,?)", [server['rowid'], str(time.strftime('%m/%d/%Y %H:%M:%S'))])
                 g.db.commit()
+                # Open server
                 srv_instances.update({ server['rowid']:subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), '-f', server['fileconfig']], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) })
             
     if hasattr(g, 'db'):
