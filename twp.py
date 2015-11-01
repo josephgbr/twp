@@ -263,7 +263,7 @@ def create_server_instance(mod_folder):
         fullpath_fileconfig = '%s/%s/%s.conf' % (SERVERS_BASEPATH,mod_folder, fileconfig)
         
         srvMatch = query_db('select rowid from servers where fileconfig=?', [fullpath_fileconfig], one=True)
-        if srvMarch:
+        if srvMatch:
             return jsonify({'error':True, 'errormsg':"Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again."})
         
         try:

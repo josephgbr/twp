@@ -34,11 +34,16 @@ $(function(){
 	     $('#modal_new_server #mod').val(mod);
 	     var $cfglist = $('#modal_new_server #configs');
 	     $cfglist.children().remove();
+	     $('#modal_new_server #cfgfile').val("");
 	     
 	     $.getJSON($SCRIPT_ROOT + '/_get_mod_configs/'+mod, function(data) {
-    		 for (i in data['configs'])
-    			 $cfglist.append("<option value='"+data['configs'][i]+"'>"+data['configs'][i]+"</option>");
-	     });
+	    	if (data['configs'] && data['configs'].length > 0)
+	    	{
+	    		$('#modal_new_server #cfgfile').val(data['configs'][0]);
+	    		for (i in data['configs'])
+	    			$cfglist.append("<option value='"+data['configs'][i]+"'>"+data['configs'][i]+"</option>")
+	    	}
+	    });
 	});
 	
 	$(document).on("click", "#modal_new_server .btn-success", function() {
