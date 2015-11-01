@@ -454,7 +454,8 @@ def relaunch_servers_offline():
             online_ids.append(server['srvid'])
     for server in servers:
         if server['rowid'] not in online_ids:
-            srv_instances.pop(server['rowid'])
+            if server['rowid'] in srv_instances:
+                srv_instances.pop(server['rowid'])
             if server['alaunch'] == 1 and not server['bin'] == None:
                 g.db.execute("INSERT INTO issues (server_id, date) VALUES (?,?)", [server['rowid'], str(time.strftime('%m/%d/%Y %H:%M:%S'))])
                 g.db.commit()
