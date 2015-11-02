@@ -103,4 +103,19 @@ $(function() {
 	refresh();
 	mastersrv_servers();
 	window.setInterval('refresh()', $REFRESH_TIME);
+	
+	$(document).on("click", "#reboot", function() {
+		var $this = $(this);
+		$this.html("<i class='fa fa-cog fa-spin'></i> Rebooting...");
+		$this.addClass('disabled');
+		
+		$.getJSON($SCRIPT_ROOT + '/_reboot', function(data) {
+			check_server_data(data);
+	    	 
+			if (data['success'])
+			{
+				//window.location.reload();
+			}
+		});
+	});
 });

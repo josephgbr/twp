@@ -15,7 +15,7 @@
    		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
      			<ul class="nav navbar-nav">
      				<li class="{% if request.path == '/' or request.path.startswith('/overview') %} active {% endif %}"><a href="/">Overview</a></li>
-       			<li class="{% if request.path.startswith('/servers') %} active {% endif %}"><a href="/servers">Servers</a></li>
+       			<li class="{% if request.path.startswith('/servers') %} active {% endif %}"><a href="/servers">Servers <span id="badge-num-server-instances" class="badge hidden">0</span></a></li>
        			<li class="{% if request.path.startswith('/players') %} active {% endif %}"><a href="/players">Players</a></li>
        			<li class="{% if request.path.startswith('/maps') %} active {% endif %}"><a href="/maps">Maps</a></li>
      			</ul>

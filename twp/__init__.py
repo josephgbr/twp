@@ -14,12 +14,17 @@
 ##    GNU Affero General Public License for more details.
 ##
 ##    You should have received a copy of the GNU Affero General Public License
-##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##    along with this program.  If not, see <http://www.gnu.org/licenses/>.    
 #########################################################################################
 from __future__ import division
-import platform, subprocess, time, os, string, StringIO, re, threading
-from requests import get
+from StringIO import StringIO
+import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile
 from teeworlds import Teeworlds, TWServerRequest
+from urllib import urlretrieve
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
 def is_text_file(filename):
@@ -42,7 +47,7 @@ def is_text_file(filename):
     return True
 
 def get_public_ip():
-    return get('http://api.ipify.org').text
+    return urlopen('http://api.ipify.org').read()
 
 def host_memory_usage():
     '''
@@ -155,7 +160,7 @@ def get_mod_binaries(dir, mod_folder):
     binlist = []
     for r in os.listdir('%s/%s' % (dir, mod_folder)):
         fullpath = '%s/%s/%s' % (dir, mod_folder, r)
-        if os.path.isfile(fullpath) and not is_text_file(fullpath):
+        if os.path.isfile(fullpath) and not is_text_file(fullpath) and not fnmatch.filter(r, '.*'):
             binlist.append(r)
     return binlist
 
@@ -179,7 +184,7 @@ def get_tw_masterserver_list(address=None):
     return srvlist;
     
 def parse_data_config_basics(data):
-    strIO = StringIO.StringIO(data)
+    strIO = StringIO(data)
     content = strIO.readlines()
     strIO.close()
     
@@ -220,10 +225,46 @@ def get_server_net_info(ip, servers):
         servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 'base_folder':server['base_folder']})
     return servers_info
 
-def set_interval(func, sec):
-    def func_wrapper():
-        set_interval(func, sec)
-        func()
-    t = threading.Timer(sec, func_wrapper)
-    t.start()
-    return t
+def extract_targz(path, scratch_dir, delete=False):
+    target_basename = os.path.basename(path[:-len(".tar.gz")])
+    target_path = os.path.join(scratch_dir)
+
+    try:
+        tar_file = tarfile.open(path)
+    except tarfile.ReadError, err:
+        # Append existing Error message to new Error.
+        message = ("Could not open tar file: %s\n"
+                   " The file probably does not have the correct format.\n"
+                   " --> Inner message: %s"
+                   % (path, err))
+        raise Exception(message)
+
+    try:
+        tar_file.extractall(target_path)
+    finally:
+        tar_file.close()
+        if delete:
+            os.unlink(path)
+
+    return target_path
+
+ALLOWED_EXTENSIONS = set(['zip', 'gz'])    
+def install_mod_from_url(url, dest):
+    def _allowed_file(filename):
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    
+    matchObj = re.search(".*/([^/#]*)(#.*|$)", url)
+    if not url or not _allowed_file(url) or not matchObj:
+        raise Exception(u'Invalid URL')
+    
+    filename = '%s/%s' % (dest, matchObj.group(1))
+    
+    try:
+        urlretrieve(url, '%s/%s' % (dest, matchObj.group(1)))
+    except Exception, e:
+        raise Exception(e)
+    
+    extract_targz(filename, dest, True)
+    
+    return True

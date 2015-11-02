@@ -25,7 +25,26 @@ $(function(){
 	    }
 	});
 	
+	get_server_instances_online();
+	window.setInterval('get_server_instances_online()', $REFRESH_TIME);
+	
 });
+
+function get_server_instances_online()
+{
+    $.getJSON($SCRIPT_ROOT + '/_get_server_instances_online', function(data) {
+      	 check_server_data(data);
+      	 
+      	 if (data['success'])
+      	 {
+      		 var num = data['num'];
+      		 if (num == 0)
+      			 $("#badge-num-server-instances").text("0").addClass('hidden');
+      		 else
+      			 $("#badge-num-server-instances").text(num).removeClass('hidden');
+      	 }
+    });
+}
 
 function check_server_data(data)
 {

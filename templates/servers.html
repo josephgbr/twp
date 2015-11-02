@@ -6,10 +6,15 @@
 {% if session.logged_in %}
 <div class="row space-bottom">
 	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
-		<input type="hidden" value="ss" name="ttest" />
-		<span class="btn btn-default btn-file">
-			<i class="fa fa-puzzle-piece"></i> Install Mod <input type="file" name="file" id="file" required />
-		</span>
+		<div class="dropdown">
+			<a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" id="install-mod-button">
+				<i class="fa fa-puzzle-piece"></i> Install Mod <span class="caret"></span>
+			</a>
+		    <ul class="dropdown-menu">
+		    	<li><a href="#" id='install-mod-url'><i class="fa fa-external-link-square"></i> From URL</a> <input type="hidden" id="url" name="url" value=""/></li>
+		    	<li><a href="#" class="btn-file"><i class="fa fa-file-zip-o"></i> From Archive <input type="file" name="file" id="file" required /></a></li>
+		    </ul>
+	    </div>
 	</form>
 </div>
 {% endif %}
