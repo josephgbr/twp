@@ -201,7 +201,6 @@ def settings():
         flash(u'Can\'t access to settings page', 'danger')
         return redirect(url_for('overview'))
 
-## TODO: NOT WORKS! WHY????? F*CKKK
 @app.route('/install_mod', methods=['POST'])
 def install_mod():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('servers')
@@ -236,7 +235,6 @@ def install_mod():
     else:
         flash(u'Error: You haven\'t permissions for install new mods!', 'danger')
     return redirect(current_url)
-##
 
 
 @app.route('/_refresh_cpu_host')
