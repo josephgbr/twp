@@ -216,12 +216,17 @@ def install_mod():
                 flash(u'Mod installed successfully', 'info')
         else:  
             if 'file' in request.files:
-                mod = request.files['file']
-                if mod and allowed_file(mod.filename):
-                    filename = secure_filename(mod.filename)
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
                     
                     app.logger.info("Extract: %s" % filename)
-                    #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    fullpath = '%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
+                    if filename.endswith(".tar.gz"):
+                        twp.extract_targz(fullpath, SERVERS_BASEPATH, True)
+                    elif filename.endswith(".zip"):
+                        twp.extract_zip(fullpath, SERVERS_BASEPATH, True)
                     flash(u'Mod installed successfully', 'info')
                     return redirect(current_url)
                 else:

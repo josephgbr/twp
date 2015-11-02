@@ -153,7 +153,7 @@ def get_linux_distribution():
 def get_local_servers(dir):
     srvlist = []
     for r in os.listdir(dir):
-        if not os.path.isfile(r):
+        if os.path.isdir('%s/%s' % (dir,r)):
             srvlist.append(r)
     return srvlist
 
