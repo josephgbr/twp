@@ -20,13 +20,20 @@
 $(function(){
 
 	$(document).on("change", "#install-mod input[type='file']", function() {
-	     var $this = $(this);
-	     var $btn = $('#install-mod-button');
-	     var filename =  $this.val().replace(/^.*[\\\/]/, '');
+		var $this = $(this);
+		var $btn = $('#install-mod-button');
+	    var filename =  $this.val().replace(/^.*[\\\/]/, '');
 	     
-	     $btn.removeClass('btn-default').addClass('btn-success disabled');
-	     $btn.html("<i class='fa fa-refresh fa-spin'></i> Installing '"+filename+"'...");
-	     $('#install-mod').submit();
+	    $btn.removeClass('btn-default').addClass('btn-success disabled');
+	    $btn.html("<i class='fa fa-refresh fa-spin'></i> Installing '"+filename+"'...");
+	     
+		bootbox.dialog({
+			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>PLEASE WAIT...</h1></div>",
+			buttons: {}
+		});
+		
+		$('#install-mod #url').val('');
+	    $('#install-mod').submit();
 	});
 	
 	$(document).on("click", "#install-mod-url", function() {
