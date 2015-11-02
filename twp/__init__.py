@@ -18,7 +18,8 @@
 #########################################################################################
 from __future__ import division
 from StringIO import StringIO
-import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile
+import platform, subprocess, time, os, string, re, fnmatch, tarfile
+from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
 from urllib import urlretrieve
 try:
@@ -248,6 +249,29 @@ def extract_targz(path, scratch_dir, delete=False):
 
     return target_path
 
+def extract_zip(path, scratch_dir, delete=False):
+    target_basename = os.path.basename(path[:-len(".zip")])
+    target_path = os.path.join(scratch_dir)
+
+    try:
+        zip_file = ZipFile(path)
+    except zipfile.BadZipfile, err:
+        # Append existing Error message to new Error.
+        message = ("Could not open tar file: %s\n"
+                   " The file probably does not have the correct format.\n"
+                   " --> Inner message: %s"
+                   % (path, err))
+        raise Exception(message)
+
+    try:
+        zip_file.extractall(target_path)
+    finally:
+        zip_file.close()
+        if delete:
+            os.unlink(path)
+
+    return target_path
+
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])    
 def install_mod_from_url(url, dest):
     def _allowed_file(filename):
@@ -262,9 +286,13 @@ def install_mod_from_url(url, dest):
     
     try:
         urlretrieve(url, '%s/%s' % (dest, matchObj.group(1)))
+        
     except Exception, e:
         raise Exception(e)
     
-    extract_targz(filename, dest, True)
+    if url.endswith(".tar.gz"):
+        extract_targz(filename, dest, True)
+    elif url.endswith(".zip"):
+        extract_zip(filename, dest, True)
     
     return True
