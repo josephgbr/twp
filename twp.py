@@ -18,7 +18,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, json, logging, time
+import subprocess, time, re, hashlib, sqlite3, os, json, logging, time, signal
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
@@ -72,8 +72,6 @@ JOBS = [
     
 IP = twp.get_public_ip();
 
-# App Global Vars
-srv_instances = {}
 
 
 # Start Flask App
@@ -204,7 +202,6 @@ def settings():
 @app.route('/install_mod', methods=['POST'])
 def install_mod():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('servers')
-    app.logger.info(str(request.files.keys()))
     if 'logged_in' in session and session['logged_in']:
         if 'url' in request.form and not request.form['url'] == '':
             try:
@@ -291,7 +288,7 @@ def create_server_instance(mod_folder):
         # Check if the port are be using by other server with the same gametype
         fport = int(cfgbasic['port'])
         while True:
-            srvMatch = query_db('select rowid from servers where lower(gametype)=? and port=?', [cfgbasic['gametype'].lower(), str(fport)], one=True)
+            srvMatch = query_db('select rowid from servers where base_folder=? and port=?', [mod_folder, str(fport)], one=True)
             if not srvMatch:
                 break
             fport += 1
@@ -307,7 +304,7 @@ def create_server_instance(mod_folder):
                     return jsonify({'error':True, 'errormsg':str(e)})
             else:
                 return jsonify({'error':True, 
-                                'errormsg':u"Can't exits two servers with the same 'Game Type' and 'Port'.<br/>Please check or change configuration file and try again."})
+                                'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check or change configuration file and try again."})
         
         # If all checks good, create the new instance
         g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype) VALUES (?,?,?,?,?,?)", \
@@ -348,11 +345,11 @@ def save_server_config():
         if srv:
             cfgbasic = twp.parse_data_config_basics(srvcfg)
             
-            srvMatch = query_db('select rowid from servers where lower(gametype)=? and port=? and rowid<>?', \
-                                [cfgbasic['gametype'].lower(), cfgbasic['port'], srvid], one=True)
+            srvMatch = query_db('select rowid from servers where base_folder=? and port=? and rowid<>?', \
+                                [srv['base_folder'], cfgbasic['port'], srvid], one=True)
             if srvMatch:
                 return jsonify({'error':True, 
-                                'errormsg':u"Can't exits two servers with the same 'Game Type' and 'Port'.<br/>Please check configuration and try again."})
+                                'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again."})
             
             g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=? WHERE rowid=?", \
                          [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], srvid])
@@ -401,9 +398,9 @@ def start_server(id):
         if srv:
             if not srv['bin']:
                 return jsonify({'error':True, 'errormsg':u'Undefined server binary file!'})
-            srv_instances.update({ srv['rowid']:subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['bin']), \
-                                                                  '-f', srv['fileconfig']], \
-                                                                 shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) })
+            subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['bin']), \
+                              '-f', srv['fileconfig']], \
+                              shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             time.sleep(2) # Be nice with the server...
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
@@ -412,11 +409,21 @@ def start_server(id):
 @app.route('/_stop_server_instance/<int:id>')
 def stop_server(id):
     if 'logged_in' in session and session['logged_in']:
-        if id in srv_instances.keys():
-            proc = srv_instances[id]
-            proc.kill()
-            return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
+        server = query_db("SELECT port,base_folder,bin FROM servers WHERE rowid=?", [id], one=True)
+        if server:
+            netstat = twp.netstat()
+            for conn in netstat:
+                if conn[0] == server['port'] and conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
+                    try:
+                        os.kill(int(conn[1]), signal.SIGTERM)
+                    except Exception, e:
+                        return jsonify({'error':True, 'errormsg':'System failure: %s' % str(e)})
+                    else:
+                        return jsonify({'success':True})
+                    break
+            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Can\'t found server pid'})
+        else:
+            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found'})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_instances_online')
@@ -427,12 +434,12 @@ def get_server_instances_online():
 @app.route('/_reboot')
 def reboot():
     if 'logged_in' in session and session['logged_in']:
-        for proc in srv_instances.values():
-            proc.kill()
+        shutdown_all_server_instances()
+        
         try:
             subprocess.check_call("/sbin/shutdown -r now 'Reboot called by TWP'", shell=True)
         except:
-            return jsonify({ 'error':True, 'errormsg':u'System error!'})
+            return jsonify({ 'error':True, 'errormsg':u"Can't reboot system!<br/><span class='text-muted'>need root privileges</span>"})
         return jsonify({'success':True })
     return jsonify({'notauth':True})
 
@@ -471,15 +478,18 @@ def utility_processor():
 def check_servers_status():
     # By default all server are offline
     g.db.execute("UPDATE servers SET status='Stopped'")
-    servers = query_db('select rowid,port,fileconfig,alaunch,base_folder from servers')
-    net_servers_info = twp.get_server_net_info("127.0.0.1", servers)
-    for server in net_servers_info:
-        if server['netinfo'].gametype == None:
-            cfgbasic = twp.get_data_config_basics(server['fileconfig'])      
-            g.db.execute("UPDATE servers SET name=? WHERE rowid=?",[cfgbasic['name'], server['srvid']])
-        else:
-            g.db.execute("UPDATE servers SET status='Running', name=? WHERE rowid=? and lower(gametype)=?", \
-                         [server['netinfo'].name, server['srvid'], server['netinfo'].gametype.lower()])
+    
+    netstat = twp.netstat()
+    for conn in netstat:
+        if not conn[2]:
+            continue
+        (rest,base_folder,bin) = conn[2].rsplit('/', 2)
+        srv = query_db('select rowid,* from servers where port=? and base_folder=? and bin=?', [conn[0],base_folder,bin], one=True)
+        if srv:
+            net_server_info = twp.get_server_net_info("127.0.0.1", [srv])[0]
+            g.db.execute("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
+                         [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
+
     g.db.commit()
 
 def relaunch_servers_offline():
@@ -514,15 +524,13 @@ def relaunch_servers_offline():
     # Trye reopen server
     for server in servers:
         if server['rowid'] not in online_ids:
-            if server['rowid'] in srv_instances:
-                srv_instances.pop(server['rowid'])
             if server['alaunch'] == 1 and not server['bin'] == None:
                 # Report issue
                 g.db.execute("INSERT INTO issues (server_id, date) VALUES (?,?)", [server['rowid'], str(time.strftime('%m/%d/%Y %H:%M:%S'))])
                 # Open server
-                srv_instances.update({ server['rowid']:subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), \
-                                                                         '-f', server['fileconfig']], \
-                                                                        shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE) })       
+                subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), \
+                                  '-f', server['fileconfig']], \
+                                  shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)     
     
     g.db.commit()
             
@@ -536,6 +544,18 @@ def str_sha512_hex_encode(strIn):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+           
+def shutdown_all_server_instances():
+    if not hasattr(g, 'db'):
+        g.db = connect_db()
+    netstat = twp.netstat()
+    for connn in netstat:
+        servers = query_db("SELECT base_folder,bin FROM servers WHERE port=?", [conn[0]])
+        for srv in servers:
+            if conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
+                os.kill(int(conn[1]), signal.SIGTERM)
+    if hasattr(g, 'db'):
+        g.db.close()
     
 
 # Start Scheduler
@@ -545,7 +565,7 @@ scheduler.start()
 
 
 # Init Module
-if __name__ == "__main__":
+if __name__ == "__main__":    
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)
@@ -558,6 +578,5 @@ if __name__ == "__main__":
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'], ssl_context=context)
     else:
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'])
-    
-    for proc in srv_instances.values():
-        proc.kill()
+        
+    shutdown_all_server_instances()

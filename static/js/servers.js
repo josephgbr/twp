@@ -131,7 +131,7 @@ $(function(){
 			{
 				$parent_ul.find('li').removeClass('active');
 				$this.parent().addClass('active');
-				$('#btn-play-srv-'+srvid).removeClass('disabled');
+				$('#btn-play-srv-'+srvid+' .start-instance').removeClass('disabled');
 			}
 		});
 	});
@@ -180,15 +180,23 @@ $(function(){
 	});
 	
 	$(document).on("click", ".start-instance", function() {
-		var srvid = $(this).data('id');
-	     $.getJSON($SCRIPT_ROOT + '/_start_server_instance/'+srvid, function(data) {
-	    	 check_server_data(data);
+		var $this = $(this);
+		var srvid = $this.data('id');
+		var $btngroup =  $('#btn-play-srv-'+srvid);
+		var $btnlist = $btngroup.find('.dropdown-toggle');
+		
+		$this.addClass('disabled btn-warning').removeClass('btn-success');
+		$btnlist.addClass('disabled');
+		$this.html("<i class='fa fa-spinner fa-spin'></i> Starting...");
+		
+		$.getJSON($SCRIPT_ROOT + '/_start_server_instance/'+srvid, function(data) {
+			check_server_data(data);
 	    	 
-	    	 if (data['success'])
-	    	 {
-		    	 window.location.reload();
-	    	 }
-	     });
+			if (data['success'])
+			{
+				window.location.reload();
+			}
+		});
 	});
 	
 	$(document).on("click", ".stop-instance", function() {

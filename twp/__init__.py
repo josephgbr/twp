@@ -21,6 +21,7 @@ from StringIO import StringIO
 import platform, subprocess, time, os, string, re, fnmatch, tarfile
 from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
+from netstat import netstat
 from urllib import urlretrieve
 try:
     from urllib.request import urlopen
@@ -225,6 +226,9 @@ def get_server_net_info(ip, servers):
         twreq.run_loop()
         servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 'base_folder':server['base_folder']})
     return servers_info
+
+def get_processes():
+    return netstat()
 
 def extract_targz(path, scratch_dir, delete=False):
     target_basename = os.path.basename(path[:-len(".tar.gz")])

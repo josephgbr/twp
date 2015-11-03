@@ -53,8 +53,8 @@
 							{% if session.logged_in %}
 								{% if mod_inst.status == 'Stopped' %}
 								<a class="btn btn-xs btn-default" data-id="{{mod_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
-								<div class="dropdown btn-group">
-								    <a id="btn-play-srv-{{mod_inst.rowid}}" data-id="{{mod_inst.rowid}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
+								<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.rowid}}">
+								    <a data-id="{{mod_inst.rowid}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
 								        <i class="fa fa-play"></i> Start
 								    </a>
 								    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
