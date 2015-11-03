@@ -19,6 +19,7 @@
  */
 $(function(){
 
+	// Send Mod Archive
 	$(document).on("change", "#install-mod input[type='file']", function() {
 		var $this = $(this);
 		var $btn = $('#install-mod-button');
@@ -36,6 +37,7 @@ $(function(){
 	    $('#install-mod').submit();
 	});
 	
+	// Open dialog for type external url mod package
 	$(document).on("click", "#install-mod-url", function() {
 		bootbox.prompt("URL to .zip or .tar.gz Teeworlds Package:", function(result) {                
 			if (result !== null) {
@@ -54,6 +56,7 @@ $(function(){
 		});
 	});
 	
+	// Open Dialog Create New Server Instance
 	$(document).on("click", "a[data-target=#modal_new_server]", function() {
 	     var mod = $(this).data('mod');
 	     $('#modal_new_server #mod').val(mod);
@@ -71,6 +74,7 @@ $(function(){
 	    });
 	});
 	
+	// Press "OK" button in New Server Instance Dialog
 	$(document).on("click", "#modal_new_server .btn-success", function() {
 		var srvmod = $('#modal_new_server #mod').val();
 		var configfile = $(".modal-body #cfgfile").val();
@@ -88,6 +92,7 @@ $(function(){
 		});
 	});
 	
+	// Remove Server Instance
 	$(document).on("click", ".remove-server-instance", function() {
 		var srvid = $(this).data('id');
 		var srvmod = $(this).data('mod');
@@ -118,6 +123,7 @@ $(function(){
 		});
 	});
 	
+	// Select Server binary
 	$(document).on("click", ".menu-item-server-bin", function() {
 		var $this = $(this);
 		var $parent_ul = $this.parent().parent();
@@ -136,8 +142,10 @@ $(function(){
 		});
 	});
 	
+	// Dialog Cofiguration can't close when click out
 	$('#modal_instance_configuration').modal({'backdrop':'static', 'show':false});
 	
+	// Open Dialog Server Instance Configuration
 	$(document).on("click", "a[data-target=#modal_instance_configuration]", function() {
 	     var srvid = $(this).data('id');
 	     $('#form-server-config #srvid').val(srvid);
@@ -157,6 +165,7 @@ $(function(){
 	     });
 	});
 	
+	// Press "OK" button in Server Instance Configuration
 	$(document).on("click", "#modal_instance_configuration .btn-primary", function() {
 		var $this = $(this);
 
@@ -179,17 +188,30 @@ $(function(){
 		});
 	});
 	
+	// Start Server Instance
 	$(document).on("click", ".start-instance", function() {
 		var $this = $(this);
 		var srvid = $this.data('id');
+		var $listline =  $('#srv-line-'+srvid);
 		var $btngroup =  $('#btn-play-srv-'+srvid);
 		var $btnlist = $btngroup.find('.dropdown-toggle');
 		
 		$this.addClass('disabled btn-warning').removeClass('btn-success');
-		$btnlist.addClass('disabled');
+		$btnlist.addClass('disabled btn-warning').removeClass('btn-success');
+		$listline.find("a[data-target='#modal_instance_configuration']").addClass('disabled hidden');
+		$listline.find(".remove-server-instance").addClass('disabled');
 		$this.html("<i class='fa fa-spinner fa-spin'></i> Starting...");
 		
 		$.getJSON($SCRIPT_ROOT + '/_start_server_instance/'+srvid, function(data) {
+			if (data['error'])
+			{
+				$this.removeClass('disabled btn-warning').addClass('btn-success');
+				$btnlist.removeClass('disabled btn-warning').addClass('btn-success');
+				$listline.find("a[data-target='#modal_instance_configuration']").removeClass('disabled hidden');
+				$listline.find(".remove-server-instance").removeClass('disabled');
+				$this.html("<i class='fa fa-play'></i> Start");
+			}
+			
 			check_server_data(data);
 	    	 
 			if (data['success'])
@@ -199,6 +221,7 @@ $(function(){
 		});
 	});
 	
+	// Stop Server Instance
 	$(document).on("click", ".stop-instance", function() {
 		var srvid = $(this).data('id');
 	     $.getJSON($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, function(data) {

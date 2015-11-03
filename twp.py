@@ -393,15 +393,20 @@ def get_mod_configs(mod_folder):
 
 @app.route('/_start_server_instance/<int:id>')
 def start_server(id):
-    if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select rowid,fileconfig,base_folder,bin from servers WHERE rowid=?', [id], one=True)
+    if 'logged_in' in session and session['logged_in']:        
+        srv = query_db('select rowid,* from servers WHERE rowid=?', [id], one=True)
         if srv:
             if not srv['bin']:
                 return jsonify({'error':True, 'errormsg':u'Undefined server binary file!'})
+            
+            srvMatch = query_db("select rowid from servers WHERE status='Running' and port=?", [srv['port']], one=True)
+            if srvMatch:
+                return jsonify({'error':True, 'errormsg':u'Can\'t run two servers in the same port!'})
+            
             subprocess.Popen(['%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['bin']), \
                               '-f', srv['fileconfig']], \
                               shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            time.sleep(2) # Be nice with the server...
+            time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
@@ -546,16 +551,12 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
            
 def shutdown_all_server_instances():
-    if not hasattr(g, 'db'):
-        g.db = connect_db()
     netstat = twp.netstat()
     for connn in netstat:
         servers = query_db("SELECT base_folder,bin FROM servers WHERE port=?", [conn[0]])
         for srv in servers:
             if conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                 os.kill(int(conn[1]), signal.SIGTERM)
-    if hasattr(g, 'db'):
-        g.db.close()
     
 
 # Start Scheduler
@@ -579,4 +580,4 @@ if __name__ == "__main__":
     else:
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'])
         
-    shutdown_all_server_instances()
+    #shutdown_all_server_instances()
