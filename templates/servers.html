@@ -11,8 +11,8 @@
 				<i class="fa fa-puzzle-piece"></i> Install Mod <span class="caret"></span>
 			</a>
 		    <ul class="dropdown-menu">
-		    	<li><a href="#" id='install-mod-url'><i class="fa fa-external-link-square"></i> From URL</a> <input type="hidden" id="url" name="url" value=""/></li>
-		    	<li><a href="#" class="btn-file"><i class="fa fa-file-zip-o"></i> From Archive <input type="file" name="file" id="file" required /></a></li>
+		    	<li><a href="#" id='install-mod-url'><i class="fa fa-fw fa-external-link-square"></i> From URL</a> <input type="hidden" id="url" name="url" value=""/></li>
+		    	<li><a href="#" class="btn-file"><i class="fa fa-fw fa-file-zip-o"></i> From Archive <input type="file" name="file" id="file" required /></a></li>
 		    </ul>
 	    </div>
 	</form>
@@ -36,6 +36,7 @@
 			{% set server_bins = get_mod_binaries(srv) %}
 			<table class="table table-condensed table-hover table-striped">
 				<thead>
+					<th>&nbsp;</th>
 					<th>Status</th>
 					<th>Port</th>
 					<th>Game Type</th>
@@ -45,10 +46,14 @@
 				<tbody>
 					{% for mod_inst in mod_instances %}
 					<tr id="srv-line-{{mod_inst.rowid}}" class="{% if mod_inst.status == 'Running' %}success{% endif %}">
+						<td class="col-md-1 srv-flags">
+							<i class="fa {% if mod_inst.register == 0 %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.register == 0 %}style="color:#BBB;" title="Private Server" {% else %}title="Public Server" {% endif %}></i>
+							<i class="fa fa-lock tw-password"></i>
+						</td>
 						<td class="col-md-1 srv-status">{{mod_inst.status}}</td>
 						<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
 						<td class="col-md-1 srv-gametype">{{mod_inst.gametype}}</td>
-						<td class="col-md-6 srv-name">{{mod_inst.name}}</td>
+						<td class="col-md-5 srv-name">{{mod_inst.name}}</td>
 						<td class="col-md-3 text-right">
 							{% if session.logged_in %}
 								{% if mod_inst.status == 'Stopped' %}

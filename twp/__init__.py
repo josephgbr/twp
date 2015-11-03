@@ -191,7 +191,7 @@ def parse_data_config_basics(data):
     strIO.close()
     
     emtpyfile = True if content == [] else False
-    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'dm', 'empty':emtpyfile}
+    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 'empty':emtpyfile}
 
     for line in content:
         if len(line) == 0 or line[0] == '#':
@@ -206,6 +206,8 @@ def parse_data_config_basics(data):
                 cfgbasic['port'] = matchObj.group(2)
             elif varname == 'sv_gametype':
                 cfgbasic['gametype'] = matchObj.group(2)
+            elif varname == 'sv_register':
+                cfgbasic['register'] = int(matchObj.group(2))
     return cfgbasic
 
 def get_data_config_basics(fileconfig):

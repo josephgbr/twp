@@ -307,8 +307,8 @@ def create_server_instance(mod_folder):
                                 'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check or change configuration file and try again."})
         
         # If all checks good, create the new instance
-        g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype) VALUES (?,?,?,?,?,?)", \
-                     [fullpath_fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype']])
+        g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype, register) VALUES (?,?,?,?,?,?)", \
+                     [fullpath_fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register']])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
@@ -351,8 +351,8 @@ def save_server_config():
                 return jsonify({'error':True, 
                                 'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again."})
             
-            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=? WHERE rowid=?", \
-                         [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], srvid])
+            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=? WHERE rowid=?", \
+                         [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], srvid])
             g.db.commit()
             try:
                 cfgfile = open(srv['fileconfig'], "w")
@@ -360,7 +360,8 @@ def save_server_config():
                 cfgfile.close()
             except IOError as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            return jsonify({'success':True, 'name':cfgbasic['name'], 'port':cfgbasic['port'], 'gametype':cfgbasic['gametype'], 'id':srvid})
+            return jsonify({'success':True, 'name':cfgbasic['name'], 'port':cfgbasic['port'], \
+                            'gametype':cfgbasic['gametype'], 'register':cfgbasic['register'], 'id':srvid})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
 
@@ -369,13 +370,18 @@ def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select alaunch,fileconfig,base_folder from servers where rowid=?', [id], one=True)
         if srv:
-            try:
-                cfgfile = open(srv['fileconfig'], "r")
-                srvcfg = cfgfile.read()
-                cfgfile.close()
-            except IOError as e:
-                srvcfg = str(e)
-            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg})
+            (rest, filename) = srv['fileconfig'].rsplit('/', 1)
+            (filename, rest) = filename.split('.', 1)
+            if os.path.exists(srv['fileconfig']):
+                try:
+                    cfgfile = open(srv['fileconfig'], "r")
+                    srvcfg = cfgfile.read()
+                    cfgfile.close()
+                except IOError as e:
+                    srvcfg = str(e)
+            else:
+                srvcfg = ""
+            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
     return jsonify({'notauth':True})
 

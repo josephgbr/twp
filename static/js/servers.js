@@ -156,11 +156,13 @@ $(function(){
 	    	 {
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
+		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
 	    	 }
 	    	 else
 	    	 {
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', false);
 		    	 $("#modal_instance_configuration #srvcfg").val("");
+		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration");
 	    	 }
 	     });
 	});
@@ -178,10 +180,16 @@ $(function(){
 				var $port = $(srvline_id+' .srv-port');
 				var $name = $(srvline_id+' .srv-name');
 				var $gametype = $(srvline_id+' .srv-gametype');
+				var $flags = $(srvline_id+' .srv-flags');
 				
 				$port.text(data['port']);
 				$name.text(data['name']);
 				$gametype.text(data['gametype']);
+				
+				if (data['register'] == 0)
+					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', 'Private Server');
+				else
+					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', 'Public Server');
 				
 				$('#modal_instance_configuration').modal('hide');
 			}
