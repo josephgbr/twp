@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Server Info{% endblock %}
+{% block content %}
+<div class="span9">
+	{{ super() }}
+	<div class="row">
+		<div class="page-header">
+			<h1><i class="fa fa-info"></i> Server Info</h1>
+		</div>
+	</div>
+	<div class="row">
+		<ul class="nav nav-pills nav-justified" role="tablist">
+			<li class="active"><a href="#general" role="tab" data-toggle="tab">General</a></li>
+		 	<li><a href="#players" role="tab" data-toggle="tab">Players</a></li>
+			<li><a href="#conf" role="tab" data-toggle="tab">Configuration</a></li>
+			<li><a href="#admin" role="tab" data-toggle="tab">Administration</a></li>
+		  	<li><a href="#log" role="tab" data-toggle="tab">Log</a></li>
+		</ul>
+		
+		<div class="tab-content">
+		  	<div class="tab-pane active" id="general">...</div>
+		  	<div class="tab-pane" id="players">...</div>
+		  	<div class="tab-pane" id="conf">...</div>
+		  	<div class="tab-pane" id="admin">...</div>
+		  	<div class="tab-pane" id="log">...</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

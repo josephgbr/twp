@@ -47,14 +47,15 @@
 					{% for mod_inst in mod_instances %}
 					<tr id="srv-line-{{mod_inst.rowid}}" class="{% if mod_inst.status == 'Running' %}success{% endif %}">
 						<td class="col-md-1 srv-flags">
-							<i class="fa {% if mod_inst.register == 0 %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.register == 0 %}style="color:#BBB;" title="Private Server" {% else %}title="Public Server" {% endif %}></i>
-							<i class="fa fa-lock tw-password"></i>
+							<i class="fa {% if mod_inst.register == 0 %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.register == 0 %}style="color:#BBB;" title="Not Register Server" {% else %}title="Register Server" {% endif %}></i>
+							<i class="fa fa-lock tw-password" {% if mod_inst.password == 0 %}style="color:#BBB;" title="Public Server" {% else %}title="Private Server" {% endif %}></i>
 						</td>
 						<td class="col-md-1 srv-status">{{mod_inst.status}}</td>
 						<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
 						<td class="col-md-1 srv-gametype">{{mod_inst.gametype}}</td>
 						<td class="col-md-5 srv-name">{{mod_inst.name}}</td>
 						<td class="col-md-3 text-right">
+							<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}"><i class="fa fa-info"></i></a>
 							{% if session.logged_in %}
 								{% if mod_inst.status == 'Stopped' %}
 								<a class="btn btn-xs btn-default" data-id="{{mod_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>

@@ -187,9 +187,14 @@ $(function(){
 				$gametype.text(data['gametype']);
 				
 				if (data['register'] == 0)
-					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', 'Private Server');
+					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', 'Public Server');
 				else
-					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', 'Public Server');
+					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', 'Private Server');
+				
+				if (data['password'] == 0)
+					$flags.find('.tw-password').css('color','#BBB').prop('title', 'Not Register Server');
+				else
+					$flags.find('.tw-password').css('color','#333').prop('title', 'Register Server');
 				
 				$('#modal_instance_configuration').modal('hide');
 			}

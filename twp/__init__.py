@@ -190,29 +190,29 @@ def parse_data_config_basics(data):
     content = strIO.readlines()
     strIO.close()
     
-    emtpyfile = True if content == [] else False
-    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 'empty':emtpyfile}
+    emtpyfile = True if content else False
+    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 'password':0, 'empty':emtpyfile}
 
     for line in content:
-        if len(line) == 0 or line[0] == '#':
-            continue
-        matchObj = re.search('([^\s]+)\s([^#\r\n]+)', line)
-        if matchObj:
-            varname = matchObj.group(1).lower()
-            
+        objMatch = re.match("^([^#\s]+)\s([^#\r\n]+)", line)
+        if objMatch:
+            (varname,value) = [objMatch.group(1),objMatch.group(2)]
             if varname == 'sv_name':
-                cfgbasic['name'] = matchObj.group(2)
+                cfgbasic['name'] = value
             elif varname == 'sv_port':
-                cfgbasic['port'] = matchObj.group(2)
+                cfgbasic['port'] = value
             elif varname == 'sv_gametype':
-                cfgbasic['gametype'] = matchObj.group(2)
+                cfgbasic['gametype'] = value
             elif varname == 'sv_register':
-                cfgbasic['register'] = int(matchObj.group(2))
+                cfgbasic['register'] = value
+            elif varname == 'sv_password':
+                cfgbasic['password'] = 1
+        
     return cfgbasic
 
 def get_data_config_basics(fileconfig):
     try:
-        cfgfile = open(filename, "r")
+        cfgfile = open(fileconfig, "r")
         srvcfg = cfgfile.read()
         cfgfile.close()
     except Exception:
@@ -302,3 +302,28 @@ def install_mod_from_url(url, dest):
         extract_zip(filename, dest, True)
     
     return True
+
+def write_config_param(filename, param, new_value):
+    replaced = False
+    content = []
+    
+    try:
+        if os.path.isfile(filename):
+            cfgfile = open(filename, "r")
+            content = cfgfile.readlines()
+            cfgfile.close()
+        
+        cfgfile = open(filename, "w")
+        for line in content:
+            objMatch = re.match("^([^#\s]+)\s([^#\r\n]+)", line)
+            if objMatch and param.lower() == objMatch.group(1).lower():
+                cfgfile.write('%s %s\n' % (param, new_value))
+                replaced = True
+            else:
+                cfgfile.write(line)
+        
+        if not replaced:
+            cfgfile.write('%s %s\n' % (param, new_value))
+        cfgfile.close()
+    except Exception, e:
+        raise Exception(e)
