@@ -1,29 +1,108 @@
 {% extends "layout.html" %}
 {% block title %}Server Info{% endblock %}
 {% block content %}
+{% set is_online = True if netinfo.gametype else False %}
 <div class="span9">
 	{{ super() }}
 	<div class="row">
 		<div class="page-header">
-			<h1><i class="fa fa-info"></i> Server Info</h1>
+			<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
 		</div>
 	</div>
 	<div class="row">
 		<ul class="nav nav-pills nav-justified" role="tablist">
 			<li class="active"><a href="#general" role="tab" data-toggle="tab">General</a></li>
-		 	<li><a href="#players" role="tab" data-toggle="tab">Players</a></li>
-			<li><a href="#conf" role="tab" data-toggle="tab">Configuration</a></li>
-			<li><a href="#admin" role="tab" data-toggle="tab">Administration</a></li>
+			<li><a href="#players" data-toggle="tab">Players</a></li>
+		{% if session.logged_in %}
 		  	<li><a href="#log" role="tab" data-toggle="tab">Log</a></li>
+		{% endif %}
 		</ul>
 		
-		<div class="tab-content">
-		  	<div class="tab-pane active" id="general">...</div>
-		  	<div class="tab-pane" id="players">...</div>
-		  	<div class="tab-pane" id="conf">...</div>
-		  	<div class="tab-pane" id="admin">...</div>
-		  	<div class="tab-pane" id="log">...</div>
+		<div class="tab-content" style="margin-top:1.5em;">
+		  	<div class="tab-pane active" id="general">
+		  		<div class="col-md-2">
+					<div class="well">
+					  	<dl>
+					  		<dt>Status</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}Online{% else %}Offline{% endif %}</dd>
+							<dt>Address</dt><dd>{{ip}}:{{server['port']}}</dd>
+							<dt>Game Type</dt><dd>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</dd>
+							<dt>Map</dt><dd>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</dd>
+							<dt>Players</dt><dd>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</dd>
+							<dt>Visible</dt><dd>{% if server['register'] %}Yes{% else %}No{% endif %}</dd>
+							<dt>Public</dt><dd>{% if server['password'] %}No{% else %}Yes{% endif %}</dd>
+						{% if session.logged_in %}
+							<dt>Issues</dt><dd><ins><a href="#">{{issues_count}}</a></ins></dd>
+						{% endif %}
+						</dl>
+					</div>
+				</div>
+				<div class="col-md-10">
+					<div class="panel panel-default">
+ 						<div class="panel-body">
+ 						</div>
+ 					</div>
+				</div>
+		  	</div>
+		  	<div class="tab-pane" id="players">
+		  	{% if is_online %}
+				<table class="table table-condensed table-hover table-striped">
+					<thead>
+						<th>Score</th>
+						<th>Name</th>
+						<th>Clan</th>
+						<th>&nbsp;</th>
+					</thead>
+					<tbody>
+			  		{% for player in netinfo.playerlist %}
+			  			<tr>
+			  				<td class="col-md-1 pl-score">{{player.score}}</td>
+			  				<td class="col-md-5 pl-name">{{player.name}}</td>
+			  				<td class="col-md-2 pl-clan">{{player.clan}}</td>
+			  				<td class="col-md-4 pl-actions">&nbsp;</td>
+			  			</tr>
+			  		{% endfor %}
+		  			</tbody>
+		  		</table>
+		  	{% else %}
+		  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+			  		<span class="fa-stack fa-lg">
+					  <i class="fa fa-server fa-stack-1x"></i>
+					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+					</span>
+					SERVER OFFLINE
+			  		<span class="fa-stack fa-lg">
+					  <i class="fa fa-server fa-stack-1x"></i>
+					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+					</span>
+				</h1>
+		  	{% endif %}
+		  	</div>
+		{% if session.logged_in %}
+		  	<div class="tab-pane" id="log">
+		  	{% if not server['logfile'] %}
+		  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+			  		<span class="fa-stack fa-lg">
+					  <i class="fa fa-file-text-o fa-stack-1x"></i>
+					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+					</span>
+					NO LOG DEFINED
+			  		<span class="fa-stack fa-lg">
+					  <i class="fa fa-file-text-o fa-stack-1x"></i>
+					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+					</span>
+				</h1>
+			{% else %}
+			<textarea style="resize: none; height:400px;" class="well col-md-12" id="server-log" readonly></textarea>
+		  	{% endif %}
+		  	</div>
+		{% endif %}
 		</div>
 	</div>
 </div>
+{% endblock %}
+{% block script %}
+	<script type="text/javascript">
+		var $SRVID = {{ server['rowid']|tojson|safe }};
+	</script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/server.js') }}"></script>
 {% endblock %}

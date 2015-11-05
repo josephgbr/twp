@@ -191,7 +191,7 @@ def parse_data_config_basics(data):
     strIO.close()
     
     emtpyfile = True if content else False
-    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 'password':0, 'empty':emtpyfile}
+    cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 'password':0, 'logfile':None, 'empty':emtpyfile}
 
     for line in content:
         objMatch = re.match("^([^#\s]+)\s([^#\r\n]+)", line)
@@ -207,6 +207,8 @@ def parse_data_config_basics(data):
                 cfgbasic['register'] = value
             elif varname == 'sv_password':
                 cfgbasic['password'] = 1
+            elif varname == 'logfile':
+                cfgbasic['logfile'] = value
         
     return cfgbasic
 

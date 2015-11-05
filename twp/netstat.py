@@ -28,6 +28,7 @@ def _load():
     with open(PROC_TCP,'r') as f:
         content = f.readlines()
         content.pop(0)
+        f.close()
     return content
 
 def _hex2dec(s):
