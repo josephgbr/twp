@@ -4,6 +4,7 @@
 {% set is_online = True if netinfo.gametype else False %}
 <div class="span9">
 	{{ super() }}
+	{% if server %} 
 	<div class="row">
 		<div class="page-header">
 			<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
@@ -98,14 +99,19 @@
 		{% endif %}
 		</div>
 	</div>
+	{% else %}
+	<h1 class="text-center"><i class="fa fa-frown-o fa-lg"></i><br/>SERVER NOT FOUND</h1>
+	{% endif %}
 </div>
 
 {% include "includes/modal_instance_issues.html" %}
 
 {% endblock %}
 {% block script %}
+	{% if server %}
 	<script type="text/javascript">
 		var $SRVID = {{ server['rowid']|tojson|safe }};
 	</script>
+	{% endif %}
 	<script type="text/javascript" src="{{ url_for('static', filename='js/server.js') }}"></script>
 {% endblock %}
