@@ -31,7 +31,7 @@
 							<dt>Visible</dt><dd>{% if server['register'] %}Yes{% else %}No{% endif %}</dd>
 							<dt>Public</dt><dd>{% if server['password'] %}No{% else %}Yes{% endif %}</dd>
 						{% if session.logged_in %}
-							<dt>Issues</dt><dd><ins><a href="#">{{issues_count}}</a></ins></dd>
+							<dt>Issues</dt><dd><ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins></dd>
 						{% endif %}
 						</dl>
 					</div>
@@ -99,6 +99,9 @@
 		</div>
 	</div>
 </div>
+
+{% include "includes/modal_instance_issues.html" %}
+
 {% endblock %}
 {% block script %}
 	<script type="text/javascript">

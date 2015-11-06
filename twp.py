@@ -46,6 +46,7 @@ PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
 DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
+SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 UPLOAD_FOLDER = '/tmp/'
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])
@@ -189,14 +190,16 @@ def servers():
 
 @app.route('/server/<int:id>')
 def server(id):
+    session['prev_url'] = request.path;
     srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
+    issues = query_db("select strftime('%d-%m-%Y %H:%M:%S',date) as date,message from issues where server_id=? ORDER BY date DESC", [id])
     issues_count = query_db('select count(rowid) as num from issues where server_id=?', [id], one=True)
     netinfo = None
     if srv:
         netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash("Server not found!", "danger")
-    return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues_count=issues_count['num'])
+    return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count['num'])
 
 @app.route('/players')
 def players():
@@ -290,23 +293,30 @@ def create_server_instance(mod_folder):
         if not fileconfig or fileconfig == "":
             return jsonify({'error':True, 'errormsg':u'Invalid configuration file name.'})
         
+        fileconfig = '%s.conf' % fileconfig
+        fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,mod_folder,fileconfig)
+        
         # Search for mod binaries, if only exists one use it
         bin = None
         srv_bins = twp.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
         if len(srv_bins) == 1:
             bin = srv_bins[0]
         
-        fullpath_fileconfig = r'%s/%s/%s.conf' % (SERVERS_BASEPATH, mod_folder, fileconfig)
-        
         # Check if other server are using the same configuration file
-        srvMatch = query_db('select rowid from servers where fileconfig=?', [fullpath_fileconfig], one=True)
+        srvMatch = query_db('select rowid from servers where fileconfig=? and base_folder=?', [fileconfig,mod_folder], one=True)
         if srvMatch:
             return jsonify({'error':True, 
                             'errormsg':u"Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again."})
                     
         cfgbasic = twp.get_data_config_basics(fullpath_fileconfig)
         
-        # Check if the port are be using by other server with the same gametype
+        # Check if the logfile are be using by other server with the same base_folder
+        srvMatch = query_db('select rowid from servers where base_folder=? and logfile=?', [mod_folder, cfgbasic['logfile']], one=True)
+        if srvMatch:
+            return jsonify({'error':True, 
+                            'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
+        
+        # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
         while True:
             srvMatch = query_db('select rowid from servers where base_folder=? and port=?', [mod_folder, str(fport)], one=True)
@@ -326,19 +336,29 @@ def create_server_instance(mod_folder):
             
         # If all checks good, create the new instance
         g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype, register, logfile) VALUES (?,?,?,?,?,?,?,?)", \
-                     [fullpath_fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile']])
+                     [fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile']])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
-@app.route('/_remove_server_instance/<int:id>')
-def remove_server_instance(id):
+@app.route('/_remove_server_instance/<int:id>/<int:delconfig>')
+def remove_server_instance(id, delconfig=0):
     if 'logged_in' in session and session['logged_in']:
+        srv = query_db("SELECT base_folder,fileconfig FROM servers WHERE rowid=?", [id], one=True)
+        if not srv:
+            return jsonify({'error':True, 'errormsg':u'Invalid Operation: Server not found!'})
+        
+        app.logger.info(delconfig)
+        
+        if delconfig == 1:
+            os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']))
+        
         # The problems of not use a relational database :D
         g.db.execute("DELETE FROM servers WHERE rowid=?", [id])
         g.db.execute("DELETE FROM issues WHERE server_id=?", [id])
         g.db.execute("DELETE FROM players_server WHERE server_id=?", [id])
         g.db.commit()
+        
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
@@ -365,18 +385,25 @@ def save_server_config():
         if srv:
             cfgbasic = twp.parse_data_config_basics(srvcfg)
             
-            srvMatch = query_db('select rowid from servers where base_folder=? and port=? and rowid<>?', \
+            srvMatch = query_db('select rowid from servers where base_folder=? and port=? and rowid<>?',
                                 [srv['base_folder'], cfgbasic['port'], srvid], one=True)
             if srvMatch:
                 return jsonify({'error':True, \
                                 'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again."})
+                
+            # Check if the logfile are be using by other server with the same base_folder
+            srvMatch = query_db('select rowid from servers where base_folder=? and logfile=? and rowid<>?', 
+                                [srv['base_folder'], cfgbasic['logfile'], srvid], one=True)
+            if srvMatch:
+                return jsonify({'error':True, 
+                                'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
             
-            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=? WHERE rowid=?", \
+            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=? WHERE rowid=?",
                          [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], \
                           cfgbasic['password'], cfgbasic['logfile'], srvid])
             g.db.commit()
             try:
-                cfgfile = open(srv['fileconfig'], "w")
+                cfgfile = open(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']), "w")
                 cfgfile.write(srvcfg)
                 cfgfile.close()
             except IOError as e:
@@ -392,11 +419,11 @@ def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select alaunch,fileconfig,base_folder from servers where rowid=?', [id], one=True)
         if srv:
-            (rest, filename) = srv['fileconfig'].rsplit('/', 1)
-            (filename, rest) = filename.split('.', 1)
-            if os.path.exists(srv['fileconfig']):
+            fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig'])
+            (filename, rest) = srv['fileconfig'].split('.', 1)
+            if os.path.exists(fullpath_fileconfig):
                 try:
-                    cfgfile = open(srv['fileconfig'], "r")
+                    cfgfile = open(fullpath_fileconfig, "r")
                     srvcfg = cfgfile.read()
                     cfgfile.close()
                 except IOError as e:
@@ -413,7 +440,7 @@ def get_mod_configs(mod_folder):
         jsoncfgs = {'configs':[]}
         cfgs = twp.get_mod_configs(SERVERS_BASEPATH, mod_folder)
         for config in cfgs:
-            srv = query_db('select rowid from servers where fileconfig=?', ['%s/%s/%s' % (SERVERS_BASEPATH, mod_folder, config)], one=True)
+            srv = query_db('select rowid from servers where fileconfig=? and base_folder=?', [config,mod_folder], one=True)
             if not srv:
                 jsoncfgs['configs'].append(os.path.splitext(config)[0])
         return jsonify(jsoncfgs)
@@ -431,10 +458,9 @@ def start_server(id):
             if srvMatch:
                 return jsonify({'error':True, 'errormsg':u'Can\'t run two servers in the same port!'})
             
-            subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['bin']), \
-                              '-f', srv['fileconfig']], \
-                              shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
-                              cwd=r'%s/%s' % (SERVERS_BASEPATH, srv['base_folder']))
+            subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, srv['base_folder'],srv['bin']), '-f', srv['fileconfig']], \
+                            shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
+                            cwd=r'%s/%s' % (SERVERS_BASEPATH, srv['base_folder']))
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
@@ -465,17 +491,17 @@ def get_server_instances_online():
     servers = query_db("SELECT rowid FROM servers WHERE status='Running'")
     return jsonify({'success':True, 'num':len(servers)})
 
-@app.route('/_reboot')
-def reboot():
-    if 'logged_in' in session and session['logged_in']:
-        shutdown_all_server_instances()
-        
-        try:
-            subprocess.check_call("/sbin/shutdown -r now 'Reboot called by TWP'", shell=True)
-        except:
-            return jsonify({ 'error':True, 'errormsg':u"Can't reboot system!<br/><span class='text-muted'>need root privileges</span>"})
-        return jsonify({'success':True })
-    return jsonify({'notauth':True})
+#@app.route('/_reboot')
+#def reboot():
+#    if 'logged_in' in session and session['logged_in']:
+#        shutdown_all_server_instances()
+#        
+#        try:
+#            subprocess.check_call("/sbin/shutdown -r now 'Reboot called by TWP'", shell=True)
+#        except:
+#            return jsonify({ 'error':True, 'errormsg':u"Can't reboot system!<br/><span class='text-muted'>need root privileges</span>"})
+#        return jsonify({'success':True })
+#    return jsonify({'notauth':True})
 
 @app.route('/_get_server_instance_log/<int:id>/<int:seek>')
 def get_server_instance_log(id, seek):
@@ -496,7 +522,7 @@ def get_server_instance_log(id, seek):
                 logseek = cfgfile.tell()
                 cfgfile.close()
             except Exception, e:
-                return jsonify({'success':True, 'content':str(e), 'seek':0})
+                return jsonify({'success':True, 'content':None, 'seek':0})
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
     return jsonify({'notauth':True})
@@ -567,10 +593,9 @@ def analyze_all_server_instances():
         if not os.path.isdir(r'%s/%s' % (SERVERS_BASEPATH, server['base_folder'])):
             continue
         # Report issue
-        g.db.execute("INSERT INTO issues (server_id, date) VALUES (?,datetime('now'))", [server['rowid']])
+        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),'Server Offline')", [server['rowid']])
         # Open server
-        subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), \
-                          '-f', server['fileconfig']], \
+        subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), '-f', server['fileconfig']], \
                           shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
                           cwd=r'%s/%s' % (SERVERS_BASEPATH, server['base_folder']))    
     

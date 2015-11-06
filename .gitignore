@@ -2,6 +2,7 @@
 .cproject
 .pydevproject
 .settings/*
+servers/
 
 *.log
 *.pyc

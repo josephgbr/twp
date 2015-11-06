@@ -98,14 +98,15 @@ $(function(){
 		var srvmod = $(this).data('mod');
 		
 		bootbox.dialog({
-			message: "Are you sure?",
+			message: "Are you sure?<br/><input type='checkbox' name='delete-configfile'/>Delete configuration file from disk.",
 			title: "Delete '"+srvmod+"' Server Instance",
 			buttons: {
 			    success: {
 			    	label: "Delete",
 			    	className: "btn-danger",
 			    	callback: function() {
-						$.getJSON($SCRIPT_ROOT + '/_remove_server_instance/'+srvid, function(data) {
+			    		var delconfig = $("input[name='delete-configfile']:checked").val()==='on'?'1':'0';			    		
+						$.getJSON($SCRIPT_ROOT + '/_remove_server_instance/'+srvid+'/'+delconfig, function(data) {
 							check_server_data(data);
 							
 							if (data['success'])
