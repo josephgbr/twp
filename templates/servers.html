@@ -77,6 +77,11 @@
 								</div>
 								<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.rowid}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
 								{% elif mod_inst.status == 'Running' %}
+									{% if mod_inst.econ_port and mod_inst.econ_password %}
+									<a data-id="{{mod_inst.rowid}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
+								        <i class="fa fa-tty"></i> ECon Admin
+								    </a>
+								    {% endif %}
 									<a data-id="{{mod_inst.rowid}}" class="stop-instance btn btn-xs btn-danger">
 								        <i class="fa fa-stop"></i> Stop
 								    </a>
@@ -102,8 +107,11 @@
 	{% endif %}
 </div>
 
-{% include "includes/modal_new_server.html" %}
-{% include "includes/modal_instance_configuration.html" %}
+{% if session.logged_in %}
+	{% include "includes/modal_new_server.html" %}
+	{% include "includes/modal_instance_configuration.html" %}
+	{% include "includes/modal_external_console.html" %}
+{% endif %}
 
 {% endblock %}
 {% block script %}

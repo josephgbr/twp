@@ -30,6 +30,34 @@ $(function(){
 		get_server_instance_log();
 		window.setInterval('get_server_instance_log()', 2000);
 	}
+	
+	$(document).on("click", ".kick-player", function() {
+		var $this = $(this);
+		var nickname = $(this).data('name');
+		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i>");
+		$.post($SCRIPT_ROOT + '/_kick_player/'+$SRVID, 'nick='+encodeURIComponent(nickname), function(data) {
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				window.location.reload();
+			}
+		});
+	});
+	
+	$(document).on("click", ".ban-player", function() {
+		var $this = $(this);
+		var nickname = $(this).data('name');
+		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i>");
+		$.post($SCRIPT_ROOT + '/_ban_player/'+$SRVID, 'nick='+encodeURIComponent(nickname), function(data) {
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				window.location.reload();
+			}
+		});
+	});
 });
 
 var $LOGSEEK = 0;

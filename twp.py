@@ -18,7 +18,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, json, logging, time, signal
+import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
@@ -36,9 +36,13 @@ config.readfp(open('twp.conf'))
 
 SECRET_KEY = b'4f54ffe39b613241ff7f864c51ea443537b7db9626969157'
 
+BRAND_NAME = config.get('overview', 'brand_name')
+BRAND_URL = config.get('overview', 'brand_url')
 TWP_INFO = {
     'version': '0.1.0',
-    'refresh_time': config.getint('global', 'refresh_time')
+    'refresh_time': config.getint('global', 'refresh_time'),
+    'brand_name': BRAND_NAME,
+    'brand_url': BRAND_URL
 }
 DEBUG = config.getboolean('global', 'debug')
 HOST = config.get('global', 'host')
@@ -79,8 +83,11 @@ IP = twp.get_public_ip();
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+
+# Create server directory if needed
 if not os.path.isdir(SERVERS_BASEPATH):
     os.makedirs(SERVERS_BASEPATH)
+
 
 # SQLite
 def connect_db():
@@ -315,6 +322,12 @@ def create_server_instance(mod_folder):
         if srvMatch:
             return jsonify({'error':True, 
                             'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
+            
+        # Check if the econ_port are be using by other server
+        srvMatch = query_db('select rowid from servers where econ_port=?', [cfgbasic['econ_port']], one=True)
+        if srvMatch:
+            return jsonify({'error':True, 
+                            'errormsg':u"Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again."})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
@@ -335,8 +348,9 @@ def create_server_instance(mod_folder):
              return jsonify({'error':True, 'errormsg':str(e)})
             
         # If all checks good, create the new instance
-        g.db.execute("INSERT INTO servers (fileconfig, base_folder, bin, port, name, gametype, register, logfile) VALUES (?,?,?,?,?,?,?,?)", \
-                     [fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile']])
+        g.db.execute("INSERT INTO servers (fileconfig,base_folder,bin,port,name,gametype,register,logfile,econ_port,econ_password) VALUES (?,?,?,?,?,?,?,?,?,?)", \
+                     [fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile'],
+                      cfgbasic['econ_port'], cfgbasic['econ_pass']])
         g.db.commit()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
@@ -398,9 +412,10 @@ def save_server_config():
                 return jsonify({'error':True, 
                                 'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
             
-            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=? WHERE rowid=?",
+            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=?,\
+                                  econ_port=?,econ_password=? WHERE rowid=?",
                          [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], \
-                          cfgbasic['password'], cfgbasic['logfile'], srvid])
+                          cfgbasic['password'], cfgbasic['logfile'], cfgbasic['econ_port'], cfgbasic['econ_pass'], srvid])
             g.db.commit()
             try:
                 cfgfile = open(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']), "w")
@@ -452,15 +467,17 @@ def start_server(id):
         srv = query_db('select rowid,* from servers WHERE rowid=?', [id], one=True)
         if srv:
             if not srv['bin']:
-                return jsonify({'error':True, 'errormsg':u'Undefined server binary file!'})
+                return jsonify({'error':True, 'errormsg':u'Undefined server binary file!!'})
             
             srvMatch = query_db("select rowid from servers WHERE status='Running' and port=?", [srv['port']], one=True)
             if srvMatch:
                 return jsonify({'error':True, 'errormsg':u'Can\'t run two servers in the same port!'})
             
-            subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, srv['base_folder'],srv['bin']), '-f', srv['fileconfig']], \
-                            shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
-                            cwd=r'%s/%s' % (SERVERS_BASEPATH, srv['base_folder']))
+            try:
+                start_server_instance(srv['base_folder'], srv['bin'], srv['fileconfig'])
+            except Exception, e:
+                return jsonify({'error':True, 'errormsg':str(e)})
+            
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
@@ -527,6 +544,47 @@ def get_server_instance_log(id, seek):
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
     return jsonify({'notauth':True})
 
+@app.route('/_send_econ_command', methods=['POST'])
+def send_econ_command():
+    if 'logged_in' in session and session['logged_in']:
+        if not 'srvid' in request.form or not request.form['srvid']:
+            return jsonify({'error':True, 'errormsg':'Server not defined!'})
+        
+        if not 'cmd' in request.form or not request.form['cmd']:
+            return jsonify({'error':True, 'errormsg':'ECon command not defined!'})
+        
+        srvid = request.form['srvid']
+        srv = query_db("SELECT econ_port,econ_password FROM servers WHERE rowid=?", [srvid], one=True)
+        if srv and srv['econ_port'] and srv['econ_password']:
+            econ_cmd = request.form['cmd']
+            rcv = ''
+            try:
+                rcv = twp.send_econ_command(int(srv['econ_port']), srv['econ_password'], [econ_cmd])
+            except Exception, e:
+                return jsonify({'error':True, 'errormsg':str(e)})
+            return jsonify({'success':True, 'rcv':rcv})
+        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
+    return jsonify({'notauth':True})
+
+@app.route('/_kick_player/<int:id>', methods=['POST'])
+@app.route('/_ban_player/<int:id>', methods=['POST'])
+def kick_ban_player(id):
+    if 'logged_in' in session and session['logged_in']:
+        if not 'nick' in request.form or not request.form['nick']:
+            return jsonify({'error':True, 'errormsg':'Client player not defined!'})
+        
+        srv = query_db("SELECT econ_port,econ_password FROM servers WHERE rowid=?", [id], one=True)
+        if srv and srv['econ_port'] and srv['econ_password']:
+            nick = request.form['nick']
+            action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
+            try:
+                twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action)          
+            except Exception, e:
+                return jsonify({'error':True, 'errormsg':str(e)})
+            return jsonify({'success':True})
+        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
+    return jsonify({'notauth':True})    
+
 
 # Security Checks
 def check_session_limit():
@@ -590,14 +648,13 @@ def analyze_all_server_instances():
     # Reopen Offline Servers
     servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1")
     for server in servers:
-        if not os.path.isdir(r'%s/%s' % (SERVERS_BASEPATH, server['base_folder'])):
+        if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
+            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),'Server binary not found')", [server['rowid']])
             continue
         # Report issue
         g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),'Server Offline')", [server['rowid']])
         # Open server
-        subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH,server['base_folder'],server['bin']), '-f', server['fileconfig']], \
-                          shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
-                          cwd=r'%s/%s' % (SERVERS_BASEPATH, server['base_folder']))    
+        start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
     
     g.db.commit()
             
@@ -621,7 +678,13 @@ def shutdown_all_server_instances():
             if conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                 os.kill(int(conn[1]), signal.SIGTERM)
 
-    
+# TODO: Open how a parent not child...
+def start_server_instance(base_folder, bin, fileconfig):
+    subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin), '-f', fileconfig],
+                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder))
+
+
 
 # Start Scheduler
 scheduler = APScheduler()

@@ -124,6 +124,38 @@ $(function(){
 		});
 	});
 	
+	// Open ECon Modal
+	$(document).on("click", "a[data-target=#modal_external_console]", function() {
+		var srvid = $(this).data('id');
+		$("#modal_external_console #srvid").val(srvid);
+		$("#modal_external_console #econ-log").val('');
+	});
+	
+	// Send ECon Command
+	$(document).on("click", "#modal_external_console #send-econ-command", function() {
+		var $this = $(this);
+		var srvid = $this.data('id');
+		
+		if ($this.hasClass('disabled'))
+			return;
+		
+		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i> Sending...");
+		
+		$.post($SCRIPT_ROOT + '/_send_econ_command', $('#form-econ').serialize(), function(data) {
+			$this.removeClass('disabled').text("Send");
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				$("#modal_external_console #cmd").val('');
+				var $econlog = $("#modal_external_console #econ-log");
+				var last_content = $econlog.val();
+				$econlog.val(last_content+data['rcv']); // FIXME: idk why "append" not works :\
+				$econlog.prop('scrollTop', $econlog.prop('scrollHeight'));
+			}
+		});
+	});
+	
 	// Select Server binary
 	$(document).on("click", ".menu-item-server-bin", function() {
 		var $this = $(this);
