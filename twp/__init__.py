@@ -18,7 +18,7 @@
 #########################################################################################
 from __future__ import division
 from StringIO import StringIO
-import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib
+import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, random
 from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
 from netstat import netstat
@@ -182,7 +182,8 @@ def get_tw_masterserver_list(address=None):
     srvlist = {'servers':[]}
     mslist = tw.serverlist.find(address=address)
     for srv in mslist:
-        srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
+        srvlist['servers'].append({ 'name': srv.name, 'gametype': srv.gametype, 'latency': srv.latency, 
+                                   'players':srv.players, 'max_players':srv.max_players, 'map': srv.map });
     return srvlist;
     
 def parse_data_config_basics(data):
@@ -192,7 +193,7 @@ def parse_data_config_basics(data):
     
     emtpyfile = True if content else False
     cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 
-                'password':0, 'logfile':None, 'econ_port':None, 'econ_password': None,
+                'password':0, 'logfile':None, 'econ_port':None, 'econ_pass': None,
                 'empty':emtpyfile}
 
     for line in content:
@@ -234,7 +235,8 @@ def get_server_net_info(ip, servers):
     for server in servers:
         twreq.query_port(ip, int(server['port']))
         twreq.run_loop()
-        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 'base_folder':server['base_folder']})
+        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 
+                             'base_folder':server['base_folder']})
     return servers_info
 
 def get_processes():
@@ -336,36 +338,52 @@ def write_config_param(filename, param, new_value):
     except Exception, e:
         raise Exception(e)
     
-def send_econ_command(port, password, commands):
+def send_econ_command(port, password, command):
     conn = telnetlib.Telnet('localhost', port, 1)
-    conn.read_until('Enter password:',1)
+    conn.read_until(b'Enter password:',1)
     conn.write("{0}\n".format(password))
-    for cmd in commands:
-        conn.write("{0}\n".format(cmd))
-    netrcv = conn.read_until(b"/r/n/r/n", 1)
+    conn.write("{0}\n".format(command))
+    chash = generate_random_ascii_string()
+    conn.write("echo {0}\n".format(chash))
+    netrcv = conn.read_until(chash, 1)
+    conn.write("logout\n")
     conn.close()
-    return netrcv
+    
+    content = netrcv.splitlines()
+    content = content[3:]
+    content.pop(-1)
+    return '%s\n' % "\n".join(content)
 
 # This function launch commands that need CID
 def send_econ_user_action(port, password, nick, action):
     conn = telnetlib.Telnet('localhost', port, 1)
-    conn.read_until('Enter password:',1)
+    conn.read_until(b'Enter password:', 1)
     conn.write("{0}\n".format(password))
     conn.write("status\n")
-    netrcv = conn.read_until(b"/r/n/r/n", 1)
+    chash = generate_random_ascii_string()
+    conn.write("echo {0}\n".format(chash))
+    netrcv = conn.read_until(chash, 1)
     
+    cid = None
     content = netrcv.splitlines()
     for line in content:
         objMatch = re.match("^.+\sid=(\d)\s.+\sname='(.+)'\s.+$", line)
         if objMatch and nick.lower() == objMatch.group(2).lower():
-            if action.lower() == 'kick':
-                conn.write("kick %s By admin using TWP\n" % objMatch.group(1))
-                break
-            elif action.lower() == 'ban':
-                conn.write("ban %s -1 By admin using TWP\n" % objMatch.group(1))
-                break
+            cid = int(objMatch.group(1))
+            break
             
-    netrcv = conn.read_until(b"/r/n/r/n", 1)
+    if not cid == None:
+        if action.lower() == 'kick':
+            conn.write("kick %d By admin using TWP\n" % cid)
+        elif action.lower() == 'ban':
+            conn.write("ban %d -1 By admin using TWP\n" % cid)
+        chash = generate_random_ascii_string()
+        conn.write("echo {0}\n".format(chash))
+        conn.read_until(chash, 1)
     
+    conn.write("logout\n")
     conn.close()
-    return netrcv
+    return False if cid == None else True
+
+def generate_random_ascii_string(size=8):
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))

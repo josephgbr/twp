@@ -30,7 +30,7 @@
 			</span>
 			{% endif %}
 		</div>
-		<div class="panel-body">
+		
 			{% set mod_instances = get_mod_instances(srv) %}
 			{% if mod_instances != [] %}
 			{% set server_bins = get_mod_binaries(srv) %}
@@ -93,9 +93,9 @@
 				</tbody>
 			</table>
 			{% else %}
-			<p class="text-center text-muted">No instances defined!</p>
+			<div class="panel-body text-center text-muted">No instances defined!</div>
 			{% endif %}
-		</div>
+		
 	</div>
 	{% endfor %}
 	{% if servers == [] %}

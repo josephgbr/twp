@@ -129,6 +129,7 @@ $(function(){
 		var srvid = $(this).data('id');
 		$("#modal_external_console #srvid").val(srvid);
 		$("#modal_external_console #econ-log").val('');
+		setTimeout("$('#modal_external_console #cmd').focus()", 150);
 	});
 	
 	// Send ECon Command
@@ -152,6 +153,7 @@ $(function(){
 				var last_content = $econlog.val();
 				$econlog.val(last_content+data['rcv']); // FIXME: idk why "append" not works :\
 				$econlog.prop('scrollTop', $econlog.prop('scrollHeight'));
+				$('#modal_external_console #cmd').focus();
 			}
 		});
 	});

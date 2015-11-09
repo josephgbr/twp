@@ -339,7 +339,7 @@ def create_server_instance(mod_folder):
 
         try:
             if cfgbasic['name'] == 'unnamed server':
-                cfgbasic['name'] = "Server created with Teeworlds Server Panel"
+                cfgbasic['name'] = "Server created with Teeworlds Web Panel"
                 twp.write_config_param(fullpath_fileconfig, "sv_name", cfgbasic['name'])
             if not fport == int(cfgbasic['port']):
                 cfgbasic['port'] = str(fport)
@@ -348,7 +348,8 @@ def create_server_instance(mod_folder):
              return jsonify({'error':True, 'errormsg':str(e)})
             
         # If all checks good, create the new instance
-        g.db.execute("INSERT INTO servers (fileconfig,base_folder,bin,port,name,gametype,register,logfile,econ_port,econ_password) VALUES (?,?,?,?,?,?,?,?,?,?)", \
+        g.db.execute("INSERT INTO servers (fileconfig,base_folder,bin,port,name,gametype,register,logfile,econ_port,econ_password) \
+                      VALUES (?,?,?,?,?,?,?,?,?,?)",
                      [fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile'],
                       cfgbasic['econ_port'], cfgbasic['econ_pass']])
         g.db.commit()
@@ -361,8 +362,6 @@ def remove_server_instance(id, delconfig=0):
         srv = query_db("SELECT base_folder,fileconfig FROM servers WHERE rowid=?", [id], one=True)
         if not srv:
             return jsonify({'error':True, 'errormsg':u'Invalid Operation: Server not found!'})
-        
-        app.logger.info(delconfig)
         
         if delconfig == 1:
             os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']))
@@ -540,6 +539,22 @@ def get_server_instance_log(id, seek):
                 cfgfile.close()
             except Exception, e:
                 return jsonify({'success':True, 'content':None, 'seek':0})
+            
+            lines = logcontent.splitlines()
+            logcontent = []
+            for line in lines:
+                objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
+                if objMatch:
+                    (date,section,message) = [objMatch.group(1),objMatch.group(2),objMatch.group(3)]
+                    type = None
+                    if re.match("^(?:client dropped|(?:.+\s)?failed)", message, re.IGNORECASE):
+                        type = 'danger'
+                    elif re.match("^No such command", message, re.IGNORECASE):
+                        type = 'warning'
+                    elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
+                        type = 'success'
+                    logcontent.append({'date':date,'section':section,'message':message,'type':type})
+            
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
     return jsonify({'notauth':True})
@@ -559,7 +574,7 @@ def send_econ_command():
             econ_cmd = request.form['cmd']
             rcv = ''
             try:
-                rcv = twp.send_econ_command(int(srv['econ_port']), srv['econ_password'], [econ_cmd])
+                rcv = twp.send_econ_command(int(srv['econ_port']), srv['econ_password'], econ_cmd)
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
@@ -578,13 +593,29 @@ def kick_ban_player(id):
             nick = request.form['nick']
             action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
             try:
-                twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action)          
+                if not twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
+                    return jsonify({'error':True, 'errormsg':'Can\'t found \'%s\' player!' % nick})         
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
     return jsonify({'notauth':True})    
 
+@app.route('/_get_chart_values/<int:id>/<string:chart>', methods=['POST'])
+def get_chart_values(id,chart):
+    if chart.lower() == 'players-7d':
+        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', date) as date FROM players_server \
+                        WHERE julianday('now') - julianday(date) < 7 AND server_id=? GROUP BY strftime('%d-%m-%Y', date)", [id])
+        labels = []
+        values = []
+        if query_data:
+            for value in query_data:
+                labels.append(value['date'])
+                values.append(value['num'])
+        else:
+            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
+        return jsonify({'success':True, 'values':values, 'labels':labels})
+    return jsonify({'error':True, 'errormsg':u'Undefined Chart!'})
 
 # Security Checks
 def check_session_limit():

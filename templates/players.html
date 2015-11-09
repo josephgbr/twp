@@ -6,28 +6,32 @@
 <div class="row">
 	<div class="panel panel-info">
 		<div class="panel-body">
-			{% if players != [] %}
-			<table class="table table-condensed table-striped">
-				<thead>
-					<th>Name</th>
-					<th>Created</th>
-					<th>Last Seen</th>
-				</thead>
-				<tbody>
-					{% for player in players %}
-					<tr id="ply-line-{{player.rowid}}" class="{% if player.status == 1 %}success{% endif %}">
-						<td>{{player.name}}</td>
-						<td class="col-md-3">{{player.create_date}}</td>
-						<td class="col-md-3">{{player.last_seen_date}}</td>
-					</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			{% else %}
+		{% if players == [] %}
 			<p class="text-center text-muted">No players found!</p>
-			{% endif %}
+		{% else %}
+			List of all players connected to the machine.<br/>
+			<span class="text-muted">Updated every minute</span>
+		{% endif %}
 		</div>
-		<div class="panel-footer text-muted text-center">Updated every minute</div>
+		
+		{% if players != [] %}
+		<table class="table table-condensed table-striped">
+			<thead>
+				<th>Name</th>
+				<th>Created</th>
+				<th>Last Seen</th>
+			</thead>
+			<tbody>
+			{% for player in players %}
+				<tr id="ply-line-{{player.rowid}}" class="{% if player.status == 1 %}success{% endif %}">
+					<td>{{player.name}}</td>
+					<td class="col-md-3">{{player.create_date}}</td>
+					<td class="col-md-3">{{player.last_seen_date}}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		{% endif %}
 	</div>
 </div>
 

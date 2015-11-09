@@ -39,7 +39,11 @@
 				</div>
 				<div class="col-md-10">
 					<div class="panel panel-default">
- 						<div class="panel-body">
+						<div class="panel-heading">
+							Players in the last 7 days...
+						</div>
+ 						<div class="panel-body text-center">
+ 							<canvas id="chart-players-7d" width="800" height="200"></canvas>
  						</div>
  					</div>
 				</div>
@@ -102,7 +106,15 @@
 					</span>
 				</h1>
 			{% else %}
-			<textarea style="resize: none; height:400px;" class="well col-md-12" id="server-log" readonly></textarea>
+				<table class="table table-condensed table-hover table-striped">
+					<thead>
+						<th>Date</th>
+						<th>Section</th>
+						<th>Message</th>
+					</thead>
+					<tbody id='server-log'>
+		  			</tbody>
+		  		</table>
 		  	{% endif %}
 		  	</div>
 		{% endif %}
