@@ -4,6 +4,7 @@ TWP is an app-web for manage your local teeworlds linux servers. Inspired by the
 
 
 Project Requirements:
+
 **Server Side**
 - [SQLite v3.x](https://www.sqlite.org/) for database
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
@@ -46,6 +47,11 @@ $ ./twp.py
 3. Go to settings page and change admin password
 
 
-+ Advance Deploy (For production environments)
++ Deploying
 =============================================
-See how: (http://flask.pocoo.org/docs/0.10/deploying/)
+See how: http://flask.pocoo.org/docs/0.10/deploying/
+
+
++ Limits
+=============================================
+- The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years
