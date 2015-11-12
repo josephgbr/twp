@@ -64,11 +64,12 @@ $(function(){
 	});
 	
 	// Charts
-	//var ctxChartPlayers7d = $("#chart-players-7d").get(0).getContext("2d");
 	var ctxChartPlayers7d = document.getElementById('chart-players-7d').getContext('2d');
-	$.post($SCRIPT_ROOT + '/_get_chart_values/'+$SRVID+'/players-7d', '', function(data) {
+	var ctxChartActiveClan = document.getElementById('chart-active-clan').getContext('2d');
+	var ctxChartActiveCountry = document.getElementById('chart-active-country').getContext('2d');
+	$.post($SCRIPT_ROOT + '/_get_chart_values/server/'+$SRVID, '', function(data) {
 		var chartData = {
-		    labels: data['labels'],
+		    labels: data['labels']['players7d'],
 		    datasets: [
 		        {
 		            label: "Players Count",
@@ -78,44 +79,55 @@ $(function(){
 		            pointStrokeColor: "#fff",
 		            pointHighlightFill: "#fff",
 		            pointHighlightStroke: "rgba(220,220,220,1)",
-		            data: data['values']
+		            data: data['values']['players7d']
 		        }
 		    ]
 		};
+		
+		var chartColors = [['#F7464A','#FF5A5E'], ['#46BFBD','#5AD3D1'], ['#FDB45C','#FFC870'], ['#A7464A','#AF5A5E'], ['#37464A','#3F5A5E']];
+		var chartTopClanData = [];
+		var chartTopCountryData = [];
+		for (i in data['labels']['topclan'])
+		{
+			chartTopClanData.push({
+				value: data['values']['topclan'][i],
+				color: chartColors[i][0],
+				highlight: chartColors[i][1],
+				label: data['labels']['topclan'][i]
+			});
+		}
+		for (i in data['labels']['topcountry'])
+		{
+			chartTopCountryData.push({
+				value: data['values']['topcountry'][i],
+				color: chartColors[i][0],
+				highlight: chartColors[i][1],
+				label: data['labels']['topcountry'][i]
+			});
+		}
+		
 		var chartOptions = {
-		    ///Boolean - Whether grid lines are shown across the chart
+			responsive: true,
 		    scaleShowGridLines : true,
-		    //String - Colour of the grid lines
 		    scaleGridLineColor : "rgba(0,0,0,.05)",
-		    //Number - Width of the grid lines
 		    scaleGridLineWidth : 1,
-		    //Boolean - Whether to show horizontal lines (except X axis)
 		    scaleShowHorizontalLines: true,
-		    //Boolean - Whether to show vertical lines (except Y axis)
 		    scaleShowVerticalLines: true,
-		    //Boolean - Whether the line is curved between points
 		    bezierCurve : true,
-		    //Number - Tension of the bezier curve between points
 		    bezierCurveTension : 0.4,
-		    //Boolean - Whether to show a dot for each point
 		    pointDot : true,
-		    //Number - Radius of each point dot in pixels
 		    pointDotRadius : 4,
-		    //Number - Pixel width of point dot stroke
 		    pointDotStrokeWidth : 1,
-		    //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
 		    pointHitDetectionRadius : 20,
-		    //Boolean - Whether to show a stroke for datasets
 		    datasetStroke : true,
-		    //Number - Pixel width of dataset stroke
 		    datasetStrokeWidth : 2,
-		    //Boolean - Whether to fill the dataset with a colour
 		    datasetFill : true,
-		    //String - A legend template
-		    legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
 		};
 		var chartPlayers7d = new Chart(ctxChartPlayers7d).Line(chartData, chartOptions);
+		var chartActiveClan = new Chart(ctxChartActiveClan).Doughnut(chartTopClanData, {responsive: true});
+		var chartActiveCountry = new Chart(ctxChartActiveCountry).Doughnut(chartTopCountryData, {responsive: true});
 	});
+	
 });
 
 var $LOGSEEK = 0;

@@ -601,19 +601,41 @@ def kick_ban_player(id):
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
     return jsonify({'notauth':True})    
 
-@app.route('/_get_chart_values/<int:id>/<string:chart>', methods=['POST'])
+@app.route('/_get_chart_values/<string:chart>/<int:id>', methods=['POST'])
 def get_chart_values(id,chart):
-    if chart.lower() == 'players-7d':
+    if chart.lower() == 'server':
+        labels = {}
+        values = {}
+        
         query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', date) as date FROM players_server \
-                        WHERE julianday('now') - julianday(date) < 7 AND server_id=? GROUP BY strftime('%d-%m-%Y', date)", [id])
-        labels = []
-        values = []
+                WHERE julianday('now') - julianday(date) < 7 AND server_id=? GROUP BY strftime('%d-%m-%Y', date)", [id])
         if query_data:
+            labels['players7d'] = []
+            values['players7d'] = []
             for value in query_data:
-                labels.append(value['date'])
-                values.append(value['num'])
+                labels['players7d'].append(value['date'])
+                values['players7d'].append(value['num'])
         else:
             return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
+        
+        query_data = query_db("SELECT count(clan) as num, clan FROM (SELECT DISTINCT name,clan,server_id FROM players_server \
+                WHERE clan NOT NULL) WHERE server_id=? GROUP BY clan ORDER BY num DESC LIMIT 5", [id])
+        if query_data:
+            labels['topclan'] = []
+            values['topclan'] = []
+            for value in query_data:
+                labels['topclan'].append(value['clan'])
+                values['topclan'].append(value['num'])
+                
+        query_data = query_db("SELECT count(country) as num, country FROM (SELECT DISTINCT name,country,server_id FROM players_server \
+                WHERE clan NOT NULL) WHERE server_id=? GROUP BY country ORDER BY num DESC LIMIT 5", [id])
+        if query_data:
+            labels['topcountry'] = []
+            values['topcountry'] = []
+            for value in query_data:
+                labels['topcountry'].append(value['country'])
+                values['topcountry'].append(value['num'])
+            
         return jsonify({'success':True, 'values':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':u'Undefined Chart!'})
 

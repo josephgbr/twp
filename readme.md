@@ -13,11 +13,11 @@ Project Requirements:
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
+- [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
+- [ChartJS v1.0.2](http://www.chartjs.org/) for charts
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and more...
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
-- [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
-- [ChartJS v1.0.2](http://www.chartjs.org/) for charts
 
 
 + Installation
@@ -54,4 +54,5 @@ See how: http://flask.pocoo.org/docs/0.10/deploying/
 
 + Limits
 =============================================
+- The maximum size of upload is 16MB per mod
 - The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years
