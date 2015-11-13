@@ -15,7 +15,7 @@ Project Requirements:
 **Client Side**
 - [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
 - [ChartJS v1.0.2](http://www.chartjs.org/) for responsive charts
-- [jsSHA](https://github.com/Caligatio/jsSHA) for generate SHA-512 hashes
+- [jsSHA v2.0.2](https://github.com/Caligatio/jsSHA) for generate SHA-512 hashes
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
@@ -23,19 +23,21 @@ Project Requirements:
 
 + Installation
 =============================================
-**Using Script**
-
-*More information Soon...*
-
-**Manual**
+**Automatic (Full)**
 ```bash
-$ sudo apt-get install gcc python python-pip git
+$ wget http://twp.redneboa.es -O install_twp.sh && sudo bash install_twp.sh $LOGNAME
+```
+
+**Manual (Basic)**
+```bash
+$ sudo apt-get install gcc python python-dev python-pip git
 $ sudo pip install Flask==0.10.1
 $ sudo pip install Flask-APScheduler==1.1.0
 $ git clone -b 0.1.0b https://github.com/CytraL/twp.git "twp"
 $ cd twp
 $ chmod +x twp.py
 $ ./twp.py
+
 ```
 
 + Get Started
