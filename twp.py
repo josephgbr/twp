@@ -513,15 +513,11 @@ def start_server(id):
 
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
 def stop_server(id):
-    app.logger.info("MIRA! :DDD")
     if 'logged_in' in session and session['logged_in']:
-        app.logger.info("MIRA! AAA")
         server = query_db("SELECT port,base_folder,bin FROM servers WHERE rowid=?", [id], one=True)
         if server:
-            app.logger.info("MIRA! BBB")
             netstat = twp.netstat()
             for conn in netstat:
-                app.logger.info("MIRA!")
                 if conn[0] == server['port'] and conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                     try:
                         os.kill(int(conn[1]), signal.SIGTERM)
