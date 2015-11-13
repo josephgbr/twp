@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block title %}Players{% endblock %}
+{% block content %}
+
+{{ super() }}
+<div class="row">
+	<div class="page-header">
+		<h1><i class="fa fa-search"></i> Search <i>"{{search}}"</i></h1>
+	</div>
+</div>
+{% if servers == [] and players == [] %}
+<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+	NO RESULTS
+</h1>
+{% endif %}
+
+{% if servers != [] %}
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Servers
+		</div>
+		<table class="table table-condensed table-hover table-striped">
+			<thead>
+				<th>&nbsp;</th>
+				<th>Status</th>
+				<th>Port</th>
+				<th>Game Type</th>
+				<th>Server Name</th>
+				<th>&nbsp;</th>
+			</thead>
+			<tbody>
+				{% for mod_inst in servers %}
+				<tr id="srv-line-{{mod_inst.rowid}}" class="{% if mod_inst.status == 'Running' %}success{% endif %}">
+					<td class="col-md-1 srv-flags">
+						<i class="fa {% if mod_inst.register == 0 %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.register == 0 %}style="color:#BBB;" title="Not Register Server" {% else %}title="Register Server" {% endif %}></i>
+						<i class="fa fa-lock tw-password" {% if mod_inst.password == 0 %}style="color:#BBB;" title="Public Server" {% else %}title="Private Server" {% endif %}></i>
+					</td>
+					<td class="col-md-1 srv-status">{{mod_inst.status}}</td>
+					<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
+					<td class="col-md-1 srv-gametype">{{mod_inst.gametype}}</td>
+					<td class="col-md-5 srv-name">{{mod_inst.name}}</td>
+					<td class="col-md-3 text-right">
+						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}" title="Server Instance Information"><i class="fa fa-info"></i></a>
+						{% if session.logged_in %}
+							{% if mod_inst.status == 'Stopped' %}
+							<a class="btn btn-xs btn-default" data-id="{{mod_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
+							<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.rowid}}">
+							    <a data-id="{{mod_inst.rowid}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
+							        <i class="fa fa-play"></i> Start
+							    </a>
+							    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
+							        <span class="caret"></span>
+							    </a>
+							    <ul class="dropdown-menu" data-id="{{mod_inst.rowid}}">
+							    	{% for bin in server_bins %}
+							    	<li class="{% if mod_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
+							    	{% endfor %}
+							    	{% if server_bins == [] %}
+							    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> No binaries found!</li>
+							    	{% endif %}
+							    </ul>
+							</div>
+							<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.rowid}}" href="#" title="Remove Server Instance"><i class="fa fa-remove"></i></a>
+							{% elif mod_inst.status == 'Running' %}
+								{% if mod_inst.econ_port and mod_inst.econ_password %}
+								<a data-id="{{mod_inst.rowid}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
+							        <i class="fa fa-tty"></i> ECon Admin
+							    </a>
+							    {% endif %}
+								<a data-id="{{mod_inst.rowid}}" class="stop-instance btn btn-xs btn-danger">
+							        <i class="fa fa-stop"></i> Stop
+							    </a>
+							{% endif %}
+						{% endif %}
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endif %}
+
+{% if players != [] %}
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Players
+		</div>
+		<table class="table table-condensed table-striped">
+			<thead>
+				<th>Name</th>
+				<th>Created</th>
+				<th>Last Seen</th>
+			</thead>
+			<tbody>
+			{% for player in players %}
+				<tr id="ply-line-{{player.rowid}}" class="{% if player.status == 1 %}success{% endif %}">
+					<td>{{player.name}}</td>
+					<td class="col-md-3">{{player.create_date}}</td>
+					<td class="col-md-3">{{player.last_seen_date}}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endif %}
+
+
+{% endblock %}
+{% block script %}
+{% endblock %}

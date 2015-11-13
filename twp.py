@@ -264,6 +264,17 @@ def install_mod():
         flash(u'Error: You haven\'t permissions for install new mods!', 'danger')
     return redirect(current_url)
 
+@app.route('/search', methods=['GET'])
+def search():
+    servers = []
+    players = []
+    searchword = request.args.get('r', '')
+
+    sk = "%%%s%%" % searchword
+    servers = query_db("SELECT rowid,* FROM servers WHERE name LIKE ? OR base_folder LIKE ?", [sk,sk])
+    players = query_db("SELECT rowid,* FROM players WHERE name LIKE ?", [sk])
+    return render_template('search.html', twp=TWP_INFO, search=searchword, servers=servers, players=players)
+        
 
 @app.route('/_refresh_cpu_host')
 def refresh_cpu_host():

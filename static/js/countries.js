@@ -1,3 +1,6 @@
+/* Original source from: https://gist.github.com/Keeguon/2310008
+ * Extended by Alexandre Díaz
+ */
 $COUNTRIES = [ 
   {name: 'Afghanistan', code: 'AF', codenum: 4}, 
   {name: 'Åland Islands', code: 'AX', codenum: 248}, 
