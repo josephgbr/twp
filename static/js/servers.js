@@ -272,7 +272,7 @@ $(function(){
 	// Stop Server Instance
 	$(document).on("click", ".stop-instance", function() {
 		var srvid = $(this).data('id');
-	     $.getJSON($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, function(data) {
+	     $.post($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, function(data) {
 	    	 check_server_data(data);
 	    	 
 	    	 if (data['success'])
@@ -280,6 +280,36 @@ $(function(){
 		    	 window.location.reload();
 	    	 }
 	     });
+	});
+	
+	// Remove Mod
+	$(document).on("click", ".remove-mod", function() {
+		var mod_folder = $(this).data('mod');
+		
+		bootbox.dialog({
+			message: "Are you sure?<br/><span class='text-danger'>This can't be canceled and erase all mod data on the disk!!</span>",
+			title: "Remove '"+mod_folder+"' Mod",
+			buttons: {
+			    success: {
+			    	label: "Remove",
+			    	className: "btn-danger",
+			    	callback: function() {
+				   	     $.post($SCRIPT_ROOT + '/_remove_mod', 'folder='+mod_folder, function(data) {
+				   	    	 check_server_data(data);
+				   	    	 
+				   	    	 if (data['success'])
+				   	    	 {
+				   		    	 window.location.reload();
+				   	    	 }
+				   	     });
+			    	}
+			    },
+			    main: {
+			    	label: "Cancel",
+			    	className: "btn-default"
+			    }
+			}
+		});
 	});
 	
 });

@@ -14,8 +14,9 @@ Project Requirements:
 
 **Client Side**
 - [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
-- [ChartJS v1.0.2](http://www.chartjs.org/) for charts
-- [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and more...
+- [ChartJS v1.0.2](http://www.chartjs.org/) for responsive charts
+- [jsSHA](https://github.com/Caligatio/jsSHA) for generate SHA-512 hashes
+- [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 

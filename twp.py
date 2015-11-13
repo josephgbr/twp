@@ -18,7 +18,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal
+import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
@@ -275,6 +275,24 @@ def search():
     players = query_db("SELECT rowid,* FROM players WHERE name LIKE ?", [sk])
     return render_template('search.html', twp=TWP_INFO, search=searchword, servers=servers, players=players)
         
+
+@app.route('/_remove_mod', methods=['POST'])
+def remove_mod():
+    if 'logged_in' in session and session['logged_in']:
+        if 'folder' in request.form:
+            fullpath_folder = r'%s/%s' % (SERVERS_BASEPATH, request.form['folder'])
+            if os.path.exists(fullpath_folder):
+                servers = query_db('select rowid,* from servers where base_folder=?', [request.form['folder']])
+                for srv in servers:
+                    stop_server(srv['rowid'])
+                    remove_server_instance(srv['rowid'],1)
+                shutil.rmtree(fullpath_folder)
+                return jsonify({'success':True})
+            else:
+                return jsonify({'error':True, 'errormsg':u'Error: Folder mod not exists!'})
+        else:
+            return jsonify({'error':True, 'errormsg':u'Error: Old or new password not defined!'})
+    return jsonify({'notauth':True})
 
 @app.route('/_refresh_cpu_host')
 def refresh_cpu_host():
@@ -627,7 +645,7 @@ def get_chart_values(chart, id=None):
             UNION SELECT date('now', '-5 day') \
             UNION SELECT date('now', '-6 day')) as tblA \
             LEFT JOIN players_server as tblB \
-            ON tblB.date = tblA.dd AND tblB.server_id=? \
+            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) AND tblB.server_id=? \
             GROUP BY strftime('%d-%m-%Y', tblA.dd)", [id])
         if query_data:
             labels['players7d'] = []
@@ -667,7 +685,7 @@ def get_chart_values(chart, id=None):
             UNION SELECT date('now', '-5 day') \
             UNION SELECT date('now', '-6 day')) as tblA \
             LEFT JOIN players_server as tblB \
-            ON tblB.date = tblA.dd \
+            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) \
             GROUP BY strftime('%d-%m-%Y', tblA.dd)")
         if query_data:
             labels['players7d'] = []
@@ -677,6 +695,20 @@ def get_chart_values(chart, id=None):
                 values['players7d'].append(value['num'])
         return jsonify({'success':True, 'values':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':u'Undefined Chart!'})
+
+@app.route('/_set_user_password/<int:id>', methods=['POST'])
+def set_user_password(id):
+    if 'logged_in' in session and session['logged_in']:
+        if 'pass_new' in request.form and 'pass_old' in request.form:
+            rows = g.db.execute("UPDATE users SET password=? WHERE rowid=? AND password=?",[str(request.form['pass_new']), id, str(request.form['pass_old'])])
+            if rows.rowcount > 0:
+                g.db.commit()
+                return jsonify({'success':True})
+            return jsonify({'error':True, 'errormsg':u'Error: Can\'t change admin password. Check settings and try again.'})
+        else:
+            return jsonify({'error':True, 'errormsg':u'Error: Old or new password not defined!'})
+    return jsonify({'notauth':True})
+
 
 # Security Checks
 def check_session_limit():

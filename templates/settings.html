@@ -12,7 +12,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">Administrator Password</div>
 			<div class="panel-body">
-				<form action="/settings" method="POST" class="form-vertical">
+				<form id="form-settings-admin-pass" class="form-vertical">
 					<div class="form-group">
 						<div class="col-md-4">
 							<label for="admin-pass" class="control-label">Old password:</label>
@@ -42,7 +42,7 @@
 					</div>
 					<div class="form-group">
 						<div class="col-md-12 text-right" style="margin-top:0.5em;">
-							<button type="submit" class="btn btn-primary">Change</button>
+							<a id="btn-submit" href="#" class="btn btn-primary">Change</a>
 						</div>
 					</div>
 				</form>
@@ -50,4 +50,8 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+{% block script %}
+	<script type="text/javascript" src="{{ url_for('static', filename='js/sha.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>
 {% endblock %}

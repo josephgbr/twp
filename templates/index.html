@@ -37,35 +37,34 @@
 		</div>
 	</div>
 	{% endif %}
-	<div class="col-md-12">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				Players in the last 7 days...
-			</div>
-			<div class="panel-body text-center" style="padding:0;">
-				<canvas style="padding:15px;" height="50" id="chart-machine-players7d"></canvas>
-			</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			Players in the last 7 days...
+		</div>
+		<div class="panel-body text-center" style="padding:0;">
+			<canvas style="padding:15px;" height="50" id="chart-machine-players7d"></canvas>
 		</div>
 	</div>
-	<div class="col-md-12">
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<table id="twmslist" class="table table-condensed table-hover table-striped" style="display:none;">
-					<thead>
-						<th>#</th>
-						<th>Server Name</th>
-						<th>Game Type</th>
-						<th>Players</th>
-						<th>Map</th>
-						<th>Latency</th>
-					</thead>
-					<tbody></tbody>
-				</table>
-				<div id="twmslist-empty" class="text-center text-muted" style="display:none;"><i class="fa fa-warning"></i> No local servers can be found on the master-server <i class="fa fa-warning"></i></div>
-				<div id="twmslist-load" class="text-center"><b><i class="fa fa-refresh fa-spin"></i> Searching for local servers in master list...</b></div>
-			</div>
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<table id="twmslist" class="table table-condensed table-hover table-striped" style="display:none;">
+				<thead>
+					<th>#</th>
+					<th>Server Name</th>
+					<th>Game Type</th>
+					<th>Players</th>
+					<th>Map</th>
+					<th>Latency</th>
+				</thead>
+				<tbody></tbody>
+			</table>
+			<div id="twmslist-empty" class="text-center text-muted" style="display:none;"><i class="fa fa-warning"></i> No local servers can be found on the master-server <i class="fa fa-warning"></i></div>
+			<div id="twmslist-load" class="text-center"><b><i class="fa fa-refresh fa-spin"></i> Searching for local servers in master list...</b></div>
 		</div>
 	</div>
+
 </div>
 {% endblock %}
 {% block script %}
