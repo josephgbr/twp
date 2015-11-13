@@ -42,37 +42,6 @@
 					<td class="col-md-5 srv-name">{{mod_inst.name}}</td>
 					<td class="col-md-3 text-right">
 						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}" title="Server Instance Information"><i class="fa fa-info"></i></a>
-						{% if session.logged_in %}
-							{% if mod_inst.status == 'Stopped' %}
-							<a class="btn btn-xs btn-default" data-id="{{mod_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
-							<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.rowid}}">
-							    <a data-id="{{mod_inst.rowid}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
-							        <i class="fa fa-play"></i> Start
-							    </a>
-							    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
-							        <span class="caret"></span>
-							    </a>
-							    <ul class="dropdown-menu" data-id="{{mod_inst.rowid}}">
-							    	{% for bin in server_bins %}
-							    	<li class="{% if mod_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
-							    	{% endfor %}
-							    	{% if server_bins == [] %}
-							    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> No binaries found!</li>
-							    	{% endif %}
-							    </ul>
-							</div>
-							<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.rowid}}" href="#" title="Remove Server Instance"><i class="fa fa-remove"></i></a>
-							{% elif mod_inst.status == 'Running' %}
-								{% if mod_inst.econ_port and mod_inst.econ_password %}
-								<a data-id="{{mod_inst.rowid}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
-							        <i class="fa fa-tty"></i> ECon Admin
-							    </a>
-							    {% endif %}
-								<a data-id="{{mod_inst.rowid}}" class="stop-instance btn btn-xs btn-danger">
-							        <i class="fa fa-stop"></i> Stop
-							    </a>
-							{% endif %}
-						{% endif %}
 					</td>
 				</tr>
 				{% endfor %}
