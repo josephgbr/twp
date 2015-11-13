@@ -98,11 +98,20 @@ $(function(){
 		}
 		for (i in data['labels']['topcountry'])
 		{
+			countryName = undefined;
+			if (data['labels']['topcountry'][i] != -1)
+				countryName = $.grep($COUNTRIES, function(e){ return e.codenum == data['labels']['topcountry'][i]; });
+			
+			if (!countryName || !countryName[0])
+				countryName = "Unknown";
+			else
+				countryName = countryName[0].name;
+				
 			chartTopCountryData.push({
 				value: data['values']['topcountry'][i],
 				color: chartColors[i][0],
 				highlight: chartColors[i][1],
-				label: data['labels']['topcountry'][i]
+				label: countryName
 			});
 		}
 		

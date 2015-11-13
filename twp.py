@@ -601,14 +601,23 @@ def kick_ban_player(id):
         return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
     return jsonify({'notauth':True})    
 
+@app.route('/_get_chart_values/<string:chart>', methods=['POST'])
 @app.route('/_get_chart_values/<string:chart>/<int:id>', methods=['POST'])
-def get_chart_values(id,chart):
+def get_chart_values(chart, id=None):
+    labels = {}
+    values = {}
     if chart.lower() == 'server':
-        labels = {}
-        values = {}
-        
-        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', date) as date FROM players_server \
-                WHERE julianday('now') - julianday(date) < 7 AND server_id=? GROUP BY strftime('%d-%m-%Y', date)", [id])
+        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', tblA.dd) as date \
+            FROM  (SELECT date('now') as dd \
+            UNION SELECT date('now', '-1 day') \
+            UNION SELECT date('now', '-2 day') \
+            UNION SELECT date('now', '-3 day') \
+            UNION SELECT date('now', '-4 day') \
+            UNION SELECT date('now', '-5 day') \
+            UNION SELECT date('now', '-6 day')) as tblA \
+            LEFT JOIN players_server as tblB \
+            ON tblB.date = tblA.dd AND tblB.server_id=? \
+            GROUP BY strftime('%d-%m-%Y', tblA.dd)", [id])
         if query_data:
             labels['players7d'] = []
             values['players7d'] = []
@@ -636,6 +645,25 @@ def get_chart_values(id,chart):
                 labels['topcountry'].append(value['country'])
                 values['topcountry'].append(value['num'])
             
+        return jsonify({'success':True, 'values':values, 'labels':labels})
+    elif chart.lower() == 'machine':
+        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', tblA.dd) as date \
+            FROM  (SELECT date('now') as dd \
+            UNION SELECT date('now', '-1 day') \
+            UNION SELECT date('now', '-2 day') \
+            UNION SELECT date('now', '-3 day') \
+            UNION SELECT date('now', '-4 day') \
+            UNION SELECT date('now', '-5 day') \
+            UNION SELECT date('now', '-6 day')) as tblA \
+            LEFT JOIN players_server as tblB \
+            ON tblB.date = tblA.dd \
+            GROUP BY strftime('%d-%m-%Y', tblA.dd)")
+        if query_data:
+            labels['players7d'] = []
+            values['players7d'] = []
+            for value in query_data:
+                labels['players7d'].append(value['date'])
+                values['players7d'].append(value['num'])
         return jsonify({'success':True, 'values':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':u'Undefined Chart!'})
 

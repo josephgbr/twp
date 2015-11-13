@@ -104,7 +104,7 @@ $(function() {
 	mastersrv_servers();
 	window.setInterval('refresh()', $REFRESH_TIME);
 	
-	$(document).on("click", "#reboot", function() {
+	/*$(document).on("click", "#reboot", function() {
 		var $this = $(this);
 		$this.html("<i class='fa fa-cog fa-spin'></i> Rebooting...");
 		$this.addClass('disabled');
@@ -117,5 +117,43 @@ $(function() {
 				//window.location.reload();
 			}
 		});
+	});*/
+	
+	var ctxChartMachinePlayers7d = document.getElementById('chart-machine-players7d').getContext('2d');
+	$.post($SCRIPT_ROOT + '/_get_chart_values/machine/3', '', function(data) {
+		var chartData = {
+		    labels: data['labels']['players7d'],
+		    datasets: [
+		        {
+		            label: "Players Count",
+		            fillColor: "rgba(220,220,220,0.2)",
+		            strokeColor: "rgba(220,220,220,1)",
+		            pointColor: "rgba(220,220,220,1)",
+		            pointStrokeColor: "#fff",
+		            pointHighlightFill: "#fff",
+		            pointHighlightStroke: "rgba(220,220,220,1)",
+		            data: data['values']['players7d']
+		        }
+		    ]
+		};
+		
+		var chartOptions = {
+			responsive: true,
+		    scaleShowGridLines : true,
+		    scaleGridLineColor : "rgba(0,0,0,.05)",
+		    scaleGridLineWidth : 1,
+		    scaleShowHorizontalLines: true,
+		    scaleShowVerticalLines: true,
+		    bezierCurve : true,
+		    bezierCurveTension : 0.4,
+		    pointDot : true,
+		    pointDotRadius : 4,
+		    pointDotStrokeWidth : 1,
+		    pointHitDetectionRadius : 20,
+		    datasetStroke : true,
+		    datasetStrokeWidth : 2,
+		    datasetFill : true,
+		};
+		var chartMachinePlayers7d = new Chart(ctxChartMachinePlayers7d).Line(chartData, chartOptions);
 	});
 });

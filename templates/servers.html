@@ -27,6 +27,7 @@
 			{% if session.logged_in %}
 			<span class="pull-right">
 				<a class="btn btn-xs btn-primary" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> Create Instance</a>
+				<a class="btn btn-xs btn-default" data-mod="{{srv}}" title="Remove Mod"><i class="fa fa-trash"></i></a>
 			</span>
 			{% endif %}
 		</div>
@@ -55,7 +56,7 @@
 						<td class="col-md-1 srv-gametype">{{mod_inst.gametype}}</td>
 						<td class="col-md-5 srv-name">{{mod_inst.name}}</td>
 						<td class="col-md-3 text-right">
-							<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}"><i class="fa fa-info"></i></a>
+							<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}" title="Server Instance Information"><i class="fa fa-info"></i></a>
 							{% if session.logged_in %}
 								{% if mod_inst.status == 'Stopped' %}
 								<a class="btn btn-xs btn-default" data-id="{{mod_inst.rowid}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> Config</a>
@@ -75,7 +76,7 @@
 								    	{% endif %}
 								    </ul>
 								</div>
-								<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.rowid}}" href="#" title="Remove server instance"><i class="fa fa-remove"></i></a>
+								<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.rowid}}" href="#" title="Remove Server Instance"><i class="fa fa-remove"></i></a>
 								{% elif mod_inst.status == 'Running' %}
 									{% if mod_inst.econ_port and mod_inst.econ_password %}
 									<a data-id="{{mod_inst.rowid}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
