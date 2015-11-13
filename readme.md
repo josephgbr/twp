@@ -48,6 +48,11 @@ $ ./twp.py
 3. Go to settings page and change admin password
 
 
++ Enable Basic Admin Tools
+=============================================
+If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
+
+
 + Deploying
 =============================================
 See how: http://flask.pocoo.org/docs/0.10/deploying/
