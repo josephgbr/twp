@@ -24,6 +24,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from flask.ext.babel import Babel, _
+from twp import BannedList
 try:
     import configparser
 except ImportError:
@@ -53,7 +54,7 @@ DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
 SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 UPLOAD_FOLDER = '/tmp/'
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])
 LOGFILE = config.get('log', 'file')
 LOGBYTES = config.getint('log', 'maxbytes')
@@ -77,20 +78,22 @@ JOBS = [
         }
     }
 ]
-    
 IP = twp.get_public_ip();
 
+
+# Try create server directory if needed
+if not os.path.isdir(SERVERS_BASEPATH):
+    os.makedirs(SERVERS_BASEPATH)
+    
+    
+# Global Vars
+BannedList = BannedList()
 
 
 # Start Flask App
 app = Flask(__name__)
 app.config.from_object(__name__)
 babel = Babel(app)
-
-
-# Create server directory if needed
-if not os.path.isdir(SERVERS_BASEPATH):
-    os.makedirs(SERVERS_BASEPATH)
 
 
 # SQLite
@@ -121,7 +124,8 @@ def before_request():
     if request.view_args and 'lang_code' in request.view_args:
         g.current_lang = request.view_args['lang_code']
         request.view_args.pop('lang_code')
-    check_session_limit()
+    BannedList.refresh()
+    check_session()
     g.db = connect_db()
 
 @app.teardown_request
@@ -729,7 +733,7 @@ def set_user_password(id):
 
 
 # Security Checks
-def check_session_limit():
+def check_session():
     if 'logged_in' in session and session.get('last_activity') is not None:
         now = int(time.time())
         limit = now - 60 * config.getint('session', 'time')
@@ -822,7 +826,7 @@ def shutdown_all_server_instances():
 # TODO: Open how a parent not child...
 def start_server_instance(base_folder, bin, fileconfig):
     subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin), '-f', fileconfig],
-                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder))
 
 def get_login_tries():

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 #  A library to get the serverlist & information for Teeworlds servers
 #  Copyright (C) 2011  m!nus <m1nus@online.de>
@@ -29,11 +29,6 @@ from struct import unpack
 import select
 import Queue as queue
 import re
-
-# UTF-8 is required as default encoding
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 
 def log(level, str):
 	if level is 'debug': return
@@ -190,6 +185,7 @@ class MasterServer(Handler):
 				serverAddress = (socket.inet_ntop(socket.AF_INET6, data[i:i+16]), unpack("!H", data[i+16:i+18])[0])
 			server = Server(self._parent, serverAddress, master=self)
 			server.request()
+			server.request64()
 			self._parent.serverlist.add(server)
 			self.serverlist.add(server)
 	
@@ -215,6 +211,8 @@ class MasterServer(Handler):
 class Server(Handler):
 	_packet_request = 10*b'\xff' + b'gie3'
 	_packet_response = 10*b'\xff' + b'inf3'
+	_packet_request64 = 10*b'\xff' + b'fstd'
+	_packet_response64 = 10*b'\xff' + b'dtsf'
 	
 	def __init__(self, parent, address, master=None):
 		self._address = address
@@ -246,11 +244,20 @@ class Server(Handler):
 		self._parent.socket.sendto_q(self._packet_request + self.token, self._address, self.request_callback)
 		self._parent.add_handler(self)
 	
+	def request64(self):
+		#log('debug', "Server-ping to " + self.address)
+		self.token = chr(randint(1,255))
+		self.data = self._packet_response64 + str(ord(self.token)) + b'\x00'
+		self.request_time = time.time()
+		self._parent.socket.sendto_q(self._packet_request64 + self.token, self._address, self.request_callback)
+		self._parent.add_handler(self)
+		
 	def request_callback(self, request_time):
 		self.request_time = request_time
 	
 	def call(self, address, data):
 		#log('debug', "Server-callback hit from " + address)
+		self.reset()
 		self.parse(data[len(self.data):])
 	
 	def parse(self, data):
@@ -289,8 +296,8 @@ class Server(Handler):
 		return True
 	
 	def __repr__(self):
-		return "<Server name='{name}' address='{address}'>" \
-			.format(name=self.name, address=self.address)
+		return "<Server name='{0}' address='{1}'>" \
+			.format(self.name, self.address)
 
 
 class Player(object):
@@ -303,7 +310,7 @@ class Player(object):
 		self.playing = False
 	
 	def __repr__(self):
-		return "<Player name='{name}'>".format(name=self.name)
+		return "<Player name='{0}'>".format(self.name)
 
 
 class ServerList(object):
@@ -504,15 +511,3 @@ class TWServerRequest(object):
             raise Exception('Expecting instance of class Handler')
         self.handlers.add(handler)
 ## END: TWP MODIF
-
-
-if __name__ == "__main__":
-	tw = Teeworlds(timeout=2)
-	tw.query_masters()
-	tw.run_loop()
-	servers = tw.serverlist.find(name="^C", gametype="CTF", maxping=0.1)
-	servers.sort(key=lambda s: s.latency)
-	for server in servers:
-			print("{server: <64} [{gametype: ^16}] on {master}: {clients: >2}/{max_clients: >2} - {latency: >4.0f} ms" \
-			.format(server=server.name, gametype=server.gametype, master=server.master.name, clients=server.clients, \
-					max_clients=server.max_clients, latency=server.latency*1000))

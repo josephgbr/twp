@@ -21,6 +21,7 @@ from StringIO import StringIO
 import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, random
 from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
+from banned_list import BannedList
 from netstat import netstat
 from urllib import urlretrieve
 try:
