@@ -23,6 +23,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
+from flask.ext.babel import Babel, _
 try:
     import configparser
 except ImportError:
@@ -56,6 +57,8 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])
 LOGFILE = config.get('log', 'file')
 LOGBYTES = config.getint('log', 'maxbytes')
+LOGIN_MAX_TRIES = config.getint('login', 'max_tries')
+LOGIN_BAN_TIME = config.getint('login', 'ban_time')
 SSL = config.getboolean('global','ssl')
 PKEY = config.get('ssl','pkey')
 CERT = config.get('ssl','cert')
@@ -82,6 +85,7 @@ IP = twp.get_public_ip();
 # Start Flask App
 app = Flask(__name__)
 app.config.from_object(__name__)
+babel = Babel(app)
 
 
 # Create server directory if needed
@@ -114,6 +118,9 @@ def before_request():
     executes functions before all requests
     '''
 
+    if request.view_args and 'lang_code' in request.view_args:
+        g.current_lang = request.view_args['lang_code']
+        request.view_args.pop('lang_code')
     check_session_limit()
     g.db = connect_db()
 
@@ -126,6 +133,10 @@ def teardown_request(exception):
     if hasattr(g, 'db'):
         g.db.close()
 
+@babel.localeselector
+def get_locale():
+    return g.get('current_lang', 'en')
+
 
 # Routing
 @app.route("/")
@@ -136,6 +147,9 @@ def overview():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if get_login_tries() >= LOGIN_MAX_TRIES:
+        flash(_('Session Banned: Can\'t login in this website! Fuck you :)', 'danger'))
+        return redirect("/overview") 
     if request.method == 'POST':
         app.logger.debug('A value for debugging')
         request_username = request.form['username']
@@ -149,13 +163,15 @@ def login():
             session['logged_in'] = True
             session['last_activity'] = int(time.time())
             session['username'] = user['username']
-            flash(u'You are logged in!', 'success')
+            flash(_('You are logged in!'), 'success')
 
             if current_url == url_for('login'):
                 return redirect(url_for('overview'))
             return redirect(current_url)
 
-        flash(u'Invalid username or password!', 'danger')
+        session['login_try'] = get_login_tries()+1
+        session['last_login_try'] = int(time.time())
+        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),LOGIN_MAX_TRIES), 'danger')
     return render_template('login.html', twp=TWP_INFO)
 
 @app.route('/logout')
@@ -166,7 +182,9 @@ def logout():
     session.pop('last_activity', None)
     session.pop('name', None)
     session.pop('prev_url', None)
-    flash(u'You are logged out!', 'success')
+    session.pop('login_try', None)
+    session.pop('last_login_try', None)
+    flash(_('You are logged out!'), 'success')
     
     if current_url == url_for('logout'):
         return redirect(url_for('overview'))
@@ -175,7 +193,7 @@ def logout():
 @app.route('/about')
 def about():
     session['prev_url'] = request.path;
-    return redirect(url_for('overview'))
+    return render_template('about.html', twp=TWP_INFO)
 
 @app.route('/servers')
 def servers():
@@ -224,12 +242,12 @@ def maps():
 def settings():
     if 'logged_in' in session and session['logged_in']:
         if request.method == 'POST':
-            flash(u'Settings updates successfully', 'info')
+            flash(_('Settings updates successfully'), 'info')
         else:
             session['prev_url'] = request.path;
         return render_template('settings.html', twp=TWP_INFO)
     else:
-        flash(u'Can\'t access to settings page', 'danger')
+        flash(_('Can\'t access to settings page'), 'danger')
         return redirect(url_for('overview'))
 
 @app.route('/install_mod', methods=['POST'])
@@ -240,9 +258,9 @@ def install_mod():
             try:
                 twp.install_mod_from_url(request.form['url'], SERVERS_BASEPATH)
             except Exception, e:
-                flash("Error: %s" % str(e), 'danger')
+                flash(_("Error: %s") % str(e), 'danger')
             else:
-                flash(u'Mod installed successfully', 'info')
+                flash(_('Mod installed successfully'), 'info')
         else:  
             if 'file' in request.files:
                 file = request.files['file']
@@ -254,14 +272,14 @@ def install_mod():
                         twp.extract_targz(fullpath, SERVERS_BASEPATH, True)
                     elif filename.endswith(".zip"):
                         twp.extract_zip(fullpath, SERVERS_BASEPATH, True)
-                    flash(u'Mod installed successfully', 'info')
+                    flash(_('Mod installed successfully'), 'info')
                     return redirect(current_url)
                 else:
-                    flash(u'Error: Can\'t install selected mod package', 'danger')
+                    flash(_('Error: Can\'t install selected mod package'), 'danger')
             else:
-                flash(u'Error: No file detected!', 'danger')
+                flash(_('Error: No file detected!'), 'danger')
     else:
-        flash(u'Error: You haven\'t permissions for install new mods!', 'danger')
+        flash(_('Error: You haven\'t permissions for install new mods!'), 'danger')
     return redirect(current_url)
 
 @app.route('/search', methods=['GET'])
@@ -289,9 +307,9 @@ def remove_mod():
                 shutil.rmtree(fullpath_folder)
                 return jsonify({'success':True})
             else:
-                return jsonify({'error':True, 'errormsg':u'Error: Folder mod not exists!'})
+                return jsonify({'error':True, 'errormsg':_('Error: Folder mod not exists!')})
         else:
-            return jsonify({'error':True, 'errormsg':u'Error: Old or new password not defined!'})
+            return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     return jsonify({'notauth':True})
 
 @app.route('/_refresh_cpu_host')
@@ -327,7 +345,7 @@ def create_server_instance(mod_folder):
     if 'logged_in' in session and session['logged_in']:
         fileconfig = request.args.get('fileconfig')
         if not fileconfig or fileconfig == "":
-            return jsonify({'error':True, 'errormsg':u'Invalid configuration file name.'})
+            return jsonify({'error':True, 'errormsg':_('Invalid configuration file name.')})
         
         fileconfig = '%s.conf' % fileconfig
         fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,mod_folder,fileconfig)
@@ -342,7 +360,7 @@ def create_server_instance(mod_folder):
         srvMatch = query_db('select rowid from servers where fileconfig=? and base_folder=?', [fileconfig,mod_folder], one=True)
         if srvMatch:
             return jsonify({'error':True, 
-                            'errormsg':u"Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again."})
+                            'errormsg':_("Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again.")})
                     
         cfgbasic = twp.get_data_config_basics(fullpath_fileconfig)
         
@@ -350,13 +368,13 @@ def create_server_instance(mod_folder):
         srvMatch = query_db('select rowid from servers where base_folder=? and logfile=?', [mod_folder, cfgbasic['logfile']], one=True)
         if srvMatch:
             return jsonify({'error':True, 
-                            'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
+                            'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
         srvMatch = query_db('select rowid from servers where econ_port=?', [cfgbasic['econ_port']], one=True)
         if srvMatch:
             return jsonify({'error':True, 
-                            'errormsg':u"Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again."})
+                            'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
@@ -390,7 +408,7 @@ def remove_server_instance(id, delconfig=0):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db("SELECT base_folder,fileconfig FROM servers WHERE rowid=?", [id], one=True)
         if not srv:
-            return jsonify({'error':True, 'errormsg':u'Invalid Operation: Server not found!'})
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
         if delconfig == 1:
             os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']))
@@ -431,14 +449,14 @@ def save_server_config():
                                 [srv['base_folder'], cfgbasic['port'], srvid], one=True)
             if srvMatch:
                 return jsonify({'error':True, \
-                                'errormsg':u"Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again."})
+                                'errormsg':_("Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
             srvMatch = query_db('select rowid from servers where base_folder=? and logfile=? and rowid<>?', 
                                 [srv['base_folder'], cfgbasic['logfile'], srvid], one=True)
             if srvMatch:
                 return jsonify({'error':True, 
-                                'errormsg':u"Can't exits two servers with the same log file.<br/>Please check configuration and try again."})
+                                'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
             
             g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=?,\
                                   econ_port=?,econ_password=? WHERE rowid=?",
@@ -454,7 +472,7 @@ def save_server_config():
             res = {'success':True, 'cfg':cfgbasic, 'id':srvid}
             res.update(cfgbasic)
             return jsonify(res)
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_config/<int:id>')
@@ -474,7 +492,7 @@ def get_server_config(id):
             else:
                 srvcfg = ""
             return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_mod_configs/<string:mod_folder>')
@@ -495,11 +513,11 @@ def start_server(id):
         srv = query_db('select rowid,* from servers WHERE rowid=?', [id], one=True)
         if srv:
             if not srv['bin']:
-                return jsonify({'error':True, 'errormsg':u'Undefined server binary file!!'})
+                return jsonify({'error':True, 'errormsg':_('Undefined server binary file!!')})
             
             srvMatch = query_db("select rowid from servers WHERE status='Running' and port=?", [srv['port']], one=True)
             if srvMatch:
-                return jsonify({'error':True, 'errormsg':u'Can\'t run two servers in the same port!'})
+                return jsonify({'error':True, 'errormsg':_('Can\'t run two servers in the same port!')})
             
             try:
                 start_server_instance(srv['base_folder'], srv['bin'], srv['fileconfig'])
@@ -508,7 +526,7 @@ def start_server(id):
             
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not exists!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
@@ -522,13 +540,13 @@ def stop_server(id):
                     try:
                         os.kill(int(conn[1]), signal.SIGTERM)
                     except Exception, e:
-                        return jsonify({'error':True, 'errormsg':u'System failure: %s' % str(e)})
+                        return jsonify({'error':True, 'errormsg':_('System failure: {0}').format(str(e))})
                     else:
                         return jsonify({'success':True})
                     break
-            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Can\'t found server pid'})
+            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Can\'t found server pid')})
         else:
-            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found'})
+            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_instances_online')
@@ -555,7 +573,7 @@ def get_server_instance_log(id, seek):
         if srv:
             logcontent = ""
             if not srv['logfile']:
-                return jsonify({'error':True, 'errormsg':u'Logfile not defined!'})
+                return jsonify({'error':True, 'errormsg':_('Logfile not defined!')})
             try:
                 if srv['logfile'][0] == '/':
                     fullpath = srv['logfile']
@@ -585,7 +603,7 @@ def get_server_instance_log(id, seek):
                     logcontent.append({'date':date,'section':section,'message':message,'type':type})
             
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found!')})
     return jsonify({'notauth':True})
 
 @app.route('/_send_econ_command', methods=['POST'])
@@ -607,7 +625,7 @@ def send_econ_command():
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
 
 @app.route('/_kick_player/<int:id>', methods=['POST'])
@@ -615,7 +633,7 @@ def send_econ_command():
 def kick_ban_player(id):
     if 'logged_in' in session and session['logged_in']:
         if not 'nick' in request.form or not request.form['nick']:
-            return jsonify({'error':True, 'errormsg':'Client player not defined!'})
+            return jsonify({'error':True, 'errormsg':_('Client player not defined!')})
         
         srv = query_db("SELECT econ_port,econ_password FROM servers WHERE rowid=?", [id], one=True)
         if srv and srv['econ_port'] and srv['econ_password']:
@@ -623,11 +641,11 @@ def kick_ban_player(id):
             action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
             try:
                 if not twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
-                    return jsonify({'error':True, 'errormsg':'Can\'t found \'%s\' player!' % nick})         
+                    return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found or econ not configured!'})
+        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found or econ not configured!')})
     return jsonify({'notauth':True})    
 
 @app.route('/_get_chart_values/<string:chart>', methods=['POST'])
@@ -654,7 +672,7 @@ def get_chart_values(chart, id=None):
                 labels['players7d'].append(value['date'])
                 values['players7d'].append(value['num'])
         else:
-            return jsonify({'error':True, 'errormsg':u'Operation Invalid: Server not found!'})
+            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found!')})
         
         query_data = query_db("SELECT count(clan) as num, clan FROM (SELECT DISTINCT name,clan,server_id FROM players_server \
                 WHERE clan NOT NULL) WHERE server_id=? GROUP BY clan ORDER BY num DESC LIMIT 5", [id])
@@ -694,7 +712,7 @@ def get_chart_values(chart, id=None):
                 labels['players7d'].append(value['date'])
                 values['players7d'].append(value['num'])
         return jsonify({'success':True, 'values':values, 'labels':labels})
-    return jsonify({'error':True, 'errormsg':u'Undefined Chart!'})
+    return jsonify({'error':True, 'errormsg':_('Undefined Chart!')})
 
 @app.route('/_set_user_password/<int:id>', methods=['POST'])
 def set_user_password(id):
@@ -704,9 +722,9 @@ def set_user_password(id):
             if rows.rowcount > 0:
                 g.db.commit()
                 return jsonify({'success':True})
-            return jsonify({'error':True, 'errormsg':u'Error: Can\'t change admin password. Check settings and try again.'})
+            return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. Check settings and try again.')})
         else:
-            return jsonify({'error':True, 'errormsg':u'Error: Old or new password not defined!'})
+            return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     return jsonify({'notauth':True})
 
 
@@ -717,11 +735,10 @@ def check_session_limit():
         limit = now - 60 * config.getint('session', 'time')
         last_activity = session.get('last_activity')
         if last_activity < limit:
-            flash(u'Session timed out!', 'info')
+            flash(_('Session timed out!'), 'info')
             logout()
         else:
             session['last_activity'] = now
-            
 
 # Context Processors
 @app.context_processor
@@ -805,9 +822,11 @@ def shutdown_all_server_instances():
 # TODO: Open how a parent not child...
 def start_server_instance(base_folder, bin, fileconfig):
     subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin), '-f', fileconfig],
-                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder))
 
+def get_login_tries():
+    return int(session.get('login_try')) if 'login_try' in session else 0
 
 
 # Start Scheduler

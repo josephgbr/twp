@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Players{% endblock %}
+{% block title %}{{ _('Players') }}{% endblock %}
 {% block content %}
 
 {{ super() }}
@@ -7,19 +7,19 @@
 	<div class="panel panel-info">
 		<div class="panel-body">
 		{% if players == [] %}
-			<p class="text-center text-muted">No players found!</p>
+			<p class="text-center text-muted">{{ _('No players found!') }}</p>
 		{% else %}
-			List of all players connected to the machine.<br/>
-			<span class="text-muted">Updated every minute</span>
+			{{ _('List of all players connected to the machine.') }}<br/>
+			<span class="text-muted">{{ _('Updated every minute') }}</span>
 		{% endif %}
 		</div>
 		
 		{% if players != [] %}
 		<table class="table table-condensed table-striped">
 			<thead>
-				<th>Name</th>
-				<th>Created</th>
-				<th>Last Seen</th>
+				<th>{{ _('Name') }}</th>
+				<th>{{ _('Created') }}</th>
+				<th>{{ _('Last Seen') }}</th>
 			</thead>
 			<tbody>
 			{% for player in players %}

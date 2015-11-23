@@ -1,149 +1,149 @@
 {% extends "layout.html" %}
-{% block title %}Server Info{% endblock %}
+{% block title %}{{ _('Server Info') }}{% endblock %}
 {% block content %}
 {% set is_online = True if netinfo.gametype else False %}
-<div class="span9">
-	{{ super() }}
-	{% if server %} 
-	<div class="row">
-		<div class="page-header">
-			<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
-		</div>
+
+{{ super() }}
+{% if server %} 
+<div class="row">
+	<div class="page-header">
+		<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
 	</div>
-	<div class="row">
-		<ul class="nav nav-pills nav-justified" role="tablist">
-			<li class="active"><a href="#general" role="tab" data-toggle="tab">General</a></li>
-			<li><a href="#players" data-toggle="tab">Players</a></li>
-		{% if session.logged_in %}
-		  	<li><a href="#log" role="tab" data-toggle="tab">Log</a></li>
-		{% endif %}
-		</ul>
-		
-		<div class="tab-content" style="margin-top:1.5em;">
-		  	<div class="tab-pane active" id="general">
-		  		<div class="col-md-2">
-					<div class="well">
-					  	<dl>
-					  		<dt>Status</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}Online{% else %}Offline{% endif %}</dd>
-							<dt>Address</dt><dd>{{ip}}:{{server['port']}}</dd>
-							<dt>Game Type</dt><dd>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</dd>
-							<dt>Map</dt><dd>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</dd>
-							<dt>Players</dt><dd>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</dd>
-							<dt>Visible</dt><dd>{% if server['register'] %}Yes{% else %}No{% endif %}</dd>
-							<dt>Public</dt><dd>{% if server['password'] %}No{% else %}Yes{% endif %}</dd>
-						{% if session.logged_in %}
-							<dt>Issues</dt><dd><ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins></dd>
-						{% endif %}
-						</dl>
+</div>
+<div class="row">
+	<ul class="nav nav-pills nav-justified" role="tablist">
+		<li class="active"><a href="#general" role="tab" data-toggle="tab">{{ _('General') }}</a></li>
+		<li><a href="#players" data-toggle="tab">{{ _('Players') }}</a></li>
+	{% if session.logged_in %}
+	  	<li><a href="#log" role="tab" data-toggle="tab">{{ _('Log') }}</a></li>
+	{% endif %}
+	</ul>
+	
+	<div class="tab-content" style="margin-top:1.5em;">
+	  	<div class="tab-pane active" id="general">
+	  		<div class="col-md-2">
+				<div class="well">
+				  	<dl>
+				  		<dt>{{ _('Status') }}</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}Online{% else %}Offline{% endif %}</dd>
+						<dt>{{ _('Address') }}</dt><dd>{{ip}}:{{server['port']}}</dd>
+						<dt>{{ _('Game Type') }}</dt><dd>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</dd>
+						<dt>{{ _('Map') }}</dt><dd>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</dd>
+						<dt>{{ _('Players') }}</dt><dd>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</dd>
+						<dt>{{ _('Visible') }}</dt><dd>{% if server['register'] %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</dd>
+						<dt>{{ _('Public') }}</dt><dd>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</dd>
+					{% if session.logged_in %}
+						<dt>{{ _('Issues') }}</dt><dd><ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins></dd>
+					{% endif %}
+					</dl>
+				</div>
+			</div>
+			<div class="col-md-10">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{ _('Players in the last 7 days...') }}
+					</div>
+					<div class="panel-body text-center" style="padding:0;">
+						<canvas style="padding:15px;" height="50" id="chart-players-7d"></canvas>
 					</div>
 				</div>
-				<div class="col-md-10">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Players in the last 7 days...
-						</div>
- 						<div class="panel-body text-center" style="padding:0;">
- 							<canvas style="padding:15px;" height="50" id="chart-players-7d"></canvas>
- 						</div>
- 					</div>
+			</div>
+			<div class="col-md-5">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{ _('Top 5 - Clans') }}
+					</div>
+					<div class="panel-body text-center" style="padding:0;">
+						<canvas style="padding:15px;" height="50" id="chart-active-clan"></canvas>
+					</div>
 				</div>
-				<div class="col-md-5">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Top 5 - Clans
-						</div>
- 						<div class="panel-body text-center" style="padding:0;">
- 							<canvas style="padding:15px;" height="50" id="chart-active-clan"></canvas>
- 						</div>
- 					</div>
+			</div>
+			<div class="col-md-5">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						{{ _('Top 5 - Countries') }}
+					</div>
+					<div class="panel-body text-center" style="padding:0;">
+						<canvas style="padding:15px;" height="50" id="chart-active-country"></canvas>
+					</div>
 				</div>
-				<div class="col-md-5">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							Top 5 - Countries
-						</div>
- 						<div class="panel-body text-center" style="padding:0;">
- 							<canvas style="padding:15px;" height="50" id="chart-active-country"></canvas>
- 						</div>
- 					</div>
-				</div>
-		  	</div>
-		  	<div class="tab-pane" id="players">
-		  	{% if is_online %}
-				<table class="table table-condensed table-hover table-striped">
-					<thead>
-						<th>Score</th>
-						<th>Name</th>
-						<th>Clan</th>
-						<th>&nbsp;</th>
-					</thead>
-					<tbody>
-			  		{% for player in netinfo.playerlist %}
-			  			<tr>
-			  				<td class="col-md-1 pl-score">{{player.score}}</td>
-			  				<td class="col-md-5 pl-name">{{player.name}}</td>
-			  				<td class="col-md-2 pl-clan">{{player.clan}}</td>
-			  				<td class="col-md-4 pl-actions text-right">
-			  					{% if session.logged_in and server['econ_port'] and server['econ_password'] %}
-		  						<a data-name="{{player.name}}" class="kick-player btn btn-xs btn-warning">
-							        <i class="fa fa-fire"></i> Kick
-							    </a>
-		  						<a data-name="{{player.name}}" class="ban-player btn btn-xs btn-danger">
-							        <i class="fa fa-ban"></i> Ban
-							    </a>
-							    {% endif %}
-			  				</td>
-			  			</tr>
-			  		{% endfor %}
-		  			</tbody>
-		  		</table>
-		  	{% else %}
-		  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
-			  		<span class="fa-stack fa-lg">
-					  <i class="fa fa-server fa-stack-1x"></i>
-					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
-					</span>
-					SERVER OFFLINE
-			  		<span class="fa-stack fa-lg">
-					  <i class="fa fa-server fa-stack-1x"></i>
-					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
-					</span>
-				</h1>
-		  	{% endif %}
-		  	</div>
-		{% if session.logged_in %}
-		  	<div class="tab-pane" id="log">
-		  	{% if not server['logfile'] %}
-		  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
-			  		<span class="fa-stack fa-lg">
-					  <i class="fa fa-file-text-o fa-stack-1x"></i>
-					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
-					</span>
-					NO LOG DEFINED
-			  		<span class="fa-stack fa-lg">
-					  <i class="fa fa-file-text-o fa-stack-1x"></i>
-					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
-					</span>
-				</h1>
-			{% else %}
-				<table class="table table-condensed table-hover table-striped">
-					<thead>
-						<th>Date</th>
-						<th>Section</th>
-						<th>Message</th>
-					</thead>
-					<tbody id='server-log'>
-		  			</tbody>
-		  		</table>
-		  	{% endif %}
-		  	</div>
-		{% endif %}
-		</div>
-	</div>
-	{% else %}
-	<h1 class="text-center"><i class="fa fa-frown-o fa-lg"></i><br/>SERVER NOT FOUND</h1>
+			</div>
+	  	</div>
+	  	<div class="tab-pane" id="players">
+	  	{% if is_online %}
+			<table class="table table-condensed table-hover table-striped">
+				<thead>
+					<th>{{ _('Score') }}</th>
+					<th>{{ _('Name') }}</th>
+					<th>{{ _('Clan') }}</th>
+					<th>&nbsp;</th>
+				</thead>
+				<tbody>
+		  		{% for player in netinfo.playerlist %}
+		  			<tr>
+		  				<td class="col-md-1 pl-score">{{player.score}}</td>
+		  				<td class="col-md-5 pl-name">{{player.name}}</td>
+		  				<td class="col-md-2 pl-clan">{{player.clan}}</td>
+		  				<td class="col-md-4 pl-actions text-right">
+		  					{% if session.logged_in and server['econ_port'] and server['econ_password'] %}
+	  						<a data-name="{{player.name}}" class="kick-player btn btn-xs btn-warning">
+						        <i class="fa fa-fire"></i> {{ _('Kick') }}
+						    </a>
+	  						<a data-name="{{player.name}}" class="ban-player btn btn-xs btn-danger">
+						        <i class="fa fa-ban"></i> {{ _('Ban') }}
+						    </a>
+						    {% endif %}
+		  				</td>
+		  			</tr>
+		  		{% endfor %}
+	  			</tbody>
+	  		</table>
+	  	{% else %}
+	  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+		  		<span class="fa-stack fa-lg">
+				  <i class="fa fa-server fa-stack-1x"></i>
+				  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+				</span>
+				{{ _('SERVER OFFLINE') }}
+		  		<span class="fa-stack fa-lg">
+				  <i class="fa fa-server fa-stack-1x"></i>
+				  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+				</span>
+			</h1>
+	  	{% endif %}
+	  	</div>
+	{% if session.logged_in %}
+	  	<div class="tab-pane" id="log">
+	  	{% if not server['logfile'] %}
+	  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+		  		<span class="fa-stack fa-lg">
+				  <i class="fa fa-file-text-o fa-stack-1x"></i>
+				  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+				</span>
+				{{ _('NO LOG DEFINED') }}
+		  		<span class="fa-stack fa-lg">
+				  <i class="fa fa-file-text-o fa-stack-1x"></i>
+				  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+				</span>
+			</h1>
+		{% else %}
+			<table class="table table-condensed table-hover table-striped">
+				<thead>
+					<th>{{ _('Date') }}</th>
+					<th>{{ _('Section') }}</th>
+					<th>{{ _('Message') }}</th>
+				</thead>
+				<tbody id='server-log'>
+	  			</tbody>
+	  		</table>
+	  	{% endif %}
+	  	</div>
 	{% endif %}
+	</div>
 </div>
+{% else %}
+<h1 class="text-center"><i class="fa fa-frown-o fa-lg"></i><br/>{{ _('SERVER NOT FOUND') }}</h1>
+{% endif %}
+
 
 {% if session.logged_in %}
 	{% include "includes/modal_instance_issues.html" %}
