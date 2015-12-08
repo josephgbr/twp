@@ -4,6 +4,7 @@
 .settings/*
 servers/
 
+*.pot
 *.log
 *.pyc
 *.save

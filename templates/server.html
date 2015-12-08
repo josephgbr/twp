@@ -24,7 +24,7 @@
 	  		<div class="col-md-2">
 				<div class="well">
 				  	<dl>
-				  		<dt>{{ _('Status') }}</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}Online{% else %}Offline{% endif %}</dd>
+				  		<dt>{{ _('Status') }}</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</dd>
 						<dt>{{ _('Address') }}</dt><dd>{{ip}}:{{server['port']}}</dd>
 						<dt>{{ _('Game Type') }}</dt><dd>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</dd>
 						<dt>{{ _('Map') }}</dt><dd>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</dd>

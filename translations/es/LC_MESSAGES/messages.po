@@ -1,525 +1,553 @@
-# Translations template for PROJECT.
+# Spanish translations for TWP.
 # Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# This file is distributed under the same license as the TWP project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: TWP v.0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-12-08 03:10+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2015-12-08 03:16+0100\n"
+"Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
+"Language-Team:  <dev@redneboa.es>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
+"X-Generator: Poedit 1.5.4\n"
+"Language: es\n"
 
 #: twp.py:168
 msgid "Session Banned: Can't login in this website! Fuck you :)"
-msgstr ""
+msgstr "Sesión baneada: No puedes logearte en esta página! Que te jodan :)"
 
 #: twp.py:183
 msgid "You are logged in!"
-msgstr ""
+msgstr "Te has logeado correctamente!"
 
 #: twp.py:191
 msgid "Invalid username or password! ({0}/{1})"
-msgstr ""
+msgstr "Nombre de usuario o contraseña incorrecto ({0}/{1})"
 
 #: twp.py:204
 msgid "You are logged out!"
-msgstr ""
+msgstr "Sesión cerrada correctamente!"
 
 #: twp.py:262
 msgid "Settings updates successfully"
-msgstr ""
+msgstr "Configuración actualizada correctamente"
 
 #: twp.py:267
 msgid "Can't access to settings page"
-msgstr ""
+msgstr "No puedes acceder a la página de configuración"
 
 #: twp.py:278
 #, python-format
 msgid "Error: %s"
-msgstr ""
+msgstr "Error: %s"
 
 #: twp.py:280 twp.py:292
 msgid "Mod installed successfully"
-msgstr ""
+msgstr "Mos instalado correctamente"
 
 #: twp.py:295
 msgid "Error: Can't install selected mod package"
-msgstr ""
+msgstr "Error: No se ha podido instalar el mod seleccionado"
 
 #: twp.py:297
 msgid "Error: No file detected!"
-msgstr ""
+msgstr "Error: Archivo no detectado!"
 
 #: twp.py:299
 msgid "Error: You haven't permissions for install new mods!"
-msgstr ""
+msgstr "Error: No tienes permisos para instalar nuevos mods!"
 
 #: twp.py:327
 msgid "Error: Folder mod not exists!"
-msgstr ""
+msgstr "Error: La carpeta de mod no existe!"
 
 #: twp.py:329 twp.py:744
 msgid "Error: Old or new password not defined!"
-msgstr ""
+msgstr "Error: La antigüa o la nueva contraseña no está definida!"
 
 #: twp.py:365
 msgid "Invalid configuration file name."
-msgstr ""
+msgstr "El nombre del archivo de configuración no es válido."
 
 #: twp.py:380
 msgid ""
-"Can't exits two servers with the same configuration file.<br/>Please "
-"change configuration file name and try again."
+"Can't exits two servers with the same configuration file.<br/>Please change "
+"configuration file name and try again."
 msgstr ""
+"No pueden exisitir dos servidores con el mismo archivo de configuración.<br/"
+">Porfavor cambia el nombre del archivo de configuración e intentalo de nuevo."
 
 #: twp.py:388 twp.py:476
 msgid ""
 "Can't exits two servers with the same log file.<br/>Please check "
 "configuration and try again."
 msgstr ""
+"No puedes existir dos servidores con el mismo archivo de registro (log).<br/"
+">Porfavor verifica la configuración e intentalo de nuevo."
 
 #: twp.py:394
 msgid ""
 "Can't exits two servers with the same 'ec_port'.<br/>Please check "
 "configuration and try again."
 msgstr ""
+"No puedes existir dos servidores con el mismo 'ec_port'.<br/>Porfavor "
+"verifica la configuración e intentalo de nuevo."
 
 #: twp.py:428 twp.py:566 twp.py:623 twp.py:692
 msgid "Invalid Operation: Server not found!"
-msgstr ""
+msgstr "Operación Inválida: Servidor no encontrado!"
 
 #: twp.py:469
+#, fuzzy
 msgid ""
-"Can't exits two servers with the same 'sv_port' in the same "
-"MOD.<br/>Please check configuration and try again."
+"Can't exits two servers with the same 'sv_port' in the same MOD.<br/>Please "
+"check configuration and try again."
 msgstr ""
+"No pueden existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/"
+">Porfavor verifica la configuración e intentalo de nuevo."
 
 #: twp.py:492 twp.py:512 twp.py:546
+#, fuzzy
 msgid "Invalid Operation: Server not exists!"
-msgstr ""
+msgstr "Operación Inválida: Servidor no encontrado!"
 
 #: twp.py:533
 msgid "Undefined server binary file!!"
-msgstr ""
+msgstr "El ejecutable del servidor no está definido!!"
 
 #: twp.py:537
 msgid "Can't run two servers in the same port!"
-msgstr ""
+msgstr "No se pueden ejecutar dos servidores en el mismo puerto!"
 
 #: twp.py:560
 msgid "System failure: {0}"
-msgstr ""
+msgstr "Fallo del sistema: {0}"
 
 #: twp.py:564
+#, fuzzy
 msgid "Invalid Operation: Can't found server pid"
-msgstr ""
+msgstr "Operación Inválida: No se puede encontrar el 'pid' del servidor"
 
 #: twp.py:593
 msgid "Logfile not defined!"
-msgstr ""
+msgstr "Archivo de registro no definido!"
 
 #: twp.py:645 twp.py:665
+#, fuzzy
 msgid "Invalid Operation: Server not found or econ not configured!"
-msgstr ""
+msgstr "Operación Inválida: Servidor no encontrado o 'econ' no configurado!"
 
 #: twp.py:653
 msgid "Client player not defined!"
-msgstr ""
+msgstr "Jugador no definido!"
 
 #: twp.py:661
 msgid "Can't found '{0}' player!"
-msgstr ""
+msgstr "No se puede encontrar al jugador '{0}'!"
 
 #: twp.py:732
 msgid "Undefined Chart!"
-msgstr ""
+msgstr "Gráfica no definida!"
 
 #: twp.py:742
 msgid "Error: Can't change admin password. Check settings and try again."
 msgstr ""
+"Error: No se puede camiar la contraseña de administrador. Verifica la "
+"configuración e intentalo de nuevo."
 
 #: twp.py:755
 msgid "Session timed out!"
-msgstr ""
+msgstr "La sesión ha expirado!"
 
 #: templates/index.html:2 templates/includes/nav.html:17
 msgid "Overview"
-msgstr ""
+msgstr "General"
 
 #: templates/index.html:17
 msgid "CPU usage:"
-msgstr ""
+msgstr "Uso CPU:"
 
 #: templates/index.html:23
 msgid "Memory usage:"
-msgstr ""
+msgstr "Uso Memoria:"
 
 #: templates/index.html:26
 msgid "Cached memory"
-msgstr ""
+msgstr "Memoria cacheada"
 
 #: templates/index.html:30
 msgid "Disk usage:"
-msgstr ""
+msgstr "Uso Disco:"
 
 #: templates/index.html:42 templates/server.html:43
 msgid "Players in the last 7 days..."
-msgstr ""
+msgstr "Jugadores en los últimos 7 días..."
 
 #: templates/index.html:54 templates/search.html:29 templates/servers.html:44
 msgid "Server Name"
-msgstr ""
+msgstr "Nombre del Servidor"
 
 #: templates/index.html:55 templates/search.html:28 templates/server.html:29
 #: templates/servers.html:43
 msgid "Game Type"
-msgstr ""
+msgstr "Tipo de Juego"
 
 #: templates/index.html:56 templates/players.html:2 templates/search.html:58
 #: templates/server.html:16 templates/server.html:31
 #: templates/includes/nav.html:19
 msgid "Players"
-msgstr ""
+msgstr "Jugadores"
 
 #: templates/index.html:57 templates/server.html:30
 msgid "Map"
-msgstr ""
+msgstr "Mapa"
 
 #: templates/index.html:58
 msgid "Latency"
-msgstr ""
+msgstr "Latencia"
 
 #: templates/index.html:62
 msgid "No local servers can be found on the master-server"
-msgstr ""
+msgstr "No se pueden encontrar servidor locales en el servidor maestro"
 
 #: templates/index.html:63
 msgid "Searching for local servers in master list..."
-msgstr ""
+msgstr "Buscando servidores locales en el servidor maestro..."
 
-#: templates/login.html:2 templates/login.html:8 templates/includes/nav.html:39
+#: templates/login.html:2 templates/login.html:8
+#: templates/includes/nav.html:39
 msgid "Sign In"
-msgstr ""
+msgstr "Entrar"
 
 #: templates/login.html:12
 msgid "Username:"
-msgstr ""
+msgstr "Nombre de Usuario:"
 
 #: templates/login.html:16
 msgid "Password:"
-msgstr ""
+msgstr "Contraseña:"
 
 #: templates/login.html:19 templates/includes/nav.html:26
 msgid "Submit"
-msgstr ""
+msgstr "Enviar"
 
 #: templates/players.html:10
 msgid "No players found!"
-msgstr ""
+msgstr "No se han encontrado jugadores!"
 
 #: templates/players.html:12
 msgid "List of all players connected to the machine."
-msgstr ""
+msgstr "Lista de todos los jugadores conectados a la máquina."
 
 #: templates/players.html:13
 msgid "Updated every minute"
-msgstr ""
+msgstr "Actualizado cada minuto"
 
 #: templates/players.html:20 templates/search.html:62 templates/server.html:76
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: templates/players.html:21 templates/search.html:63
 msgid "Created"
-msgstr ""
+msgstr "Creado"
 
 #: templates/players.html:22 templates/search.html:64
 msgid "Last Seen"
-msgstr ""
+msgstr "Visto por última vez"
 
 #: templates/search.html:2 templates/search.html:8
 #: templates/includes/nav.html:24
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: templates/search.html:13
 msgid "NO RESULTS"
-msgstr ""
+msgstr "SIN RESULTADOS"
 
 #: templates/search.html:21 templates/servers.html:2
 #: templates/includes/nav.html:18
 msgid "Servers"
-msgstr ""
+msgstr "Servidores"
 
 #: templates/search.html:26 templates/server.html:27 templates/servers.html:41
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: templates/search.html:27 templates/servers.html:42
 msgid "Port"
-msgstr ""
+msgstr "Puerto"
 
 #: templates/search.html:36 templates/servers.html:51
 msgid "Not Register Server"
-msgstr ""
+msgstr "Servidor No Registrado"
 
 #: templates/search.html:36 templates/servers.html:51
 msgid "Register Server"
-msgstr ""
+msgstr "Servidor Registrado"
 
 #: templates/search.html:37 templates/servers.html:52
 msgid "Public Server"
-msgstr ""
+msgstr "Servidor Público"
 
 #: templates/search.html:37 templates/servers.html:52
 msgid "Private Server"
-msgstr ""
+msgstr "Servidor Privado"
 
 #: templates/search.html:44 templates/servers.html:59
 msgid "Server Instance Information"
-msgstr ""
+msgstr "Información de la Instancia del Servidor"
 
 #: templates/server.html:2
 msgid "Server Info"
-msgstr ""
+msgstr "Información del Servidor"
 
 #: templates/server.html:15
 msgid "General"
-msgstr ""
+msgstr "General"
 
 #: templates/server.html:18
 msgid "Log"
-msgstr ""
+msgstr "Registro"
 
 #: templates/server.html:27
 msgid "Online"
-msgstr ""
+msgstr "Conectado"
 
 #: templates/server.html:27
 msgid "Offline"
-msgstr ""
+msgstr "Desconectado"
 
 #: templates/server.html:28
 msgid "Address"
-msgstr ""
+msgstr "Dirección"
 
 #: templates/server.html:32
 msgid "Visible"
-msgstr ""
+msgstr "Visible"
 
 #: templates/server.html:32 templates/server.html:33
 msgid "Yes"
-msgstr ""
+msgstr "Si"
 
 #: templates/server.html:32 templates/server.html:33
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: templates/server.html:33
 msgid "Public"
-msgstr ""
+msgstr "Público"
 
 #: templates/server.html:35 templates/includes/modal_instance_issues.html:6
 msgid "Issues"
-msgstr ""
+msgstr "Incidencias"
 
 #: templates/server.html:53
 msgid "Top 5 - Clans"
-msgstr ""
+msgstr "Top 5 - Clanes"
 
 #: templates/server.html:63
 msgid "Top 5 - Countries"
-msgstr ""
+msgstr "Top 5 - Paises"
 
 #: templates/server.html:75
 msgid "Score"
-msgstr ""
+msgstr "Puntuación"
 
 #: templates/server.html:77
 msgid "Clan"
-msgstr ""
+msgstr "Clan"
 
 #: templates/server.html:89
 msgid "Kick"
-msgstr ""
+msgstr "Kick"
 
 #: templates/server.html:92
 msgid "Ban"
-msgstr ""
+msgstr "Ban"
 
 #: templates/server.html:106
 msgid "SERVER OFFLINE"
-msgstr ""
+msgstr "SERVIDOR DESCONECTADO"
 
 #: templates/server.html:122
 msgid "NO LOG DEFINED"
-msgstr ""
+msgstr "REGISTRO NO DEFINIDO"
 
 #: templates/server.html:131 templates/includes/modal_instance_issues.html:11
 msgid "Date"
-msgstr ""
+msgstr "Fecha"
 
 #: templates/server.html:132
 msgid "Section"
-msgstr ""
+msgstr "Sección"
 
 #: templates/server.html:133 templates/includes/modal_instance_issues.html:12
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 #: templates/server.html:144
 msgid "SERVER NOT FOUND"
-msgstr ""
+msgstr "SERVIDOR NO ENCONTRADO"
 
 #: templates/servers.html:11
 msgid "Install Mod"
-msgstr ""
+msgstr "Instalar Mod"
 
 #: templates/servers.html:14
 msgid "From URL"
-msgstr ""
+msgstr "Desde URL"
 
 #: templates/servers.html:15
 msgid "From Archive"
-msgstr ""
+msgstr "Desde Archivo"
 
 #: templates/servers.html:29
 msgid "Create Instance"
-msgstr ""
+msgstr "Crear Instancia"
 
 #: templates/servers.html:30
 msgid "Remove Mod"
-msgstr ""
+msgstr "Borrar Mod"
 
 #: templates/servers.html:62
 msgid "Config"
-msgstr ""
+msgstr "Configuración"
 
 #: templates/servers.html:65
 msgid "Start"
-msgstr ""
+msgstr "Iniciar"
 
 #: templates/servers.html:75
 msgid "No binaries found!"
-msgstr ""
+msgstr "Binarios no encontrados!"
 
 #: templates/servers.html:79
 msgid "Remove Server Instance"
-msgstr ""
+msgstr "Borrar Instancia del Servidor"
 
 #: templates/servers.html:83
 msgid "ECon Admin"
-msgstr ""
+msgstr "ECon Admin"
 
 #: templates/servers.html:87
 msgid "Stop"
-msgstr ""
+msgstr "Parar"
 
 #: templates/servers.html:97
 msgid "No instances defined!"
-msgstr ""
+msgstr "Ninguna instancia definida!"
 
 #: templates/servers.html:105
 msgid "No servers found!"
-msgstr ""
+msgstr "No se han encontrado servidores!"
 
 #: templates/settings.html:2 templates/settings.html:8
 #: templates/includes/nav.html:33
 msgid "Settings"
-msgstr ""
+msgstr "Configuración"
 
 #: templates/settings.html:13
 msgid "Administrator Password"
-msgstr ""
+msgstr "Contraseña de Administrador"
 
 #: templates/settings.html:18
 msgid "Old password:"
-msgstr ""
+msgstr "Contraseña Antigüa:"
 
 #: templates/settings.html:27
 msgid "New password:"
-msgstr ""
+msgstr "Contraseña Nueva:"
 
 #: templates/settings.html:36
 msgid "Repeat new password:"
-msgstr ""
+msgstr "Repetir Nueva Contraseña:"
 
 #: templates/settings.html:45
 msgid "Change"
-msgstr ""
+msgstr "Cambiar"
 
 #: templates/includes/modal_external_console.html:6
 msgid "External Console"
-msgstr ""
+msgstr "Consola Externa"
 
 #: templates/includes/modal_external_console.html:14
 msgid "Command..."
-msgstr ""
+msgstr "Comando..."
 
 #: templates/includes/modal_external_console.html:16
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: templates/includes/modal_external_console.html:25
 #: templates/includes/modal_instance_configuration.html:30
 #: templates/includes/modal_instance_issues.html:25
 #: templates/includes/modal_new_server.html:20
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: templates/includes/modal_instance_configuration.html:6
 msgid "Instance Configuration"
-msgstr ""
+msgstr "Configuración de la Instancia"
 
 #: templates/includes/modal_instance_configuration.html:15
 msgid "Auto-Launch if offline:"
-msgstr ""
+msgstr "Auto-Lanzar si desconectado"
 
 #: templates/includes/modal_instance_configuration.html:22
 msgid "Here goes your"
-msgstr ""
+msgstr "Aquí va tu"
 
 #: templates/includes/modal_instance_configuration.html:22
 msgid "configuration"
-msgstr ""
+msgstr "configuración"
 
 #: templates/includes/modal_instance_configuration.html:31
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: templates/includes/modal_new_server.html:6
 msgid "Create Server Instance"
-msgstr ""
+msgstr "Crear Instancia de Servidor"
 
 #: templates/includes/modal_new_server.html:12
 msgid "Configuration File Name:"
-msgstr ""
+msgstr "Nombre Archivo de Configuración:"
 
 #: templates/includes/modal_new_server.html:15
 msgid "Without file extension."
-msgstr ""
+msgstr "Sin la extensión del archivo."
 
 #: templates/includes/modal_new_server.html:21
 msgid "Create instance"
-msgstr ""
+msgstr "Crear instancia"
 
 #: templates/includes/nav.html:6
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Conmutar navegación"
 
 #: templates/includes/nav.html:20
 msgid "Maps"
-msgstr ""
+msgstr "Mapas"
 
 #: templates/includes/nav.html:35
 msgid "Logout"
-msgstr ""
+msgstr "Cerrar Sesión"
 
+#~ msgid "Operation Invalid: Server not exists!"
+#~ msgstr "Operación Inválida: El servidor no existe!"
+
+#~ msgid "Operation Invalid: Server not found"
+#~ msgstr "Operación Inválida: Servidor no encontrado"
+
+#~ msgid "Operation Invalid: Server not found!"
+#~ msgstr "Operación Inválida: Servidor no encontrado!"
+
+#~ msgid "Sing In"
+#~ msgstr "Entrar"

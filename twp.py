@@ -23,7 +23,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
-from flask.ext.babel import Babel, _
+from flask.ext.babel import Babel, _, refresh; refresh()
 from twp import BannedList
 try:
     import configparser
@@ -50,6 +50,7 @@ DEBUG = config.getboolean('global', 'debug')
 HOST = config.get('global', 'host')
 PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
+BABEL_DEFAULT_LOCALE = config.get('global','locale')
 DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
 SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
@@ -139,7 +140,19 @@ def teardown_request(exception):
 
 @babel.localeselector
 def get_locale():
-    return g.get('current_lang', 'en')
+    # if a user is logged in, use the locale from the user settings
+    user = getattr(g, 'user', None)
+    if user is not None:
+        return user.locale
+    # otherwise try to guess the language from the user accept
+    # header the browser transmits. The best match wins.
+    return request.accept_languages.best_match(['es','en'])
+
+@babel.timezoneselector
+def get_timezone():
+    user = getattr(g, 'user', None)
+    if user is not None:
+        return user.timezone
 
 
 # Routing
@@ -453,7 +466,7 @@ def save_server_config():
                                 [srv['base_folder'], cfgbasic['port'], srvid], one=True)
             if srvMatch:
                 return jsonify({'error':True, \
-                                'errormsg':_("Can't exits two servers with the same 'Port' in the same MOD.<br/>Please check configuration and try again.")})
+                                'errormsg':_("Can't exits two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
             srvMatch = query_db('select rowid from servers where base_folder=? and logfile=? and rowid<>?', 
@@ -476,7 +489,7 @@ def save_server_config():
             res = {'success':True, 'cfg':cfgbasic, 'id':srvid}
             res.update(cfgbasic)
             return jsonify(res)
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_config/<int:id>')
@@ -496,7 +509,7 @@ def get_server_config(id):
             else:
                 srvcfg = ""
             return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename})
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_mod_configs/<string:mod_folder>')
@@ -530,7 +543,7 @@ def start_server(id):
             
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not exists!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
@@ -548,9 +561,9 @@ def stop_server(id):
                     else:
                         return jsonify({'success':True})
                     break
-            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Can\'t found server pid')})
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Can\'t found server pid')})
         else:
-            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found')})
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_instances_online')
@@ -607,7 +620,7 @@ def get_server_instance_log(id, seek):
                     logcontent.append({'date':date,'section':section,'message':message,'type':type})
             
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
     return jsonify({'notauth':True})
 
 @app.route('/_send_econ_command', methods=['POST'])
@@ -629,7 +642,7 @@ def send_econ_command():
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found or econ not configured!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
 
 @app.route('/_kick_player/<int:id>', methods=['POST'])
@@ -649,7 +662,7 @@ def kick_ban_player(id):
             except Exception, e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found or econ not configured!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})    
 
 @app.route('/_get_chart_values/<string:chart>', methods=['POST'])
@@ -676,7 +689,7 @@ def get_chart_values(chart, id=None):
                 labels['players7d'].append(value['date'])
                 values['players7d'].append(value['num'])
         else:
-            return jsonify({'error':True, 'errormsg':_('Operation Invalid: Server not found!')})
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
         query_data = query_db("SELECT count(clan) as num, clan FROM (SELECT DISTINCT name,clan,server_id FROM players_server \
                 WHERE clan NOT NULL) WHERE server_id=? GROUP BY clan ORDER BY num DESC LIMIT 5", [id])
@@ -840,7 +853,7 @@ scheduler.start()
 
 
 # Init Module
-if __name__ == "__main__":    
+if __name__ == "__main__":
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)
