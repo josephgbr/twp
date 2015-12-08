@@ -53,9 +53,6 @@ $(function(){
 		//
 		
 		hashObj = new jsSHA("SHA-512", "TEXT");
-		hashObj.update(passOld);
-		passOld = hashObj.getHash("HEX");
-		hashObj = new jsSHA("SHA-512", "TEXT");
 		hashObj.update(passNew);
 		passNew = hashObj.getHash("HEX");
 		

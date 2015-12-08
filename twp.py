@@ -735,7 +735,7 @@ def get_chart_values(chart, id=None):
 def set_user_password(id):
     if 'logged_in' in session and session['logged_in']:
         if 'pass_new' in request.form and 'pass_old' in request.form:
-            rows = g.db.execute("UPDATE users SET password=? WHERE rowid=? AND password=?",[str(request.form['pass_new']), id, str(request.form['pass_old'])])
+            rows = g.db.execute("UPDATE users SET password=? WHERE rowid=? AND password=?",[str(request.form['pass_new']), id, str_sha512_hex_encode(str(request.form['pass_old']))])
             if rows.rowcount > 0:
                 g.db.commit()
                 return jsonify({'success':True})

@@ -1,4 +1,4 @@
-⚫ Teeworlds Web Panel
+Teeworlds Web Panel
 =
 TWP is an app-web for manage your local teeworlds linux servers. Inspired by the work of '[LXC Web Panel](https://github.com/lxc-webpanel/LXC-Web-Panel)'.
 
@@ -24,10 +24,9 @@ Project Requirements:
 
 ⚫ Installation
 -
-|NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section.|
+_NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
 
-**Automatic (Full: builtin server)**
-[
+**Automatic (Full) --Warning: builtin server--**
 ```bash
 $ wget http://twp.redneboa.es -O install_twp.sh && sudo bash install_twp.sh $LOGNAME
 ```
