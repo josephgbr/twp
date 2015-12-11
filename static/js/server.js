@@ -64,38 +64,51 @@ $(function(){
 	});
 	
 	// Charts
-	var ctxChartPlayers7d = document.getElementById('chart-players-7d').getContext('2d');
-	var ctxChartActiveClan = document.getElementById('chart-active-clan').getContext('2d');
-	var ctxChartActiveCountry = document.getElementById('chart-active-country').getContext('2d');
 	$.post($SCRIPT_ROOT + '/_get_chart_values/server/'+$SRVID, '', function(data) {
-		var chartData = {
-		    labels: data['labels']['players7d'],
-		    datasets: [
-		        {
-		            label: "Players Count",
-		            fillColor: "rgba(220,220,220,0.2)",
-		            strokeColor: "rgba(220,220,220,1)",
-		            pointColor: "rgba(220,220,220,1)",
-		            pointStrokeColor: "#fff",
-		            pointHighlightFill: "#fff",
-		            pointHighlightStroke: "rgba(220,220,220,1)",
-		            data: data['values']['players7d']
-		        }
-		    ]
-		};
+		// Players last 7days
+		var chartData = [];
+		for (i in data['labels']['players7d'])
+		{
+			chartData.push({
+				a: data['values']['players7d'][i],
+				y: data['labels']['players7d'][i]
+			});
+		}
+		Morris.Line({
+			  element: 'chart-players-7d',
+			  data: chartData,
+			  xkey: 'y',
+			  ykeys: ['a'],
+			  labels: ['Players'],
+			  resize: true,
+			  dateFormat: function (x) {
+				  	var d = new Date(x);
+					var curr_date = d.getDate();
+					var curr_month = d.getMonth() + 1; //Months are zero based
+					var curr_year = d.getFullYear();
+					return curr_date + "-" + curr_month + "-" + curr_year; 
+			  }
+		});
 		
-		var chartColors = [['#F7464A','#FF5A5E'], ['#46BFBD','#5AD3D1'], ['#FDB45C','#FFC870'], ['#A7464A','#AF5A5E'], ['#37464A','#3F5A5E']];
+		var chartColors = ['#F7464A', '#46BFBD', '#FDB45C', '#A7464A', '#37464A'];
+		// Top Clans
 		var chartTopClanData = [];
-		var chartTopCountryData = [];
 		for (i in data['labels']['topclan'])
 		{
 			chartTopClanData.push({
 				value: data['values']['topclan'][i],
-				color: chartColors[i][0],
-				highlight: chartColors[i][1],
 				label: data['labels']['topclan'][i]
 			});
 		}
+		Morris.Donut({
+			element: 'chart-active-clan',
+			data: chartTopClanData,
+			colors: chartColors,
+			resize: true
+		});
+		
+		// Top Countries
+		var chartTopCountryData = [];
 		for (i in data['labels']['topcountry'])
 		{
 			countryName = undefined;
@@ -109,32 +122,15 @@ $(function(){
 				
 			chartTopCountryData.push({
 				value: data['values']['topcountry'][i],
-				color: chartColors[i][0],
-				highlight: chartColors[i][1],
 				label: countryName
 			});
 		}
-		
-		var chartOptions = {
-			responsive: true,
-		    scaleShowGridLines : true,
-		    scaleGridLineColor : "rgba(0,0,0,.05)",
-		    scaleGridLineWidth : 1,
-		    scaleShowHorizontalLines: true,
-		    scaleShowVerticalLines: true,
-		    bezierCurve : true,
-		    bezierCurveTension : 0.4,
-		    pointDot : true,
-		    pointDotRadius : 4,
-		    pointDotStrokeWidth : 1,
-		    pointHitDetectionRadius : 20,
-		    datasetStroke : true,
-		    datasetStrokeWidth : 2,
-		    datasetFill : true,
-		};
-		var chartPlayers7d = new Chart(ctxChartPlayers7d).Line(chartData, chartOptions);
-		var chartActiveClan = new Chart(ctxChartActiveClan).Doughnut(chartTopClanData, {responsive: true});
-		var chartActiveCountry = new Chart(ctxChartActiveCountry).Doughnut(chartTopCountryData, {responsive: true});
+		Morris.Donut({
+			element: 'chart-active-country',
+			data: chartTopCountryData,
+			colors: chartColors,
+			resize: true
+		});
 	});
 	
 });

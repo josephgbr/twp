@@ -119,41 +119,30 @@ $(function() {
 		});
 	});*/
 	
-	var ctxChartMachinePlayers7d = document.getElementById('chart-machine-players7d').getContext('2d');
-	$.post($SCRIPT_ROOT + '/_get_chart_values/machine/3', '', function(data) {
-		var chartData = {
-		    labels: data['labels']['players7d'],
-		    datasets: [
-		        {
-		            label: "Players Count",
-		            fillColor: "rgba(220,220,220,0.2)",
-		            strokeColor: "rgba(220,220,220,1)",
-		            pointColor: "rgba(220,220,220,1)",
-		            pointStrokeColor: "#fff",
-		            pointHighlightFill: "#fff",
-		            pointHighlightStroke: "rgba(220,220,220,1)",
-		            data: data['values']['players7d']
-		        }
-		    ]
-		};
-		
-		var chartOptions = {
-			responsive: true,
-		    scaleShowGridLines : true,
-		    scaleGridLineColor : "rgba(0,0,0,.05)",
-		    scaleGridLineWidth : 1,
-		    scaleShowHorizontalLines: true,
-		    scaleShowVerticalLines: true,
-		    bezierCurve : true,
-		    bezierCurveTension : 0.4,
-		    pointDot : true,
-		    pointDotRadius : 4,
-		    pointDotStrokeWidth : 1,
-		    pointHitDetectionRadius : 20,
-		    datasetStroke : true,
-		    datasetStrokeWidth : 2,
-		    datasetFill : true,
-		};
-		var chartMachinePlayers7d = new Chart(ctxChartMachinePlayers7d).Line(chartData, chartOptions);
+	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
+		// Players last 7days
+		var chartData = [];
+		for (i in data['labels']['players7d'])
+		{
+			chartData.push({
+				a: data['values']['players7d'][i],
+				y: data['labels']['players7d'][i]
+			});
+		}
+		Morris.Line({
+			  element: 'chart-machine-players7d',
+			  data: chartData,
+			  xkey: 'y',
+			  ykeys: ['a'],
+			  labels: ['Players'],
+			  resize: true,
+			  dateFormat: function (x) {
+				  	var d = new Date(x);
+					var curr_date = d.getDate();
+					var curr_month = d.getMonth() + 1; //Months are zero based
+					var curr_year = d.getFullYear();
+					return curr_date + "-" + curr_month + "-" + curr_year; 
+			  }
+		});
 	});
 });

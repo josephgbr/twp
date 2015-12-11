@@ -148,6 +148,7 @@ def get_locale():
     # header the browser transmits. The best match wins.
     return request.accept_languages.best_match(['es','en'])
 
+# TODO: user!
 @babel.timezoneselector
 def get_timezone():
     user = getattr(g, 'user', None)
@@ -671,7 +672,7 @@ def get_chart_values(chart, id=None):
     labels = {}
     values = {}
     if chart.lower() == 'server':
-        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', tblA.dd) as date \
+        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
             FROM  (SELECT date('now') as dd \
             UNION SELECT date('now', '-1 day') \
             UNION SELECT date('now', '-2 day') \
@@ -711,7 +712,7 @@ def get_chart_values(chart, id=None):
             
         return jsonify({'success':True, 'values':values, 'labels':labels})
     elif chart.lower() == 'machine':
-        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%d-%m-%Y', tblA.dd) as date \
+        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
             FROM  (SELECT date('now') as dd \
             UNION SELECT date('now', '-1 day') \
             UNION SELECT date('now', '-2 day') \
@@ -792,25 +793,25 @@ def analyze_all_server_instances():
                 g.db.execute("UPDATE servers set status='Running' where rowid=?", [srv['rowid']])
                 netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
                 for player in netinfo.playerlist:
-                    g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now'))", \
+                    g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now'))",
                                 [srv['rowid'], player.name, player.clan, player.country])
                     
                     playerMatch = query_db('select * from players where lower(name)=?', [player.name.lower()], one=True)
                     if not playerMatch:
-                        g.db.execute("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now'),datetime('now'),1)", \
+                        g.db.execute("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now'),datetime('now'),1)",
                                      [player.name])
                     else:
-                        g.db.execute("UPDATE players SET last_seen_date=datetime('now'), status=1 WHERE lower(name)=?", \
+                        g.db.execute("UPDATE players SET last_seen_date=datetime('now'), status=1 WHERE lower(name)=?",
                                      [player.name.lower()])
                     
     # Reopen Offline Servers
     servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1")
     for server in servers:
         if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
-            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),'Server binary not found')", [server['rowid']])
+            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),?)", [server['rowid'], _('Server binary not found')])
             continue
         # Report issue
-        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),'Server Offline')", [server['rowid']])
+        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),?)", [server['rowid'], _('Server Offline')])
         # Open server
         start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
     
