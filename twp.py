@@ -50,7 +50,6 @@ DEBUG = config.getboolean('global', 'debug')
 HOST = config.get('global', 'host')
 PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
-BABEL_DEFAULT_LOCALE = config.get('global','locale')
 DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
 SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
@@ -79,6 +78,7 @@ JOBS = [
         }
     }
 ]
+BABEL_DEFAULT_LOCALE = 'en'
 IP = twp.get_public_ip();
 
 
