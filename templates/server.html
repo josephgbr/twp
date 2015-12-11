@@ -20,23 +20,63 @@
 
 <div class="tab-content" style="margin-top:1.5em;">
   	<div class="tab-pane active" id="general">
-  		<div class="col-md-2">
-			<div class="well">
-			  	<dl>
-			  		<dt>{{ _('Status') }}</dt><dd class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</dd>
-					<dt>{{ _('Address') }}</dt><dd>{{ip}}:{{server['port']}}</dd>
-					<dt>{{ _('Game Type') }}</dt><dd>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</dd>
-					<dt>{{ _('Map') }}</dt><dd>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</dd>
-					<dt>{{ _('Players') }}</dt><dd>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</dd>
-					<dt>{{ _('Visible') }}</dt><dd>{% if server['register'] %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</dd>
-					<dt>{{ _('Public') }}</dt><dd>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</dd>
-				{% if session.logged_in %}
-					<dt>{{ _('Issues') }}</dt><dd><ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins></dd>
-				{% endif %}
-				</dl>
-			</div>
-		</div>
-		<div class="col-md-10">
+  		<div class="col-md-2" id="server-status">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-power-off fa-4x"></i>
+  				<span>{{_('Status')}}</span>
+  				<b class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</b>
+  			</div>
+  		</div>
+  		<div class="col-md-2" id="server-address">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-server fa-4x"></i>
+  				<span>{{_('Address')}}</span>
+	  			<b>{{ip}}:{{server['port']}}</b>
+	  		</div>
+  		</div>
+  		<div class="col-md-2" id="server-gametype">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-puzzle-piece fa-4x"></i>
+  				<span>{{_('Game Type')}}</span>
+	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</b>
+	  		</div>
+  		</div>
+  		<div class="col-md-2" id="server-map">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-map fa-4x"></i>
+  				<span>{{_('Map')}}</span>
+	  			<b>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</b>
+	  		</div>
+  		</div>
+   		<div class="col-md-2" id="server-players">
+   			<div class="pill-server panel panel-default">
+   				<i class="fa fa-group fa-4x"></i>
+   				<span>{{_('Players')}}</span>
+  				<b>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</b>
+  			</div>
+  		</div>
+  		<div class="col-md-1" id="server-visible">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-eye fa-3x"></i>
+  				<span>{{_('Visible')}}</span>
+	  			<b>{% if server['register'] %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
+	  		</div>
+  		</div>
+  		<div class="col-md-1" id="server-visible">
+  			<div class="pill-server panel panel-default">
+  				<i class="fa fa-lock fa-3x"></i>
+  				<span>{{_('Public')}}</span>
+	  			<b>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
+	  		</div>
+  		</div>
+  		
+  		{% if session.logged_in %}
+   		<div class="col-md-12">
+  			<strong>{{ _('Issues') }}</strong> <ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins>
+  		</div>
+  		{% endif %}
+  		
+		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					{{ _('Players in the last 7 days...') }}
@@ -46,7 +86,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-offset-2 col-md-5">
+		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					{{ _('Top 5 - Clans') }}
@@ -56,7 +96,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-5">
+		<div class="col-md-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					{{ _('Top 5 - Countries') }}

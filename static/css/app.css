@@ -48,3 +48,34 @@ body {
     cursor: inherit;
     display: block;
 }
+
+#chart-players-7d, #chart-machine-players7d {
+  max-height: 200px;
+}
+
+.pill-server {
+	height: 70px;
+	min-height: 70px;
+	max-height: 70px;
+	padding: 5px;
+	border-radius: 0 !important;
+}
+.pill-server span {
+	font-size: small;
+	top: -5px;
+	z-index: 5;
+}
+.pill-server b {
+	position: absolute; 
+	bottom: 25px;
+	font-weight: bold;
+	left: 35px;
+}
+.mini i {
+	right: 18px !important;
+}
+.pill-server i {
+	position: absolute; 
+	right: 25px;
+	color: rgba(0,0,0,0.1);
+}

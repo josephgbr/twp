@@ -14,7 +14,7 @@ Project Requirements:
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
-- [Font Awesome v4.4.0](http://fontawesome.io/) for awesome icons
+- [Font Awesome v4.5.0](http://fontawesome.io/) for awesome icons
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
 - [jsSHA v2.0.2](https://github.com/Caligatio/jsSHA) for generate SHA-512 hashes
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
@@ -22,7 +22,7 @@ Project Requirements:
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 
 
-⚫ Installation
+Installation
 -
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
 
@@ -44,7 +44,7 @@ $ ./twp.py
 
 ```
 
-⚫ Get Started
+Get Started
 -
 0. Configure the app, see the file 'twp.conf'
 1. Run or restart the app
@@ -53,7 +53,7 @@ $ ./twp.py
  * Password: admin
 3. Go to settings page and change admin password
 
-⚫ .zip/.tar.gz/folder mod structure
+.zip/.tar.gz/folder mod structure
 -
 ```
 mod_folder
@@ -66,17 +66,17 @@ mod_folder
   teeworlds_srv
 ```
 
-⚫ Enable Basic Admin Tools
+Enable Basic Admin Tools
 -
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
 
 
-⚫ Deploying
+Deploying
 -
 See how: http://flask.pocoo.org/docs/0.10/deploying/
 
 
-⚫ Limits
+Limits
 -
 - The maximum size of upload is 16MB per mod
 - The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years

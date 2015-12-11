@@ -95,9 +95,13 @@ $(function(){
 		var chartTopClanData = [];
 		for (i in data['labels']['topclan'])
 		{
+			var clanName = data['labels']['topclan'][i];
+			if (!clanName || !clanName[0])
+				clanName = "Unknown";
+			
 			chartTopClanData.push({
 				value: data['values']['topclan'][i],
-				label: data['labels']['topclan'][i]
+				label: clanName
 			});
 		}
 		Morris.Donut({
