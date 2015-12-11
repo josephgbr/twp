@@ -76,6 +76,31 @@ Deploying
 See how: http://flask.pocoo.org/docs/0.10/deploying/
 
 
+Translations
+-
+_You will need install 'pybabel'_
+
+** Do this under the TWP directory!
+1. Generate .pot file
+```bash
+$ pybabel extract -F babel.cfg -o messages.pot .
+```
+2. Generate folder structure and .po file (Omit if you already do it)
+```bash
+$ pybabel init -i messages.pot -d translations -l <language code: ISO 639-1>
+```
+3. Edit .po file using for example '[poedit](http://poedit.net/download)'
+4. Compile:
+```bash
+$ pybabel compile -d translations
+```
+
+** If changes strings on the app, you will need update current translations:
+```bash
+$ pybabel update -i messages.pot -d translations
+```
+
+
 Limits
 -
 - The maximum size of upload is 16MB per mod
