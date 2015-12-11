@@ -47,21 +47,19 @@
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-body">
-			<table id="twmslist" class="table table-condensed table-hover table-striped" style="display:none;">
-				<thead>
-					<th>#</th>
-					<th>{{ _('Server Name') }}</th>
-					<th>{{ _('Game Type') }}</th>
-					<th>{{ _('Players') }}</th>
-					<th>{{ _('Map') }}</th>
-					<th>{{ _('Latency') }}</th>
-				</thead>
-				<tbody></tbody>
-			</table>
-			<div id="twmslist-empty" class="text-center text-muted" style="display:none;"><i class="fa fa-warning"></i> {{ _('No local servers can be found on the master-server') }} <i class="fa fa-warning"></i></div>
-			<div id="twmslist-load" class="text-center"><b><i class="fa fa-refresh fa-spin"></i> {{ _('Searching for local servers in master list...') }}</b></div>
-		</div>
+		<table id="twmslist" class="table table-condensed table-hover table-striped" style="display:none;">
+			<thead>
+				<th>#</th>
+				<th>{{ _('Server Name') }}</th>
+				<th>{{ _('Game Type') }}</th>
+				<th>{{ _('Players') }}</th>
+				<th>{{ _('Map') }}</th>
+				<th>{{ _('Latency') }}</th>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<div id="twmslist-empty" class="text-center text-muted" style="display:none;"><i class="fa fa-warning"></i> {{ _('No local servers can be found on the master-server') }} <i class="fa fa-warning"></i></div>
+		<div id="twmslist-load" class="text-center"><b><i class="fa fa-refresh fa-spin"></i> {{ _('Searching for local servers in master list...') }}</b></div>
 	</div>
 
 </div>

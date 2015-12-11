@@ -4,6 +4,7 @@ html {
 }
 body {
   /* Margin bottom by footer height */
+  margin-top: 5em;
   margin-bottom: 30px;
 }
 .footer {
