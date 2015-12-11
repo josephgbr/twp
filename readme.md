@@ -21,7 +21,6 @@ Project Requirements:
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 
-
 Installation
 -
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
@@ -70,36 +69,35 @@ Enable Basic Admin Tools
 -
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
 
-
 Deploying
 -
 See how: http://flask.pocoo.org/docs/0.10/deploying/
-
 
 Translations
 -
 _You will need install 'pybabel'_
 
-** Do this under the TWP directory!
-1. Generate .pot file
+
+** Do this using the project directory!
+
+- Generate .pot file
 ```bash
 $ pybabel extract -F babel.cfg -o messages.pot .
 ```
-2. Generate folder structure and .po file (Omit if you already do it)
+- Generate folder structure and .po file (Omit if you already do it)
 ```bash
 $ pybabel init -i messages.pot -d translations -l <language code: ISO 639-1>
 ```
-3. Edit .po file using for example '[poedit](http://poedit.net/download)'
-4. Compile:
+- Edit .po file using for example '[poedit](http://poedit.net/download)'
+- Compile:
 ```bash
 $ pybabel compile -d translations
 ```
 
-** If changes strings on the app, you will need update current translations:
+_** If changes strings on the app, you will need update current translations_
 ```bash
 $ pybabel update -i messages.pot -d translations
 ```
-
 
 Limits
 -
