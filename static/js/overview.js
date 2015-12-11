@@ -1,3 +1,4 @@
+"use strict";
 /*
  ********************************************************************************************
  **    TWP v0.1.0 - Teeworlds Web Panel
@@ -122,17 +123,17 @@ $(function() {
 	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
 		// Players last 7days
 		var chartData = [];
-		for (i in data['labels']['players7d'])
+		for (var i in data['labels']['players7d'])
 		{
 			chartData.push({
 				a: data['values']['players7d'][i],
-				y: data['labels']['players7d'][i]
+				x: data['labels']['players7d'][i]
 			});
 		}
 		Morris.Line({
 			  element: 'chart-machine-players7d',
 			  data: chartData,
-			  xkey: 'y',
+			  xkey: 'x',
 			  ykeys: ['a'],
 			  labels: ['Players'],
 			  resize: true,

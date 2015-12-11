@@ -1,3 +1,4 @@
+"use strict";
 /*
  ********************************************************************************************
  **    TWP v0.1.0 - Teeworlds Web Panel
@@ -67,17 +68,17 @@ $(function(){
 	$.post($SCRIPT_ROOT + '/_get_chart_values/server/'+$SRVID, '', function(data) {
 		// Players last 7days
 		var chartData = [];
-		for (i in data['labels']['players7d'])
+		for (var i in data['labels']['players7d'])
 		{
 			chartData.push({
 				a: data['values']['players7d'][i],
-				y: data['labels']['players7d'][i]
+				x: data['labels']['players7d'][i]
 			});
 		}
 		Morris.Line({
 			  element: 'chart-players-7d',
 			  data: chartData,
-			  xkey: 'y',
+			  xkey: 'x',
 			  ykeys: ['a'],
 			  labels: ['Players'],
 			  resize: true,
@@ -93,7 +94,7 @@ $(function(){
 		var chartColors = ['#F7464A', '#46BFBD', '#FDB45C', '#A7464A', '#37464A'];
 		// Top Clans
 		var chartTopClanData = [];
-		for (i in data['labels']['topclan'])
+		for (var i in data['labels']['topclan'])
 		{
 			var clanName = data['labels']['topclan'][i];
 			if (!clanName || !clanName[0])
@@ -113,9 +114,9 @@ $(function(){
 		
 		// Top Countries
 		var chartTopCountryData = [];
-		for (i in data['labels']['topcountry'])
+		for (var i in data['labels']['topcountry'])
 		{
-			countryName = undefined;
+			var countryName = undefined;
 			if (data['labels']['topcountry'][i] != -1)
 				countryName = $.grep($COUNTRIES, function(e){ return e.codenum == data['labels']['topcountry'][i]; });
 			
