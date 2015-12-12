@@ -10,7 +10,7 @@ Project Requirements:
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
  - [Flask APScheduler v1.1.0](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support 
-- [Teeworlds Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
+- [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
@@ -21,7 +21,7 @@ Project Requirements:
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 
-Installation
+Installation (Debian based distributions)
 -
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
 

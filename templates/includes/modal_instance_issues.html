@@ -15,7 +15,7 @@
 			  		{% for issue in issues %}
 			  			<tr>
 			  				<td class="col-md-4">{{issue.date}}</td>
-			  				<td class="col-md-8">{{issue.message}}</td>
+			  				<td class="col-md-8">{{issue.message|safe}}</td>
 			  			</tr>
 			  		{% endfor %}
 		  			</tbody>

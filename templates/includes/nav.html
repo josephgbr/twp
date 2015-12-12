@@ -2,43 +2,46 @@
 			<div class="container">
  		 		<!-- Brand and toggle get grouped for better mobile display -->
   			<div class="navbar-header">
-    				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-      				<span class="sr-only">{{ _('Toggle navigation') }}</span>
-      				<span class="icon-bar"></span>
-     					<span class="icon-bar"></span>
-      				<span class="icon-bar"></span>
-    				</button>
-    				<a class="navbar-brand" href="{{ twp.brand_url }}"><i class="fa fa-server"></i> {{ twp.brand_name }}</a>
-  			</div>
+   				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+     				<span class="sr-only">{{ _('Toggle navigation') }}</span>
+     				<span class="icon-bar"></span>
+    					<span class="icon-bar"></span>
+     				<span class="icon-bar"></span>
+   				</button>
+   				<a class="navbar-brand" href="{{ twp.brand_url }}"><i class="fa fa-server"></i> {{ twp.brand_name }}</a>
+ 			</div>
 
    		<!-- Collect the nav links, forms, and other content for toggling -->
    		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-     			<ul class="nav navbar-nav">
-     				<li class="{% if request.path == '/' or request.path.startswith('/overview') %} active {% endif %}"><a href="/">{{ _('Overview') }}</a></li>
-       			<li class="{% if request.path.startswith('/servers') %} active {% endif %}"><a href="/servers">{{ _('Servers') }} <span id="badge-num-server-instances" class="badge hidden">0</span></a></li>
-       			<li class="{% if request.path.startswith('/players') %} active {% endif %}"><a href="/players">{{ _('Players') }}</a></li>
+   			<ul class="nav navbar-nav">
+   				<li class="{% if request.path == '/' or request.path.startswith('/overview') %} active {% endif %}"><a href="/">{{ _('Overview') }}</a></li>
+     			<li class="{% if request.path.startswith('/server') %} active {% endif %}"><a href="/servers">{{ _('Servers') }} <span id="badge-num-server-instances" class="badge hidden">0</span></a></li>
+     			<li class="{% if request.path.startswith('/players') %} active {% endif %}"><a href="/players">{{ _('Players') }}</a></li>
 				<!-- li class="{% if request.path.startswith('/maps') %} active {% endif %}"><a href="/maps">{{ _('Maps') }}</a></li -->
-     			</ul>
-     			<form action="/search" method="get" class="navbar-form navbar-left" role="search">
-       			<div class="form-group">
-        				<input type="text" name="r" class="form-control" placeholder="{{ _('Search') }}" value="{{search}}">
-       			</div>
-       			<button type="submit" class="btn btn-default">{{ _('Submit') }}</button>
-     			</form>
-     			<ul class="nav navbar-nav navbar-right">
-     				{% if session.logged_in %}
-        			<li class="dropdown">
-			        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i> {{session.username}} <span class="caret"></span></a>
-			        	<ul class="dropdown-menu">
-			        		<li><a href="/settings">{{ _('Settings') }}</a></li>
-			        		<li role="separator" class="divider"></li>
-			            	<li><a class="fa fa-sign-out" href="/logout">{{ _('Logout') }}</a></li>
-			        	</ul>
-			        </li>
-			        {% else %}
-			        	<li><a href="/login">{{ _('Sign In') }}</a></li>
-		        	{% endif %}
-     			</ul>
+   			</ul>
+   			<form action="/search" method="get" class="navbar-form navbar-left" role="search">
+      			<div class="form-group">
+       			<input type="text" name="r" class="form-control" placeholder="{{ _('Search') }}" value="{{search}}">
+      			</div>
+      			<button type="submit" class="btn btn-default">{{ _('Submit') }}</button>
+   			</form>
+   			<p class="navbar-text navbar-center text-muted">
+   				<i class="fa fa-clock-o"></i> <b><span id="localtime">00:00</span> {{_('(Server Local Time)')}}</b>
+   			</p>
+   			<ul class="nav navbar-nav navbar-right">
+   			{% if session.logged_in %}
+	      		<li class="dropdown">
+		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user"></i> {{session.username}} <span class="caret"></span></a>
+		        	<ul class="dropdown-menu">
+		        		<li><a href="/settings">{{ _('Settings') }}</a></li>
+		        		<li role="separator" class="divider"></li>
+		            	<li><a class="fa fa-sign-out" href="/logout">{{ _('Logout') }}</a></li>
+		        	</ul>
+		        </li>
+		    {% else %}
+		        <li><a href="/login">{{ _('Sign In') }}</a></li>
+        	{% endif %}
+   			</ul>
    		</div><!-- /.navbar-collapse -->
  		</div><!-- /.container-fluid -->
 </nav>

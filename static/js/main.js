@@ -25,11 +25,17 @@ $(function(){
 	        event.preventDefault();
 	    }
 	});
-	
-	get_server_instances_online();
-	window.setInterval('get_server_instances_online()', $REFRESH_TIME);
+
+	refresh_main();
+	window.setInterval('refresh_main()', $REFRESH_TIME);
 	
 });
+
+function refresh_main()
+{
+	get_server_instances_online();
+	get_host_localtime();
+}
 
 function get_server_instances_online()
 {
@@ -83,4 +89,11 @@ function check_server_data(data)
 			}
 		});
 	}
+}
+
+function get_host_localtime()
+{
+	$.get($SCRIPT_ROOT + '/_refresh_host_localtime', function(data) {
+		$("#localtime").text(data['localtime']);
+	});
 }

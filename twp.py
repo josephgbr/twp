@@ -19,6 +19,7 @@
 #########################################################################################
 import twp
 import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil
+from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from werkzeug import secure_filename
@@ -354,6 +355,10 @@ def refresh_memory_containers():
         return jsonify(twp.host_memory_usage())
     return jsonify({})
 
+@app.route('/_refresh_host_localtime')
+def refresh_host_localtime():
+    return jsonify(twp.host_localtime())
+
 @app.route('/_get_all_online_servers')
 def get_all_online_servers():
     return jsonify(twp.get_tw_masterserver_list(IP))
@@ -597,6 +602,11 @@ def get_server_instance_log(id, seek):
                     fullpath = srv['logfile']
                 else:
                     fullpath = r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['logfile'])
+                
+                file_size = os.path.getsize(fullpath)
+                if seek >= file_size:
+                    return jsonify({'success':True, 'content':None, 'seek':file_size})
+                
                 cfgfile = open(fullpath, "r")
                 cfgfile.seek(seek)
                 logcontent = cfgfile.read()
@@ -610,7 +620,8 @@ def get_server_instance_log(id, seek):
             for line in lines:
                 objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
                 if objMatch:
-                    (date,section,message) = [objMatch.group(1),objMatch.group(2),objMatch.group(3)]
+                    (date,section,message) = [int(objMatch.group(1), 16),objMatch.group(2),objMatch.group(3)]
+                    dt = datetime.fromtimestamp(time.mktime(time.localtime(date)))
                     type = None
                     if re.match("^(?:client dropped|(?:.+\s)?failed)", message, re.IGNORECASE):
                         type = 'danger'
@@ -618,7 +629,7 @@ def get_server_instance_log(id, seek):
                         type = 'warning'
                     elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                         type = 'success'
-                    logcontent.append({'date':date,'section':section,'message':message,'type':type})
+                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),'section':section,'message':message,'type':type})
             
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -673,13 +684,13 @@ def get_chart_values(chart, id=None):
     values = {}
     if chart.lower() == 'server':
         query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
-            FROM  (SELECT date('now') as dd \
-            UNION SELECT date('now', '-1 day') \
-            UNION SELECT date('now', '-2 day') \
-            UNION SELECT date('now', '-3 day') \
-            UNION SELECT date('now', '-4 day') \
-            UNION SELECT date('now', '-5 day') \
-            UNION SELECT date('now', '-6 day')) as tblA \
+            FROM  (SELECT date('now', 'localtime') as dd \
+            UNION SELECT date('now', 'localtime', '-1 day') \
+            UNION SELECT date('now', 'localtime', '-2 day') \
+            UNION SELECT date('now', 'localtime', '-3 day') \
+            UNION SELECT date('now', 'localtime', '-4 day') \
+            UNION SELECT date('now', 'localtime', '-5 day') \
+            UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
             LEFT JOIN players_server as tblB \
             ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) AND tblB.server_id=? \
             GROUP BY strftime('%d-%m-%Y', tblA.dd)", [id])
@@ -713,13 +724,13 @@ def get_chart_values(chart, id=None):
         return jsonify({'success':True, 'values':values, 'labels':labels})
     elif chart.lower() == 'machine':
         query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
-            FROM  (SELECT date('now') as dd \
-            UNION SELECT date('now', '-1 day') \
-            UNION SELECT date('now', '-2 day') \
-            UNION SELECT date('now', '-3 day') \
-            UNION SELECT date('now', '-4 day') \
-            UNION SELECT date('now', '-5 day') \
-            UNION SELECT date('now', '-6 day')) as tblA \
+            FROM  (SELECT date('now', 'localtime') as dd \
+            UNION SELECT date('now', 'localtime', '-1 day') \
+            UNION SELECT date('now', 'localtime', '-2 day') \
+            UNION SELECT date('now', 'localtime', '-3 day') \
+            UNION SELECT date('now', 'localtime', '-4 day') \
+            UNION SELECT date('now', 'localtime', '-5 day') \
+            UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
             LEFT JOIN players_server as tblB \
             ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) \
             GROUP BY strftime('%d-%m-%Y', tblA.dd)")
@@ -793,25 +804,37 @@ def analyze_all_server_instances():
                 g.db.execute("UPDATE servers set status='Running' where rowid=?", [srv['rowid']])
                 netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
                 for player in netinfo.playerlist:
-                    g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now'))",
+                    g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now', 'localtime'))",
                                 [srv['rowid'], player.name, player.clan, player.country])
                     
                     playerMatch = query_db('select * from players where lower(name)=?', [player.name.lower()], one=True)
                     if not playerMatch:
-                        g.db.execute("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now'),datetime('now'),1)",
+                        g.db.execute("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now', 'localtime'),datetime('now', 'localtime'),1)",
                                      [player.name])
                     else:
-                        g.db.execute("UPDATE players SET last_seen_date=datetime('now'), status=1 WHERE lower(name)=?",
+                        g.db.execute("UPDATE players SET last_seen_date=datetime('now', 'localtime'), status=1 WHERE lower(name)=?",
                                      [player.name.lower()])
                     
     # Reopen Offline Servers
     servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1")
-    for server in servers:
+    for server in servers:            
         if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
-            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),?)", [server['rowid'], _('Server binary not found')])
+            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", [server['rowid'], _('Server binary not found')])
             continue
+        
+        current_time_hex = hex(int(time.time())).split('x')[1]
+        logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, server['base_folder'])
+        log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['logfile'])
+        # Create logs folder if not exists
+        if not os.path.isdir(logs_folder):
+            os.makedirs(logs_folder)
+        # Move current log to logs folder
+        if os.path.isfile(log_file):
+            shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server['logfile']))
         # Report issue
-        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now'),?)", [server['rowid'], _('Server Offline')])
+        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", 
+                     [server['rowid'], 
+                     "%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server['rowid'], current_time_hex, server['logfile'])])
         # Open server
         start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
     

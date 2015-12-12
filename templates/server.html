@@ -6,6 +6,11 @@
 {{ super() }}
 {% if server %}
 
+<ol class="breadcrumb">
+  <li><a href="/servers">Servers</a></li>
+  <li class="active">{{server['base_folder']}}</li>
+</ol>
+
 <div class="page-header">
 	<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
 </div>
@@ -21,49 +26,49 @@
 <div class="tab-content" style="margin-top:1.5em;">
   	<div class="tab-pane active" id="general">
   		<div class="col-md-2" id="server-status">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#9AC361;">
   				<i class="fa fa-power-off fa-4x"></i>
   				<span>{{_('Status')}}</span>
   				<b class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</b>
   			</div>
   		</div>
   		<div class="col-md-2" id="server-address">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#808015;">
   				<i class="fa fa-server fa-4x"></i>
   				<span>{{_('Address')}}</span>
 	  			<b>{{ip}}:{{server['port']}}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-gametype">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#554300;">
   				<i class="fa fa-puzzle-piece fa-4x"></i>
   				<span>{{_('Game Type')}}</span>
 	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-map">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#D4BE6A;">
   				<i class="fa fa-map fa-4x"></i>
   				<span>{{_('Map')}}</span>
 	  			<b>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</b>
 	  		</div>
   		</div>
    		<div class="col-md-2" id="server-players">
-   			<div class="pill-server panel panel-default">
+   			<div class="pill-server panel panel-default" style="background-color:#806915;">
    				<i class="fa fa-group fa-4x"></i>
    				<span>{{_('Players')}}</span>
   				<b>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</b>
   			</div>
   		</div>
   		<div class="col-md-1" id="server-visible">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#9775AA;">
   				<i class="fa fa-eye fa-3x"></i>
   				<span>{{_('Visible')}}</span>
 	  			<b>{% if server['register'] %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-1" id="server-visible">
-  			<div class="pill-server panel panel-default">
+  			<div class="pill-server panel panel-default" style="background-color:#764B8E;">
   				<i class="fa fa-lock fa-3x"></i>
   				<span>{{_('Public')}}</span>
 	  			<b>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
@@ -165,6 +170,23 @@
 			</span>
 		</h1>
 	{% else %}
+		<div class="text-right" style="padding:5px;">
+			<form class="form-inline">
+	 			 <div class="form-group">
+	 			 	<label for="filter-type">{{_('Filter by')}} </label>
+					<select class="form-control" id="filter-type" name="type">
+						<option value="0">&nbsp;</option>
+						<option value="1">{{_('Errors')}}</option>
+						<option value="2">{{_('Warnings')}}</option>
+						<option value="3">{{_('Highlighted')}}</option>
+					</select>
+					<select class="form-control" id="filter-order" name="order">
+						<option value="0">{{_('Desc')}}</option>
+						<option value="1">{{_('Asc')}}</option>
+					</select>
+				</div>
+			</form>
+		</div>
 		<table class="table table-condensed table-hover table-striped">
 			<thead>
 				<th>{{ _('Date') }}</th>

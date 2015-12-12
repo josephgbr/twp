@@ -128,6 +128,11 @@ def host_disk_usage(partition=None):
             'percent': usage[4]}
 
 
+def host_localtime():
+    ltime = subprocess.check_output(['date +"%H:%M"'], universal_newlines=True, shell=True).split('\n')[0]
+    return {'localtime': ltime}
+
+
 def host_uptime():
     '''
     returns a dict of the system uptime

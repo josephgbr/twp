@@ -18,6 +18,10 @@
  **    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ********************************************************************************************
  */
+var $LOG_SEEK = 0;
+var $LOG_FILTER_TYPE = 0; // All
+var $LOG_FILTER_ORDER = 0; // Desc
+
 $(function(){
 	
 	// Prevent Enter Submit
@@ -138,23 +142,45 @@ $(function(){
 		});
 	});
 	
+	
+	// Filter
+	$("#filter-type").val($LOG_FILTER_TYPE).change(function(){
+		$LOG_FILTER_TYPE = $(this).val();
+		$LOG_SEEK = 0;
+		$('#server-log').html("");
+		get_server_instance_log();
+	});
+	$("#filter-order").val($LOG_FILTER_ORDER).change(function(){
+		$LOG_FILTER_ORDER = $(this).val();
+		$LOG_SEEK = 0;
+		$('#server-log').html("");
+		get_server_instance_log();
+	});
 });
 
-var $LOGSEEK = 0;
 function get_server_instance_log()
 {
-	$.getJSON($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOGSEEK, function(data) {
+	$.getJSON($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOG_SEEK, function(data) {
 		check_server_data(data);
 
-		if (data['success'])
+		if (data['success'] && data['content'])
 		{
 			var curtext = $('#server-log').val();
 			
-			console.log(data['content']);
-			for (i in data['content']) {
-				$('#server-log').append("<tr class='"+data['content'][i]['type']+"'><td>"+data['content'][i]['date']+"</td><td>"+data['content'][i]['section']+"</td><td>"+data['content'][i]['message']+"</td></tr>");
+			for (var i in data['content']) {
+				var table_row = "<tr class='"+data['content'][i]['type']+"'><td>"+data['content'][i]['date']+"</td><td>"+data['content'][i]['section']+"</td><td>"+data['content'][i]['message']+"</td></tr>";
+				if ($LOG_FILTER_TYPE == 0 
+					|| ($LOG_FILTER_TYPE == 1 && data['content'][i]['type'] == 'danger')
+					|| ($LOG_FILTER_TYPE == 2 && data['content'][i]['type'] == 'warning')
+					|| ($LOG_FILTER_TYPE == 3 && data['content'][i]['type'] == 'success'))
+					{
+						if ($LOG_FILTER_ORDER == 0)
+							$('#server-log').prepend(table_row);
+						else
+							$('#server-log').append(table_row);
+					}
 			}
-			$LOGSEEK = data['seek'];
+			$LOG_SEEK = data['seek'];
 			$('#server-log').prop('scrollTop', $('#server-log').prop('scrollHeight'));
 		}
 	});

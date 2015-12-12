@@ -60,6 +60,7 @@ body {
 	max-height: 70px;
 	padding: 5px;
 	border-radius: 0 !important;
+	color: white;
 }
 .pill-server span {
 	font-size: small;
