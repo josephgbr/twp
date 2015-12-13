@@ -25,36 +25,42 @@
 
 <div class="tab-content" style="margin-top:1.5em;">
   	<div class="tab-pane active" id="general">
+  		{% if session.logged_in %}
+   		<div class="col-md-12">
+  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins>
+  		</div>
+  		{% endif %}
+  	
   		<div class="col-md-2" id="server-status">
-  			<div class="pill-server panel panel-default" style="background-color:#9AC361;">
+  			<div class="pill-server panel panel-default" style="background-color:{% if is_online %}#438D43{% else %}#B05454{% endif %};">
   				<i class="fa fa-power-off fa-4x"></i>
   				<span>{{_('Status')}}</span>
-  				<b class="{% if is_online %}text-success{% else %}text-danger{% endif %}">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</b>
+  				<b style="color:{% if is_online %}#C5E0C5{% else %}#FFE0E0{% endif %};">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</b>
   			</div>
   		</div>
   		<div class="col-md-2" id="server-address">
-  			<div class="pill-server panel panel-default" style="background-color:#808015;">
+  			<div class="pill-server panel panel-default" style="background-color:#719696;">
   				<i class="fa fa-server fa-4x"></i>
   				<span>{{_('Address')}}</span>
 	  			<b>{{ip}}:{{server['port']}}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-gametype">
-  			<div class="pill-server panel panel-default" style="background-color:#554300;">
+  			<div class="pill-server panel panel-default" style="background-color:#B07E54;">
   				<i class="fa fa-puzzle-piece fa-4x"></i>
   				<span>{{_('Game Type')}}</span>
 	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-map">
-  			<div class="pill-server panel panel-default" style="background-color:#D4BE6A;">
+  			<div class="pill-server panel panel-default" style="background-color:#915D31;">
   				<i class="fa fa-map fa-4x"></i>
   				<span>{{_('Map')}}</span>
 	  			<b>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</b>
 	  		</div>
   		</div>
    		<div class="col-md-2" id="server-players">
-   			<div class="pill-server panel panel-default" style="background-color:#806915;">
+   			<div class="pill-server panel panel-default" style="background-color:#326A6A;">
    				<i class="fa fa-group fa-4x"></i>
    				<span>{{_('Players')}}</span>
   				<b>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</b>
@@ -74,12 +80,6 @@
 	  			<b>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
 	  		</div>
   		</div>
-  		
-  		{% if session.logged_in %}
-   		<div class="col-md-12">
-  			<strong>{{ _('Issues') }}</strong> <ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins>
-  		</div>
-  		{% endif %}
   		
 		<div class="col-md-12">
 			<div class="panel panel-default">
