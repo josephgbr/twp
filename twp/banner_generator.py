@@ -22,29 +22,70 @@ from __future__ import (
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+from io import BytesIO
 
 
 class BannerGenerator(object):
-	READ = 1
-	WRITE = 2
-	EXCEPTION = 4
+	# Gradient code by Jens Breit: https://djangosnippets.org/snippets/787/
+	def channel(self, i, c, size, startFill, stopFill):
+	    """calculate the value of a single color channel for a single pixel"""
+	    return startFill[c] + int((i * 1.0 / size) * (stopFill[c] - startFill[c]))
 	
-	def __init__(self, width, height, title):
-		self.width = width
-		self.height = height
+	def color(self, i, size, startFill, stopFill):
+	    """calculate the RGB value of a single pixel"""
+	    return tuple([self.channel(i, c, size, startFill, stopFill) for c in range(3)])
+	
+	def gradient(self, size, startFill, stopFill, runTopBottom = False):
+	    """Draw a rounded rectangle"""
+	    width, height = size
+	    rectangle = self.image
+	
+	    if runTopBottom:
+	      si = height
+	    else:
+	      si = width
+	
+	    gradient = [ self.color(i, si, startFill, stopFill) for i in xrange(si) ]
+	
+	    if runTopBottom:
+	        modGrad = []
+	        for i in xrange(height):
+	           modGrad += [gradient[i]] * width
+	        self.image.putdata(modGrad)
+	    else:
+	        self.image.putdata(gradient*height)
+	
+	
+	def __init__(self, size, title):
+		self.size = size
 		self.title = title
-		self.font = ImageFont.load("pilfonts/timR24.pil")
+		self.fontTitle = ImageFont.load("pilfonts/timR12.pil")
+		self.fontText = ImageFont.load("pilfonts/timR08.pil")
+		self.textColor = (34, 33, 60, 255)
+		self.gradStartColor = (214, 213, 213)
+		self.gradStopColor = (166, 165, 165)
+		self.image = None
 		
-	def save(self):
-		im = Image.new('RGBA', (800, 150), (0, 0, 0, 255)) # Create a blank image
-		draw = ImageDraw.Draw(im)
-		draw.line((0, 0) + im.size, fill=(255, 255, 255))
-		draw.line((0, im.size[1], im.size[0], 0), fill=(255, 255, 255))
-		wh = self.font.getsize("G E E X L A B")
-		draw.text((im.size[0]/2 - wh[0]/2, im.size[1]/2 + 20), "G E E X L A B",
-				fill=(255, 255, 0), font=self.font)
-		draw.text((im.size[0]/2 - wh[0]/2, im.size[1]/2 - 60), "G E E X L A B",       
-				fill=(255, 255, 0), font=self.font)
-		del draw  
-		im.save('/tmp/twp_banner.png')
-		return True
+	def generate(self, format="png"):
+		# Create RGBA Image
+		memory_img = BytesIO()
+		self.image = Image.new('RGBA', self.size, (0, 0, 0, 0))
+		draw = ImageDraw.Draw(self.image)
+		
+		# Border
+		self.gradient(self.image.size, self.gradStartColor, self.gradStopColor, True)
+		draw.rectangle((1, 1, self.image.size[0], self.image.size[1]), outline=(255, 255, 255))
+		draw.rectangle((0, 0, self.image.size[0]-1, self.image.size[1]-1), outline=(120, 120, 120))
+		#wh = self.font.getsize("G E E X L A B")
+		# Title
+		draw.text((11, 4), self.title, fill=(0, 0, 0, 128), font=self.fontTitle)
+		draw.text((10, 3), self.title, fill=self.textColor, font=self.fontTitle)
+		# Detail
+		draw.text((15, 25), "Players: 0/9 - Map: dm1 - Game Type: DM - Public: Yes - Visible: No", 
+				fill=(0, 0, 0), font=self.fontText)
+		
+		# Save Image
+		del draw
+		self.image.save(memory_img, format=format)
+		memory_img.seek(0)
+		return memory_img

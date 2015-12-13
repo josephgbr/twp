@@ -250,13 +250,10 @@ def server(id):
 def generate_server_banner(id):
     srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
     if srv:
-        png_image = BannerGenerator(500, 150, "test")
-        
-        if png_image.save():
-            binfile = open('/tmp/twp_banner.png', "rb")
-            return send_file(binfile,
-                         attachment_filename="server_banner.png",
-                         as_attachment=False)
+        banner_image = BannerGenerator((600, 40), srv['name'])
+        return send_file(banner_image.generate(),
+                     attachment_filename="server_banner.png",
+                     as_attachment=False)
         
 @app.route('/players', methods=['GET'])
 def players():

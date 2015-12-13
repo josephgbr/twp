@@ -1,5 +1,4 @@
-Teeworlds Web Panel
-=
+# Teeworlds Web Panel
 TWP is an app-web for manage your local teeworlds linux servers. Inspired by the work of '[LXC Web Panel](https://github.com/lxc-webpanel/LXC-Web-Panel)'.
 
 
@@ -22,8 +21,7 @@ Project Requirements:
  - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
 
-Installation (Debian based distributions)
--
+### Installation (Debian based distributions)
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
 
 **Automatic (Full) --Warning: builtin server--**
@@ -45,8 +43,7 @@ $ ./twp.py
 
 ```
 
-Get Started
--
+### Get Started
 0. Configure the app, see the file 'twp.conf'
 1. Run or restart the app
 2. Login Admin using default credentials:
@@ -54,8 +51,7 @@ Get Started
  * Password: admin
 3. Go to settings page and change admin password
 
-.zip/.tar.gz/folder mod structure
--
+### .zip/.tar.gz/folder mod structure
 ```
 mod_folder
   - data
@@ -67,16 +63,13 @@ mod_folder
   teeworlds_srv
 ```
 
-Enable Basic Admin Tools
--
+### Enable Basic Admin Tools
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
 
-Deploying
--
+### Deploying
 See how: http://flask.pocoo.org/docs/0.10/deploying/
 
-Translations
--
+### Translations
 _You will need install 'pybabel'_
 
 
@@ -101,7 +94,6 @@ _** If changes strings on the app, you will need update current translations_
 $ pybabel update -i messages.pot -d translations
 ```
 
-Limits
--
+### Limits
 - The default maximum size of upload is 16MB per mod
 - The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years
