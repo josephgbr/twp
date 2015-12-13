@@ -156,7 +156,24 @@ $(function(){
 		$('#server-log').html("");
 		get_server_instance_log();
 	});
+	
+	// ColorPicker Modal
+	$('#share-url').val($('#server-banner').prop('src'));
+	$(document).on("click", "#generate-banner", function(event) {
+		var colorTitle = $('#color-title').data('colorpicker').color.toHex().substr(1);
+		var colorDetail = $('#color-detail').data('colorpicker').color.toHex().substr(1);
+		var colorAddress = $('#color-address').data('colorpicker').color.toHex().substr(1);
+		var colorGradStart = $('#color-grad-start').data('colorpicker').color.toHex().substr(1);
+		var colorGradEnd = $('#color-grad-end').data('colorpicker').color.toHex().substr(1);
+		var params = "title="+colorTitle+"&detail="+colorDetail+"&address="+colorAddress+"&grads="+colorGradStart+"&grade="+colorGradEnd;
+		
+		var $banner = $('#server-banner');
+		$banner.prop('src','/server/1/banner?'+params);
+		$('#share-url').val($banner.prop('src'));
+	})
+	
 });
+
 
 function get_server_instance_log()
 {

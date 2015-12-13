@@ -1,0 +1,58 @@
+<div id="modal_create_banner" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title"><i class="fa fa-picture-o"></i> {{ _('Create Banner') }}</h4>
+			</div>
+			<div class="modal-body">
+				<div class="col-md-4">
+					<label for="color-title">{{_('Server Name Color')}}:</label>
+					<div class="input-group colorpicker-input" id="color-title">
+					    <input type="text" value="rgb(34, 33, 60)" class="form-control" />
+					    <span class="input-group-addon"><i></i></span>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<label for="color-detail">{{_('Detail Color')}}:</label>
+					<div class="input-group colorpicker-input" id="color-detail">
+					    <input type="text" value="rgb(0, 0, 0)" class="form-control" />
+					    <span class="input-group-addon"><i></i></span>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<label for="color-address">{{_('Address Color')}}:</label>
+					<div class="input-group colorpicker-input" id="color-address">
+					    <input type="text" value="rgb(1, 65, 103)" class="form-control" />
+					    <span class="input-group-addon"><i></i></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<label for="color-grad-start">{{_('Gradient Start')}}:</label>
+					<div class="input-group colorpicker-input" id="color-grad-start">
+					    <input type="text" value="rgb(214, 213, 213)" class="form-control" />
+					    <span class="input-group-addon"><i></i></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<label for="color-grad-end">{{_('Gradient End')}}:</label>
+					<div class="input-group colorpicker-input" id="color-grad-end">
+					    <input type="text" value="rgb(166, 165, 165)" class="form-control" />
+					    <span class="input-group-addon"><i></i></span>
+					</div>
+				</div>
+				
+				<div class="col-md-12 text-right" style="margin-top:1em;">
+					<a href="#" id="generate-banner" class="btn btn-primary">{{_('Generate')}}</a>
+				</div>
+
+				<label for="preview">{{_('Preview')}}:</label>
+				<div id="preview" style="overflow:auto; padding:0.5em;">
+					<img src="{{'/server/%d/banner' % server['rowid']}}" id="server-banner" />
+				</div>
+				<label style="margin-top:0.5em" for="code">{{_('Share URL')}}:</label>
+				<input type="text" id="share-url" class="form-control" readonly />
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

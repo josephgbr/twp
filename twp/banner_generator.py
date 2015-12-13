@@ -21,6 +21,7 @@ from __future__ import (
 )
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from flask.ext.babel import _
 
 
 class BannerGenerator(object):
@@ -49,33 +50,55 @@ class BannerGenerator(object):
 	        self._image.putdata(gradient*height)
 	##
 	
-	def __init__(self, size, title):
+	def __init__(self, size, server, netinfo):
 		self.size = size
-		self.title = title
-		self.textColor = (34, 33, 60, 255)
+		self.titleColor = (34, 33, 60)
+		self.detailColor = (0, 0, 0)
+		self.addressColor = (1, 65, 103)
 		self.gradStartColor = (214, 213, 213)
-		self.gradStopColor = (166, 165, 165)
+		self.gradEndColor = (166, 165, 165)
 		
-		self._fontTitle = ImageFont.load("pilfonts/timR12.pil")
-		self._fontText = ImageFont.load("pilfonts/timR08.pil")
+		self._server = server
+		self._netinfo = netinfo
+		self._fontLarge = ImageFont.load("pilfonts/timR12.pil")
+		self._fontLargeBold = ImageFont.load("pilfonts/timB12.pil")
+		self._fontSmall = ImageFont.load("pilfonts/timR08.pil")
 		self._image = None
 		
-	def generate(self, format="png"):
+	def generate(self, ip, format="png"):
+		is_online = True if self._netinfo.gametype else False
+		
 		# Create RGBA Image
 		self._image = Image.new('RGBA', self.size, (0, 0, 0, 0))
 		draw = ImageDraw.Draw(self._image)
 		
 		# Border
-		self._gradient(self.gradStartColor, self.gradStopColor, True)
+		self._gradient(self.gradStartColor, self.gradEndColor, True)
 		draw.rectangle((1, 1, self._image.size[0], self._image.size[1]), outline=(255, 255, 255))
 		draw.rectangle((0, 0, self._image.size[0]-1, self._image.size[1]-1), outline=(120, 120, 120))
 		#wh = self.font.getsize("text")
 		# Title
-		draw.text((11, 4), self.title, fill=(0, 0, 0, 128), font=self._fontTitle)
-		draw.text((10, 3), self.title, fill=self.textColor, font=self._fontTitle)
+		name = self._netinfo.name if is_online else self._server['name']
+		draw.text((11, 4), name, fill=(0, 0, 0, 128), font=self._fontLarge)
+		draw.text((10, 3), name, fill=self.titleColor, font=self._fontLarge)
 		# Detail
-		draw.text((15, 25), "Players: 0/9 - Map: dm1 - Game Type: DM - Public: Yes - Visible: No", 
-				fill=(0, 0, 0), font=self._fontText)
+		if is_online:
+			gametype = self._netinfo.gametype if self._netinfo.gametype else self._server['gametype']
+			map = self._netinfo.map if is_online else ". . ."
+			players = '%d/%d' % (self._netinfo.players,self._netinfo.max_players) if is_online else ". . ."
+			is_visible = _('Yes') if self._server['register'] else _('No')
+			is_public = _('No') if self._server['password'] else _('Yes')
+			draw.text((15, 25), "Players: %s - Map: %s - Game Type: %s - Public: %s - Visible: %s" 
+								% (players, map, gametype.upper(), is_public, is_visible), 
+					fill=(0, 0, 0), font=self._fontSmall)
+		else:
+			draw.text((15, 25), _('SERVER OFFLINE'), fill=(240, 10, 5), font=self._fontSmall)			
+		# Address
+		addr = '%s:%s' % (ip, self._server['port'])
+		wh = self._fontLargeBold.getsize(addr)
+		draw.text((self._image.size[0]-wh[0]-10, self._image.size[1]/2-wh[1]/2), addr, 
+				fill=self.addressColor, font=self._fontLargeBold)
+		
 		del draw
 		
 		# Save Image To Memory

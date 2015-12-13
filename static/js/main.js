@@ -29,6 +29,9 @@ $(function(){
 	refresh_main();
 	window.setInterval('refresh_main()', $REFRESH_TIME);
 	
+	// Initialize colorpickers
+	$('.colorpicker-input').colorpicker();
+	
 });
 
 function refresh_main()

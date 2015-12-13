@@ -250,8 +250,21 @@ def server(id):
 def generate_server_banner(id):
     srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
     if srv:
-        banner_image = BannerGenerator((600, 40), srv['name'])
-        return send_file(banner_image.generate(),
+        netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+        banner_image = BannerGenerator((600, 40), srv, netinfo)
+        
+        if 'title' in request.values:
+            banner_image.titleColor = twp.HTMLColorToRGBA(request.values.get('title'))
+        if 'detail' in request.values:
+            banner_image.detailColor = twp.HTMLColorToRGBA(request.values.get('detail'))
+        if 'address' in request.values:
+            banner_image.addressColor = twp.HTMLColorToRGBA(request.values.get('address'))
+        if 'grads' in request.values:
+            banner_image.gradStartColor = twp.HTMLColorToRGBA(request.values.get('grads'))
+        if 'grade' in request.values:
+            banner_image.gradEndColor = twp.HTMLColorToRGBA(request.values.get('grade'))
+        
+        return send_file(banner_image.generate(IP),
                      attachment_filename="server_banner.png",
                      as_attachment=False)
         

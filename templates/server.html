@@ -11,6 +11,10 @@
   <li class="active">{{server['base_folder']}}</li>
 </ol>
 
+<div class="text-right">
+	<i class="fa fa-picture-o"></i> <a data-toggle="modal" data-target="#modal_create_banner" href="#">{{_('Create Banner')}}</a>
+</div>
+
 <div class="page-header">
 	<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
 </div>
@@ -183,6 +187,8 @@
 {% if session.logged_in %}
 	{% include "includes/modal_instance_issues.html" %}
 {% endif %}
+
+{% include "includes/modal_create_banner.html" %}
 
 {% endblock %}
 {% block script %}

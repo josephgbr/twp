@@ -394,3 +394,22 @@ def send_econ_user_action(port, password, nick, action):
 
 def generate_random_ascii_string(size=8):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
+
+# Code from: http://code.activestate.com/recipes/266466-html-colors-tofrom-rgb-tuples/
+def HTMLColorToRGBA(colorstring):
+    """ convert #RRGGBBAA to an (R, G, B, A) tuple """
+    colorstring = colorstring.strip()
+    if colorstring[0] == '#': colorstring = colorstring[1:]
+    if len(colorstring) != 6 and len(colorstring) != 8:
+        raise ValueError, "input #%s is not in #RRGGBBAA format" % colorstring
+    
+    if len(colorstring) == 6:
+        r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
+        r, g, b = [int(n, 16) for n in (r, g, b)]
+        a = 255
+    else:
+        r, g, b, a = colorstring[:2], colorstring[2:4], colorstring[4:6], colorstring[6:]
+        r, g, b, a = [int(n, 16) for n in (r, g, b, a)]
+
+    return (r, g, b, a)
+##
