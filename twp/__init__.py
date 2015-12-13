@@ -24,6 +24,7 @@ from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
 from netstat import netstat
 from urllib import urlretrieve
+from banner_generator import BannerGenerator
 try:
     from urllib.request import urlopen
 except ImportError:

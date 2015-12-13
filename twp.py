@@ -19,13 +19,15 @@
 #########################################################################################
 import twp
 import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil
+from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory, send_file
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from flask.ext.babel import Babel, _, refresh; refresh()
-from twp import BannedList
+from pngcanvas import *
+from twp import BannedList, BannerGenerator
 try:
     import configparser
 except ImportError:
@@ -158,8 +160,8 @@ def get_timezone():
 
 
 # Routing
-@app.route("/")
-@app.route("/overview")
+@app.route("/", methods=['GET'])
+@app.route("/overview", methods=['GET'])
 def overview():
     session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO, dist=twp.get_linux_distribution(), ip=IP)
@@ -170,7 +172,6 @@ def login():
         flash(_('Session Banned: Can\'t login in this website! Fuck you :)', 'danger'))
         return redirect("/overview") 
     if request.method == 'POST':
-        app.logger.debug('A value for debugging')
         request_username = request.form['username']
         request_passwd = str_sha512_hex_encode(request.form['password'])
 
@@ -193,7 +194,7 @@ def login():
         flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),LOGIN_MAX_TRIES), 'danger')
     return render_template('login.html', twp=TWP_INFO)
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
     
@@ -209,12 +210,12 @@ def logout():
         return redirect(url_for('overview'))
     return redirect(current_url)
 
-@app.route('/about')
+@app.route('/about', methods=['GET'])
 def about():
     session['prev_url'] = request.path;
     return render_template('about.html', twp=TWP_INFO)
 
-@app.route('/servers')
+@app.route('/servers', methods=['GET'])
 def servers():
     session['prev_url'] = request.path;
     # By default all server are offline
@@ -231,8 +232,8 @@ def servers():
                          [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
     g.db.commit()
     return render_template('servers.html', twp=TWP_INFO, servers=twp.get_local_servers(SERVERS_BASEPATH))
-
-@app.route('/server/<int:id>')
+    
+@app.route('/server/<int:id>', methods=['GET'])
 def server(id):
     session['prev_url'] = request.path;
     srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
@@ -242,17 +243,29 @@ def server(id):
     if srv:
         netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
-        flash("Server not found!", "danger")
+        flash(_('Server not found!'), "danger")
     return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count['num'])
 
-@app.route('/players')
+@app.route('/server/<int:id>/banner', methods=['GET'])
+def generate_server_banner(id):
+    srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
+    if srv:
+        png_image = BannerGenerator(500, 150, "test")
+        
+        if png_image.save():
+            binfile = open('/tmp/twp_banner.png', "rb")
+            return send_file(binfile,
+                         attachment_filename="server_banner.png",
+                         as_attachment=False)
+        
+@app.route('/players', methods=['GET'])
 def players():
     session['prev_url'] = request.path;
     
     players = query_db("SELECT rowid,strftime('%d-%m-%Y %H:%M',create_date) as create_date, strftime('%d-%m-%Y %H:%M',last_seen_date) as last_seen_date,status,name from players ORDER BY name ASC")
     return render_template('players.html', twp=TWP_INFO, players=players)
 
-@app.route('/maps')
+@app.route('/maps', methods=['GET'])
 def maps():
     session['prev_url'] = request.path;
     return render_template('index.html', twp=TWP_INFO)
@@ -328,7 +341,7 @@ def log(id, code, name):
     else:
         flash(_('Server not found!'), "danger")
     return render_template('log.html', twp=TWP_INFO, ip=IP, server=srv, logcode=code, logname=name, logdate=logdate)
-       
+    
 
 @app.route('/_remove_mod', methods=['POST'])
 def remove_mod():

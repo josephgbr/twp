@@ -11,6 +11,7 @@ Project Requirements:
  - [Flask APScheduler v1.1.0](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support 
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
+- [Pillow v3.0.0](https://pypi.python.org/pypi/pngcanvas/1.0.3) for generate png images
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
@@ -32,10 +33,11 @@ $ wget http://twp.redneboa.es -O install_twp.sh && sudo bash install_twp.sh $LOG
 
 **Manual (Basic)**
 ```bash
-$ sudo apt-get install gcc python python-dev python-pip git
+$ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev
 $ sudo pip install Flask==0.10.1
 $ sudo pip install Flask-APScheduler==1.1.0
 $ sudo pip install Flask-Babel==0.9
+$ sudo pip install Pillow==3.0.0
 $ git clone https://github.com/CytraL/twp.git "twp"
 $ cd twp
 $ chmod a+x twp.py
