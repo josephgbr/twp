@@ -83,15 +83,17 @@ $ pybabel extract -F babel.cfg -o messages.pot .
 ```bash
 $ pybabel init -i messages.pot -d translations -l <language code: ISO 639-1>
 ```
-- Edit .po file using for example '[poedit](http://poedit.net/download)'
+
+_** Otherwise, if changed strings on the source, you will need update current translations_
+```bash
+$ pybabel update -i messages.pot -d translations
+```
+
+- Edit .po file(s) using for example '[poedit](http://poedit.net/download)'
+
 - Compile:
 ```bash
 $ pybabel compile -d translations
-```
-
-_** If changes strings on the app, you will need update current translations_
-```bash
-$ pybabel update -i messages.pot -d translations
 ```
 
 ### Limits
