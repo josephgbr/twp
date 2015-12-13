@@ -7,7 +7,7 @@
 {% if server %}
 
 <ol class="breadcrumb">
-  <li><a href="/servers">Servers</a></li>
+  <li><a href="/servers">{{_('Servers')}}</a></li>
   <li class="active">{{server['base_folder']}}</li>
 </ol>
 
@@ -170,32 +170,7 @@
 			</span>
 		</h1>
 	{% else %}
-		<div class="text-right" style="padding:5px;">
-			<form class="form-inline">
-	 			 <div class="form-group">
-	 			 	<label for="filter-type">{{_('Filter by')}} </label>
-					<select class="form-control" id="filter-type" name="type">
-						<option value="0">&nbsp;</option>
-						<option value="1">{{_('Errors')}}</option>
-						<option value="2">{{_('Warnings')}}</option>
-						<option value="3">{{_('Highlighted')}}</option>
-					</select>
-					<select class="form-control" id="filter-order" name="order">
-						<option value="0">{{_('Desc')}}</option>
-						<option value="1">{{_('Asc')}}</option>
-					</select>
-				</div>
-			</form>
-		</div>
-		<table class="table table-condensed table-hover table-striped">
-			<thead>
-				<th>{{ _('Date') }}</th>
-				<th>{{ _('Section') }}</th>
-				<th>{{ _('Message') }}</th>
-			</thead>
-			<tbody id='server-log'>
-  			</tbody>
-  		</table>
+		{% include "includes/server_log.html" %}
   	{% endif %}
   	</div>
 {% endif %}

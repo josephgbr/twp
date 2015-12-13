@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block title %}{{ _('Server Log') }}{% endblock %}
+{% block content %}
+
+{{ super() }}
+{% if server %}
+
+<ol class="breadcrumb">
+	<li><a href="/servers">{{_('Servers')}}</a></li>
+	<li>{{server['base_folder']}}</li>
+	<li><a href="/server/{{server['rowid']}}">{% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</a></li>
+	<li>logs</li>
+</ol>
+
+{% if logdate %}
+<div class="page-header">
+	<h1><i class="fa fa-calendar"></i> {{logdate}}</h1>
+</div>
+{% endif %}
+
+{% if session.logged_in %}
+  	<div class="tab-pane" id="log">
+  	{% if not logdate %}
+  		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
+	  		<span class="fa-stack fa-lg">
+			  <i class="fa fa-file-text-o fa-stack-1x"></i>
+			  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+			</span>
+			{{ _('NO LOG DEFINED') }}
+	  		<span class="fa-stack fa-lg">
+			  <i class="fa fa-file-text-o fa-stack-1x"></i>
+			  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+			</span>
+		</h1>
+	{% else %}
+		{% include "includes/server_log.html" %}
+  	{% endif %}
+  	</div>
+{% endif %}
+
+{% else %}
+<h1 class="text-center"><i class="fa fa-frown-o fa-lg"></i><br/>{{ _('SERVER NOT FOUND') }}</h1>
+{% endif %}
+
+
+{% endblock %}
+{% block script %}
+	{% if server %}
+	<script type="text/javascript">
+		var $SRVID = {{ server['rowid']|tojson|safe }};
+		var $SRVLOGCODE = {{ logcode|tojson|safe }};
+		var $SRVLOGNAME = {{ logname|tojson|safe }};
+	</script>
+	{% endif %}
+	<script type="text/javascript" src="{{ url_for('static', filename='js/log.js') }}"></script>
+{% endblock %}

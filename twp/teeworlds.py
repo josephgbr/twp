@@ -39,6 +39,9 @@ def is_ipv6(address):
 	if isinstance(address, tuple): address = address[0]
 	return True if ':' in address else False
 
+def IsNotNull(value):
+    return value is not None and len(value) > 0
+
 
 class MultiSocket(object):
 	READ = 1
@@ -275,11 +278,19 @@ class Server(Handler):
 			self.max_clients = int(data.next())
 			for _ in range(self.clients):
 				player = Player()
-				player.name=data.next().encode('utf8').strip().decode('utf8')
-				player.clan=data.next().encode('utf8').strip().decode('utf8')
-				player.country = int(data.next())
-				player.score = int(data.next())
-				player.playing = (data.next()=='1')
+				player.name=data.next().decode('utf8')
+				player.clan=data.next().decode('utf8')
+				# TWP Changes
+				try:
+					player.country = int(data.next())
+				except ValueError:
+					player.country = 0
+				try:
+					player.score = int(data.next())
+				except ValueError:
+					player.score = 0
+				player.playing = ('1'==data.next()) # Yoda Style
+				##
 				player.server = self
 				self.playerlist.add(player)
 		except StopIteration:
@@ -297,7 +308,7 @@ class Server(Handler):
 	
 	def __repr__(self):
 		return "<Server name='{0}' address='{1}'>" \
-			.format(self.name, self.address)
+			.format(self.name.encode('utf-8'), self.address)
 
 
 class Player(object):

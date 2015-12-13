@@ -160,7 +160,7 @@ $(function(){
 
 function get_server_instance_log()
 {
-	$.getJSON($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOG_SEEK, function(data) {
+	$.post($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOG_SEEK, '', function(data) {
 		check_server_data(data);
 
 		if (data['success'] && data['content'])

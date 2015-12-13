@@ -101,5 +101,5 @@ $ pybabel update -i messages.pot -d translations
 
 Limits
 -
-- The maximum size of upload is 16MB per mod
+- The default maximum size of upload is 16MB per mod
 - The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years

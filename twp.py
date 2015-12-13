@@ -311,7 +311,24 @@ def search():
     servers = query_db("SELECT rowid,* FROM servers WHERE name LIKE ? OR base_folder LIKE ?", [sk,sk])
     players = query_db("SELECT rowid,* FROM players WHERE name LIKE ?", [sk])
     return render_template('search.html', twp=TWP_INFO, search=searchword, servers=servers, players=players)
-        
+
+@app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
+def log(id, code, name):
+    srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
+    netinfo = None
+    logdate = None
+    if srv:
+        log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv['base_folder'], code, name)
+        if not os.path.isfile(log_file):
+            flash(_('Logfile not exists!'), "danger")
+        else:
+            dt = datetime.fromtimestamp(time.mktime(time.localtime(int(code, 16))))
+            logdate = dt.strftime("%d-%m-%Y %H:%M:%S")
+            netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+    else:
+        flash(_('Server not found!'), "danger")
+    return render_template('log.html', twp=TWP_INFO, ip=IP, server=srv, logcode=code, logname=name, logdate=logdate)
+       
 
 @app.route('/_remove_mod', methods=['POST'])
 def remove_mod():
@@ -589,8 +606,8 @@ def get_server_instances_online():
 #        return jsonify({'success':True })
 #    return jsonify({'notauth':True})
 
-@app.route('/_get_server_instance_log/<int:id>/<int:seek>')
-def get_server_instance_log(id, seek):
+@app.route('/_get_server_instance_log/<int:id>/<int:seek>', methods=['POST'])
+def get_current_server_instance_log(id, seek):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db("SELECT port,base_folder,bin,logfile FROM servers WHERE rowid=?", [id], one=True)
         if srv:
@@ -632,6 +649,42 @@ def get_server_instance_log(id, seek):
                     logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),'section':section,'message':message,'type':type})
             
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
+    return jsonify({'notauth':True})
+
+@app.route('/_get_server_instance_log/<int:id>/<string:code>/<string:name>', methods=['POST'])
+def get_selected_server_instance_log(id, code, name):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db("SELECT base_folder FROM servers WHERE rowid=?", [id], one=True)
+        if srv:
+            logcontent = ""
+            log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv['base_folder'], code, name)
+            if not os.path.isfile(log_file):
+                return jsonify({'error':True, 'errormsg':_('Logfile not exists!')})
+            try:                                
+                cfgfile = open(log_file, "r")
+                logcontent = cfgfile.read()
+                cfgfile.close()
+            except Exception, e:
+                return jsonify({'success':True, 'content':None})
+            
+            lines = logcontent.splitlines()
+            logcontent = []
+            for line in lines:
+                objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
+                if objMatch:
+                    (date,section,message) = [int(objMatch.group(1), 16),objMatch.group(2),objMatch.group(3)]
+                    dt = datetime.fromtimestamp(time.mktime(time.localtime(date)))
+                    type = None
+                    if re.match("^(?:client dropped|(?:.+\s)?failed)", message, re.IGNORECASE):
+                        type = 'danger'
+                    elif re.match("^No such command", message, re.IGNORECASE):
+                        type = 'warning'
+                    elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
+                        type = 'success'
+                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),'section':section,'message':message,'type':type})
+            
+            return jsonify({'success':True, 'content':logcontent})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
     return jsonify({'notauth':True})
 
