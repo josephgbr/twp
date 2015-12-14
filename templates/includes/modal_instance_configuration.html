@@ -8,21 +8,35 @@
 			<div class="modal-body">
 				<div class="row">
                     <div class="col-md-12">
-						<form id='form-server-config' class="deny-enter form-horizontal">
-							<input type="hidden" id="srvid" name="srvid" />
-							<div class="form-group">
-								<div class="col-md-12">
-							    	<label class="control-label" for="cfgfile">{{ _('Auto-Launch if offline:') }}</label>
-									<input type="checkbox" id="alsrv" name="alsrv" />
-								</div>
+						<ul class="nav nav-tabs" role="tablist">
+							<li><a href="#wizard" data-toggle="tab">{{ _('Wizard') }}</a></li>
+							<li><a href="#maps" data-toggle="tab">{{ _('Maps') }}</a></li>
+							<li class="active"><a href="#advance" role="tab" data-toggle="tab">{{ _('Advance') }}</a></li>
+						</ul>
+						
+						<div class="tab-content">
+							<div class="tab-pane" id="wizard">
 							</div>
-							<div class="form-group">
-								<div class="col-md-12">
-									<textarea rows="15" class="form-control" style="max-width:100%;" id="srvcfg" name="srvcfg"></textarea>
-									<span class="help-block">{{ _('Here goes your') }} <a target="_blank" href="https://www.teeworlds.com/?page=docs&wiki=server_settings">{{ _('configuration') }}</a></span>
-								</div>
+							<div class="tab-pane" id="maps">
 							</div>
-						</form>
+						  	<div class="tab-pane active" id="advance">
+								<form id='form-server-config' class="deny-enter form-horizontal">
+									<input type="hidden" id="srvid" name="srvid" />
+									<div class="form-group">
+										<div class="col-md-12">
+									    	<label class="control-label" for="cfgfile">{{ _('Auto-Launch if offline:') }}</label>
+											<input type="checkbox" id="alsrv" name="alsrv" />
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-md-12">
+											<textarea rows="15" class="form-control" style="max-width:100%;" id="srvcfg" name="srvcfg"></textarea>
+											<span class="help-block">{{ _('Here goes your') }} <a target="_blank" href="https://www.teeworlds.com/?page=docs&wiki=server_settings">{{ _('configuration') }}</a></span>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

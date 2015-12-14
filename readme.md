@@ -7,33 +7,34 @@ Project Requirements:
 **Server Side**
 - [SQLite v3.x](https://www.sqlite.org/) for database
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
- - [Flask APScheduler v1.1.0](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
+ - [Flask APScheduler v1.3.3](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support 
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
-- [Pillow v3.0.0](https://pypi.python.org/pypi/pngcanvas/1.0.3) for generate png images
+- [Pillow v3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) for generate png images
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
 - [Font Awesome v4.5.0](http://fontawesome.io/) for awesome icons
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
-- [jsSHA v2.0.2](https://github.com/Caligatio/jsSHA) for generate SHA-512 hashes
+- [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
- - [Bootstrap v3.3.5](http://getbootstrap.com/) for widgets and responsive design
+ - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
+ - [Bootstrap Colorpicker v2.3](http://mjolnic.com/bootstrap-colorpicker/)
 
 ### Installation (Debian based distributions)
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._
 
 **Automatic (Full) --Warning: builtin server--**
 ```bash
-$ wget http://twp.redneboa.es -O install_twp.sh && sudo bash install_twp.sh $LOGNAME
+$ sudo wget http://twp.redneboa.es -O - | bash
 ```
 
 **Manual (Basic)**
 ```bash
 $ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev
 $ sudo pip install Flask==0.10.1
-$ sudo pip install Flask-APScheduler==1.1.0
+$ sudo pip install Flask-APScheduler==1.3.3
 $ sudo pip install Flask-Babel==0.9
 $ sudo pip install Pillow==3.0.0
 $ git clone https://github.com/CytraL/twp.git "twp"
