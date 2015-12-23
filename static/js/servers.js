@@ -193,6 +193,14 @@ $(function(){
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
 		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
+		    	 
+		    	 for (var i in data['maps'])
+		    	 { 
+		    		 var row = "<tr><td><input type='checkbox' name='map_used' /></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
+		    		 $("#maplist").append(row);
+		    		 row = "<option value='"+data['maps'][i].name+"'>"+data['maps'][i].name+"</option>"
+		    		 $("#default_map").append(row);
+		    	 }
 	    	 }
 	    	 else
 	    	 {

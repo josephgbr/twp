@@ -171,7 +171,15 @@ def get_mod_binaries(dir, mod_folder):
         fullpath = '%s/%s/%s' % (dir, mod_folder, r)
         if os.path.isfile(fullpath) and not is_text_file(fullpath) and not fnmatch.filter(r, '.*'):
             binlist.append(r)
-    return binlist
+    return binlist if len(binlist) > 0 else None
+
+def get_mod_maps(dir, mod_folder):
+    maplist = []
+    for r in os.listdir('%s/%s/data/maps' % (dir, mod_folder)):
+        fullpath = '%s/%s/data/maps/%s' % (dir, mod_folder, r)
+        if os.path.isfile(fullpath) and not is_text_file(fullpath) and r.endswith('.map'):
+            maplist.append({'name':r[:-4], 'size': '%.2f' % (os.path.getsize(fullpath)/1024)})
+    return sorted(maplist, key=lambda k: k['name']) if len(maplist) > 0 else None
 
 def get_mod_configs(dir, mod_folder):
     cfglist = []

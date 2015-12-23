@@ -7,8 +7,14 @@
 			</div>
 			<div class="modal-body">
 				<div class="row">
-                    <div class="col-md-12">
-						<ul class="nav nav-tabs" role="tablist">
+                    <div class="col-md-12">	
+						<div class="form-group">
+							<div class="col-md-12">
+						    	<input type="checkbox" id="check_alsrv" /> <label class="control-label" for="alsrv">{{ _('Auto-Launch if offline:') }}</label>
+							</div>
+						</div>
+									
+						<ul class="nav nav-tabs" style="margin-bottom:0.5em" role="tablist">
 							<li><a href="#wizard" data-toggle="tab">{{ _('Wizard') }}</a></li>
 							<li><a href="#maps" data-toggle="tab">{{ _('Maps') }}</a></li>
 							<li class="active"><a href="#advance" role="tab" data-toggle="tab">{{ _('Advance') }}</a></li>
@@ -18,16 +24,33 @@
 							<div class="tab-pane" id="wizard">
 							</div>
 							<div class="tab-pane" id="maps">
+								<div class="row text-right">
+									<div class="col-md-12">
+										<button class="btn btn-default"><i class="fa fa-cloud-upload"></i> {{ _('Upload Maps') }}</button>
+									</div>
+								</div>
+								<div class="form-group">
+							    	<label class="control-label" for="cfgfile">{{ _('Default Map:') }}</label>
+							    	<select id="default_map" class="form-control"></select>
+								</div>
+								
+								<div style="overflow:auto; height:270px;">
+									<table class="table table-condensed table-hover table-striped">
+										<thead>
+											<th style="width:10px">&nbsp;</th>
+											<th>{{ _('Name') }}</th>
+											<th>{{ _('Size') }} (KB)</th>
+										</thead>
+										<tbody id="maplist">
+										</tbody>
+									</table>
+								</div>
+								
 							</div>
 						  	<div class="tab-pane active" id="advance">
-								<form id='form-server-config' class="deny-enter form-horizontal">
-									<input type="hidden" id="srvid" name="srvid" />
-									<div class="form-group">
-										<div class="col-md-12">
-									    	<label class="control-label" for="cfgfile">{{ _('Auto-Launch if offline:') }}</label>
-											<input type="checkbox" id="alsrv" name="alsrv" />
-										</div>
-									</div>
+						  		<form id='form-server-config' class="deny-enter form-horizontal">
+									<input type="hidden" id="srvid" name="srvid" value="-1" />
+									<input type="hidden" id="alsrv" name="alsrv" value="false" />
 									<div class="form-group">
 										<div class="col-md-12">
 											<textarea rows="15" class="form-control" style="max-width:100%;" id="srvcfg" name="srvcfg"></textarea>
