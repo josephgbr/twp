@@ -65,5 +65,11 @@
 </div>
 {% endblock %}
 {% block script %}
+	<script type="text/javascript">
+		var $BABEL_STR_UPTIME = {{_("Uptime:")|tojson|safe}};
+		var $BABEL_STR_DAYS = {{_("day(s)")|tojson|safe}};
+		var $BABEL_STR_PLAYERS = {{_("Players")|tojson|safe}};
+		var $BABEL_STR_FREE = {{_("free")|tojson|safe}};
+	</script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/overview.js') }}"></script>
 {% endblock %}

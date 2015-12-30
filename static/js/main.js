@@ -34,6 +34,22 @@ $(function(){
 	
 });
 
+$.fn.extend({
+	
+	splitlines: function() {
+		var lines = this.val().split(/\n/);
+		var texts = [];
+		for (var i=0; i < lines.length; i++)
+		{
+			if (/\S/.test(lines[i]))
+				texts.push($.trim(lines[i]));
+		}
+		
+		return texts;
+	}
+	
+});
+
 function refresh_main()
 {
 	get_server_instances_online();
@@ -42,7 +58,7 @@ function refresh_main()
 
 function get_server_instances_online()
 {
-    $.getJSON($SCRIPT_ROOT + '/_get_server_instances_online', function(data) {
+    $.post($SCRIPT_ROOT + '/_get_server_instances_online', '', function(data) {
       	 check_server_data(data);
       	 
       	 if (data['success'])
@@ -64,8 +80,8 @@ function check_server_data(data)
 	if (data['notauth'])
 	{
 		bootbox.dialog({
-			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> The session has expired <i class='fa fa-warning'></i></p>",
-			title: "Session Expired!",
+			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> "+$BABEL_STR_SESSION_EXPIRED+" <i class='fa fa-warning'></i></p>",
+			title: $STR_BABEL_TITLE_SESSION_EXPIRED,
 			buttons: {
 				success: {
 					label: "Oh!",
@@ -79,14 +95,14 @@ function check_server_data(data)
 	}
 	else if (data['error'])
 	{
-		var errormsg = data['errormsg']?data['errormsg']:"Interal error has ocurred!";
+		var errormsg = data['errormsg']?data['errormsg']:$BABEL_STR_INTERNAL_ERROR;
 		
 		bootbox.dialog({
 			message: "<p class='text-center' style='color:#800000;'>"+errormsg+"</p>",
-			title: "Error - Ooops! <i class='fa fa-frown-o'></i>",
+			title: $BABEL_STR_ERROR_OOOPS+" <i class='fa fa-frown-o'></i>",
 			buttons: {
 				success: {
-					label: "Damn",
+					label: $BABEL_STR_DAMN,
 					className: "btn-default"
 				}
 			}
@@ -96,7 +112,31 @@ function check_server_data(data)
 
 function get_host_localtime()
 {
-	$.get($SCRIPT_ROOT + '/_refresh_host_localtime', function(data) {
+	$.post($SCRIPT_ROOT + '/_refresh_host_localtime', '', function(data) {
 		$("#localtime").text(data['localtime']);
 	});
+}
+
+function update_config_textarea($ta, param, new_value)
+{
+	var lines = $ta.splitlines();
+	var nvalue = "";
+	
+	var replaced = false;
+	for (var i in lines)
+	{
+        var objMatch = lines[i].match(/^([^#\s]+)\s([^#\r\n]+)/);
+        if (objMatch && param.toLowerCase() === objMatch[1].toLowerCase())
+        {
+        	nvalue += param+" "+new_value+"\n";
+            replaced = true;
+        }
+        else
+        	nvalue += lines[i]+"\n";
+	}
+	
+    if (!replaced)
+    	nvalue += param+" "+new_value+"\n";
+    
+    $ta.val(nvalue);
 }

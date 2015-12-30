@@ -30,7 +30,7 @@ $(function(){
 	    $btn.html("<i class='fa fa-refresh fa-spin'></i> Installing '"+filename+"'...");
 	     
 		bootbox.dialog({
-			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>PLEASE WAIT...</h1></div>",
+			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>"+$BABEL_STR_PLEASE_WAIT+"</h1></div>",
 			buttons: {}
 		});
 		
@@ -40,14 +40,14 @@ $(function(){
 	
 	// Open dialog for type external url mod package
 	$(document).on("click", "#install-mod-url", function() {
-		bootbox.prompt("URL to .zip or .tar.gz Teeworlds Package:", function(result) {                
+		bootbox.prompt($BABEL_STR_URL_TO_PACKAGE, function(result) {                
 			if (result !== null) {
 	    		var $btn = $('#install-mod-button');
 	    		$btn.removeClass('btn-default').addClass('btn-success disabled');
-	    		$btn.html("<i class='fa fa-refresh fa-spin'></i> Installing...");
+	    		$btn.html("<i class='fa fa-refresh fa-spin'></i> "+$BABEL_STR_INSTALLING);
 	    		
 	    		bootbox.dialog({
-	    			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>PLEASE WAIT...</h1></div>",
+	    			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>"+$BABEL_STR_PLEASE_WAIT+"</h1></div>",
 	    			buttons: {}
 	    		});
 	    		
@@ -65,7 +65,7 @@ $(function(){
 	     $cfglist.children().remove();
 	     $('#modal_new_server #cfgfile').val("");
 	     
-	     $.getJSON($SCRIPT_ROOT + '/_get_mod_configs/'+mod, function(data) {
+	     $.post($SCRIPT_ROOT + '/_get_mod_configs/'+mod, '', function(data) {
 	    	if (data['configs'] && data['configs'].length > 0)
 	    	{
 	    		$('#modal_new_server #cfgfile').val(data['configs'][0]);
@@ -82,7 +82,7 @@ $(function(){
 		if (!configfile)
 			return;
 		
-		$.getJSON($SCRIPT_ROOT + '/_create_server_instance/'+srvmod+'?fileconfig='+configfile, function(data) {
+		$.post($SCRIPT_ROOT + '/_create_server_instance/'+srvmod, 'fileconfig='+configfile, function(data) {
 			check_server_data(data);
 
 			if (data['success'])
@@ -99,15 +99,15 @@ $(function(){
 		var srvmod = $(this).data('mod');
 		
 		bootbox.dialog({
-			message: "Are you sure?<br/><input type='checkbox' name='delete-configfile'/>Delete configuration file from disk.",
-			title: "Delete '"+srvmod+"' Server Instance",
+			message: $BABEL_STR_ARE_YOU_SURE+"<br/><input type='checkbox' name='delete-configfile'/>"+$BABEL_STR_DELETE_CONF,
+			title: $BABEL_STR_DELETE+" '"+srvmod+"' "+$BABEL_STR_SERVER_INSTANCE,
 			buttons: {
 			    success: {
-			    	label: "Delete",
+			    	label: $BABEL_STR_DELETE,
 			    	className: "btn-danger",
 			    	callback: function() {
 			    		var delconfig = $("input[name='delete-configfile']:checked").val()==='on'?'1':'0';			    		
-						$.getJSON($SCRIPT_ROOT + '/_remove_server_instance/'+srvid+'/'+delconfig, function(data) {
+						$.post($SCRIPT_ROOT + '/_remove_server_instance/'+srvid+'/'+delconfig, '', function(data) {
 							check_server_data(data);
 							
 							if (data['success'])
@@ -141,7 +141,7 @@ $(function(){
 		if ($this.hasClass('disabled'))
 			return;
 		
-		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i> Sending...");
+		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i> "+$BABEL_STR_SENDING);
 		
 		$.post($SCRIPT_ROOT + '/_send_econ_command', $('#form-econ').serialize(), function(data) {
 			$this.removeClass('disabled').text("Send");
@@ -166,7 +166,7 @@ $(function(){
 		var srvid = $parent_ul.data('id');
 		var srvbin = $this.text().trim();
 		
-		$.getJSON($SCRIPT_ROOT + '/_set_server_binary/'+srvid+'/'+srvbin, function(data) {
+		$.post($SCRIPT_ROOT + '/_set_server_binary/'+srvid+'/'+srvbin, '', function(data) {
 			check_server_data(data);
 		
 			if (data['success'])
@@ -185,7 +185,7 @@ $(function(){
 	$(document).on("click", "a[data-target=#modal_instance_configuration]", function() {
 	     var srvid = $(this).data('id');
 	     $('#form-server-config #srvid').val(srvid);
-	     $.getJSON($SCRIPT_ROOT + '/_get_server_config/'+srvid, function(data) {
+	     $.post($SCRIPT_ROOT + '/_get_server_config/'+srvid, '', function(data) {
 	    	 check_server_data(data);
 	    	 
 	    	 if (data['success'])
@@ -199,17 +199,29 @@ $(function(){
 		    		 var row = "<tr><td><input type='checkbox' name='map_used' /></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
 		    		 $("#maplist").append(row);
 		    		 row = "<option value='"+data['maps'][i].name+"'>"+data['maps'][i].name+"</option>"
-		    		 $("#default_map").append(row);
+		    		 $("#default_maps").append(row);
 		    	 }
+		    	 
+		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", "ctf5");
+		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_name", "Edited by Javascript");
+		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_invented", "lal la la la");
 	    	 }
 	    	 else
 	    	 {
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', false);
 		    	 $("#modal_instance_configuration #srvcfg").val("");
-		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration");
+		    	 $("#modal_instance_configuration .modal-title").text($BABEL_STR_INSTANCE_CONF);
 	    	 }
 	     });
 	});
+	
+	// Change default map
+	$(document).on("select", "#modal_instance_configuration #default_map", function() {
+		console.log($(this).val());
+	});
+    $("#modal_instance_configuration input[type='checkbox']:checked").each(function() {
+    	console.log("ssss");
+    });
 	
 	// Press "OK" button in Server Instance Configuration
 	$(document).on("click", "#modal_instance_configuration .btn-primary", function() {
@@ -231,14 +243,14 @@ $(function(){
 				$gametype.text(data['gametype']);
 				
 				if (data['register'] == 0)
-					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', 'Public Server');
+					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', $BABEL_STR_PUBLIC_SERVER);
 				else
-					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', 'Private Server');
+					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', $BABEL_STR_PRIVATE_SERVER);
 				
 				if (data['password'] == 0)
-					$flags.find('.tw-password').css('color','#BBB').prop('title', 'Not Register Server');
+					$flags.find('.tw-password').css('color','#BBB').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
 				else
-					$flags.find('.tw-password').css('color','#333').prop('title', 'Register Server');
+					$flags.find('.tw-password').css('color','#333').prop('title', $BABEL_STR_REGISTER_SERVER);
 				
 				$('#modal_instance_configuration').modal('hide');
 			}
@@ -257,16 +269,16 @@ $(function(){
 		$btnlist.addClass('disabled btn-warning').removeClass('btn-success');
 		$listline.find("a[data-target='#modal_instance_configuration']").addClass('disabled hidden');
 		$listline.find(".remove-server-instance").addClass('disabled');
-		$this.html("<i class='fa fa-spinner fa-spin'></i> Starting...");
+		$this.html("<i class='fa fa-spinner fa-spin'></i> "+$BABEL_STR_STARTING);
 		
-		$.getJSON($SCRIPT_ROOT + '/_start_server_instance/'+srvid, function(data) {
+		$.post($SCRIPT_ROOT + '/_start_server_instance/'+srvid, '', function(data) {
 			if (data['error'])
 			{
 				$this.removeClass('disabled btn-warning').addClass('btn-success');
 				$btnlist.removeClass('disabled btn-warning').addClass('btn-success');
 				$listline.find("a[data-target='#modal_instance_configuration']").removeClass('disabled hidden');
 				$listline.find(".remove-server-instance").removeClass('disabled');
-				$this.html("<i class='fa fa-play'></i> Start");
+				$this.html("<i class='fa fa-play'></i> "+$BABEL_STR_START);
 			}
 			
 			check_server_data(data);
@@ -281,7 +293,7 @@ $(function(){
 	// Stop Server Instance
 	$(document).on("click", ".stop-instance", function() {
 		var srvid = $(this).data('id');
-	     $.post($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, function(data) {
+	     $.post($SCRIPT_ROOT + '/_stop_server_instance/'+srvid, '', function(data) {
 	    	 check_server_data(data);
 	    	 
 	    	 if (data['success'])
@@ -296,11 +308,11 @@ $(function(){
 		var mod_folder = $(this).data('mod');
 		
 		bootbox.dialog({
-			message: "Are you sure?<br/><span class='text-danger'>This can't be canceled and erase all mod data on the disk!!</span>",
-			title: "Remove '"+mod_folder+"' Mod",
+			message: $BABEL_STR_ARE_YOU_SURE+"<br/><span class='text-danger'>"+$BABEL_STR_THIS_CANT_BE_CANCELED+"</span>",
+			title: $BABEL_STR_REMOVE+" '"+mod_folder+"' Mod",
 			buttons: {
 			    success: {
-			    	label: "Remove",
+			    	label: $BABEL_STR_REMOVE,
 			    	className: "btn-danger",
 			    	callback: function() {
 				   	     $.post($SCRIPT_ROOT + '/_remove_mod', 'folder='+mod_folder, function(data) {
@@ -314,7 +326,7 @@ $(function(){
 			    	}
 			    },
 			    main: {
-			    	label: "Cancel",
+			    	label: $BABEL_STR_CANCEL,
 			    	className: "btn-default"
 			    }
 			}

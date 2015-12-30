@@ -50,9 +50,7 @@ $(function(){
 });
 
 function get_server_instance_log()
-{
-	console.log("SSS");
-	
+{	
 	$.post($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$SRVLOGCODE+'/'+$SRVLOGNAME, '', function(data) {
 		check_server_data(data);
 

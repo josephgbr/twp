@@ -31,10 +31,11 @@
 								</div>
 								<div class="form-group">
 							    	<label class="control-label" for="cfgfile">{{ _('Default Map:') }}</label>
-							    	<select id="default_map" class="form-control"></select>
+							    	<input type="text" id="default_map" class="form-control" list="default_maps" />
+							    	<datalist id="default_maps"></datalist>
 								</div>
 								
-								<div style="overflow:auto; height:270px;">
+								<div style="overflow:auto; height:220px;">
 									<table class="table table-condensed table-hover table-striped">
 										<thead>
 											<th style="width:10px">&nbsp;</th>
@@ -53,7 +54,7 @@
 									<input type="hidden" id="alsrv" name="alsrv" value="false" />
 									<div class="form-group">
 										<div class="col-md-12">
-											<textarea rows="15" class="form-control" style="max-width:100%;" id="srvcfg" name="srvcfg"></textarea>
+											<textarea rows="12" class="form-control" style="max-width:100%;" id="srvcfg" name="srvcfg"></textarea>
 											<span class="help-block">{{ _('Here goes your') }} <a target="_blank" href="https://www.teeworlds.com/?page=docs&wiki=server_settings">{{ _('configuration') }}</a></span>
 										</div>
 									</div>

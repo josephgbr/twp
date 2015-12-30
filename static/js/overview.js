@@ -19,7 +19,7 @@
  ********************************************************************************************
  */
 function refreshMemoryHost(){
-	$.getJSON($SCRIPT_ROOT + '/_refresh_memory_host', function(data) {
+	$.post($SCRIPT_ROOT + '/_refresh_memory_host', '', function(data) {
 		check_server_data(data);
 		
 		$('#memory-usage').text(data.used +' / '+ data.total +' MB').fadeIn();
@@ -28,7 +28,7 @@ function refreshMemoryHost(){
 	});
 }
 function refreshCPUHost(){
-	$.get($SCRIPT_ROOT + '/_refresh_cpu_host', function(data) {
+	$.post($SCRIPT_ROOT + '/_refresh_cpu_host', '', function(data) {
 		check_server_data(data);
 		
 		$('#cpu-usage').text(data +'%').fadeIn();
@@ -36,18 +36,18 @@ function refreshCPUHost(){
 	});
 }
 function refreshDiskHost(){
-	$.getJSON($SCRIPT_ROOT + '/_refresh_disk_host', function(data) {
+	$.post($SCRIPT_ROOT + '/_refresh_disk_host', '', function(data) {
 		check_server_data(data);
 		
-		$('#disk-usage').text(data.used +' ('+ data.free +' free)').fadeIn();
+		$('#disk-usage').text(data.used+' ('+data.free+' '+$BABEL_STR_FREE+')').fadeIn();
 		$('#disk-usage-bar').css({'width':data.percent});
 	});
 }
 function refreshUptimeHost(){
-	$.getJSON($SCRIPT_ROOT + '/_refresh_uptime_host', function(data) {
+	$.post($SCRIPT_ROOT + '/_refresh_uptime_host', '', function(data) {
 		check_server_data(data);
 		
-		$('#uptime').text('Uptime: ' + data.day +' day(s) '+ data.time).fadeIn();
+		$('#uptime').text($BABEL_STR_UPTIME+' '+data.day+' '+$BABEL_STR_DAYS+' '+data.time).fadeIn();
 	});
 }
 function memory_color(value){
@@ -60,7 +60,7 @@ function memory_color(value){
 			return 'important';
 }
 function mastersrv_servers(){
-	$.getJSON($SCRIPT_ROOT + '/_get_all_online_servers', function(data) {
+	$.post($SCRIPT_ROOT + '/_get_all_online_servers', '', function(data) {
 		check_server_data(data);
 		$('#twmslist-load').hide();
 		
@@ -105,21 +105,6 @@ $(function() {
 	mastersrv_servers();
 	window.setInterval('refresh()', $REFRESH_TIME);
 	
-	/*$(document).on("click", "#reboot", function() {
-		var $this = $(this);
-		$this.html("<i class='fa fa-cog fa-spin'></i> Rebooting...");
-		$this.addClass('disabled');
-		
-		$.getJSON($SCRIPT_ROOT + '/_reboot', function(data) {
-			check_server_data(data);
-	    	 
-			if (data['success'])
-			{
-				//window.location.reload();
-			}
-		});
-	});*/
-	
 	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
 		// Players last 7days
 		var chartData = [];
@@ -135,7 +120,7 @@ $(function() {
 			  data: chartData,
 			  xkey: 'x',
 			  ykeys: ['a'],
-			  labels: ['Players'],
+			  labels: [$BABEL_STR_PLAYERS],
 			  resize: true,
 			  dateFormat: function (x) {
 				  	var d = new Date(x);

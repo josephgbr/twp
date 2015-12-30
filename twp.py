@@ -85,6 +85,7 @@ JOBS = [
     }
 ]
 BABEL_DEFAULT_LOCALE = 'en'
+SUPPORT_LANGUAGES = twp.get_support_languages()
 
 IP = twp.get_public_ip();
 
@@ -153,7 +154,7 @@ def get_locale():
         return user.locale
     # otherwise try to guess the language from the user accept
     # header the browser transmits. The best match wins.
-    return request.accept_languages.best_match(['es','en'])
+    return request.accept_languages.best_match(SUPPORT_LANGUAGES)
 
 # TODO: user!
 @babel.timezoneselector
@@ -375,42 +376,42 @@ def remove_mod():
             return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     return jsonify({'notauth':True})
 
-@app.route('/_refresh_cpu_host')
+@app.route('/_refresh_cpu_host', methods=['POST'])
 def refresh_cpu_host():
     if 'logged_in' in session and session['logged_in']:
         return twp.host_cpu_percent()
     return jsonify({})
 
-@app.route('/_refresh_uptime_host')
+@app.route('/_refresh_uptime_host', methods=['POST'])
 def refresh_uptime_host():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_uptime())
     return jsonify({})
 
-@app.route('/_refresh_disk_host')
+@app.route('/_refresh_disk_host', methods=['POST'])
 def refresh_disk_host():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
     return jsonify({})
 
-@app.route('/_refresh_memory_host')
+@app.route('/_refresh_memory_host', methods=['POST'])
 def refresh_memory_containers():
     if 'logged_in' in session and session['logged_in']:
         return jsonify(twp.host_memory_usage())
     return jsonify({})
 
-@app.route('/_refresh_host_localtime')
+@app.route('/_refresh_host_localtime', methods=['POST'])
 def refresh_host_localtime():
     return jsonify(twp.host_localtime())
 
-@app.route('/_get_all_online_servers')
+@app.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
     return jsonify(twp.get_tw_masterserver_list(IP))
 
-@app.route('/_create_server_instance/<string:mod_folder>')
+@app.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
 def create_server_instance(mod_folder):
     if 'logged_in' in session and session['logged_in']:
-        fileconfig = request.args.get('fileconfig')
+        fileconfig = request.form['fileconfig']
         if not fileconfig or fileconfig == "":
             return jsonify({'error':True, 'errormsg':_('Invalid configuration file name.')})
         
@@ -470,7 +471,7 @@ def create_server_instance(mod_folder):
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
-@app.route('/_remove_server_instance/<int:id>/<int:delconfig>')
+@app.route('/_remove_server_instance/<int:id>/<int:delconfig>', methods=['POST'])
 def remove_server_instance(id, delconfig=0):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db("SELECT base_folder,fileconfig FROM servers WHERE rowid=?", [id], one=True)
@@ -489,7 +490,7 @@ def remove_server_instance(id, delconfig=0):
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
-@app.route('/_set_server_binary/<int:id>/<string:binfile>')
+@app.route('/_set_server_binary/<int:id>/<string:binfile>', methods=['POST'])
 def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
@@ -542,7 +543,7 @@ def save_server_config():
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
-@app.route('/_get_server_config/<int:id>')
+@app.route('/_get_server_config/<int:id>', methods=['POST'])
 def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select alaunch,fileconfig,base_folder from servers where rowid=?', [id], one=True)
@@ -567,7 +568,7 @@ def get_server_config(id):
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
-@app.route('/_get_mod_configs/<string:mod_folder>')
+@app.route('/_get_mod_configs/<string:mod_folder>', methods=['POST'])
 def get_mod_configs(mod_folder):
     if 'logged_in' in session and session['logged_in']:
         jsoncfgs = {'configs':[]}
@@ -579,7 +580,7 @@ def get_mod_configs(mod_folder):
         return jsonify(jsoncfgs)
     return jsonify({'notauth':True})
 
-@app.route('/_start_server_instance/<int:id>')
+@app.route('/_start_server_instance/<int:id>', methods=['POST'])
 def start_server(id):
     if 'logged_in' in session and session['logged_in']:        
         srv = query_db('select rowid,* from servers WHERE rowid=?', [id], one=True)
@@ -621,7 +622,7 @@ def stop_server(id):
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
     return jsonify({'notauth':True})
 
-@app.route('/_get_server_instances_online')
+@app.route('/_get_server_instances_online', methods=['POST'])
 def get_server_instances_online():
     servers = query_db("SELECT rowid FROM servers WHERE status='Running'")
     return jsonify({'success':True, 'num':len(servers)})

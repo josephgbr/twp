@@ -84,7 +84,7 @@ $(function(){
 			  data: chartData,
 			  xkey: 'x',
 			  ykeys: ['a'],
-			  labels: ['Players'],
+			  labels: [$BABEL_STR_PLAYERS],
 			  resize: true,
 			  dateFormat: function (x) {
 				  	var d = new Date(x);
@@ -102,7 +102,7 @@ $(function(){
 		{
 			var clanName = data['labels']['topclan'][i];
 			if (!clanName || !clanName[0])
-				clanName = "Unknown";
+				clanName = $BABEL_STR_UNKNOWN;
 			
 			chartTopClanData.push({
 				value: data['values']['topclan'][i],
@@ -125,7 +125,7 @@ $(function(){
 				countryName = $.grep($COUNTRIES, function(e){ return e.codenum == data['labels']['topcountry'][i]; });
 			
 			if (!countryName || !countryName[0])
-				countryName = "Unknown";
+				countryName = $BABEL_STR_UNKNOWN;
 			else
 				countryName = countryName[0].name;
 				

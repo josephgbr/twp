@@ -51,7 +51,11 @@ def is_text_file(filename):
     return True
 
 def get_public_ip():
-    return urlopen('http://api.ipify.org').read()
+    try:
+        IP = urlopen('http://api.ipify.org').read()
+    except urllib2.URLError:
+        IP = None
+    return IP
 
 def host_memory_usage():
     '''
@@ -402,6 +406,14 @@ def send_econ_user_action(port, password, nick, action):
 
 def generate_random_ascii_string(size=8):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
+
+def get_support_languages():
+    langs = []
+    for r in os.listdir('%s/translations' % os.getcwd()):
+        fullpath = '%s/translations/%s' % (os.getcwd(), r)
+        if os.path.isdir(fullpath):
+            langs.append(r)
+    return langs
 
 # Code from: http://code.activestate.com/recipes/266466-html-colors-tofrom-rgb-tuples/
 def HTMLColorToRGBA(colorstring):

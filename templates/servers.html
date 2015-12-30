@@ -115,5 +115,25 @@
 
 {% endblock %}
 {% block script %}
+	<script type="text/javascript">
+		var $BABEL_STR_PLEASE_WAIT = {{_("PLEASE WAIT...")|tojson|safe}};
+		var $BABEL_STR_URL_TO_PACKAGE = {{_("URL to .zip or .tar.gz Teeworlds Package:")|tojson|safe}};
+		var $BABEL_STR_INSTALLING = {{_("Installing...")|tojson|safe}};
+		var $BABEL_STR_ARE_YOU_SURE = {{_("Are you sure?")|tojson|safe}};
+		var $BABEL_STR_DELETE_CONF = {{_("Delete configuration file from disk.")|tojson|safe}};
+		var $BABEL_STR_DELETE = {{_("Delete")|tojson|safe}};
+		var $BABEL_STR_SERVER_INSTANCE = {{_("Server Instance")|tojson|safe}};
+		var $BABEL_STR_URL_SENDING = {{_("Sending...")|tojson|safe}};
+		var $BABEL_STR_INSTANCE_CONF = {{_("Instance Configuration")|tojson|safe}};
+		var $BABEL_STR_PUBLIC_SERVER = {{_("Public Server")|tojson|safe}};
+		var $BABEL_STR_PRIVATE_SERVER = {{_("Private Server")|tojson|safe}};
+		var $BABEL_STR_NOT_REGISTER_SERVER = {{_("Not Register Server")|tojson|safe}};
+		var $BABEL_STR_REGISTER_SERVER = {{_("Register Server")|tojson|safe}};
+		var $BABEL_STR_STARTING = {{_("Starting...")|tojson|safe}};
+		var $BABEL_STR_START = {{_("Start")|tojson|safe}};
+		var $BABEL_STR_THIS_CANT_BE_CANCELED = {{_("This can't be canceled and erase all mod data on the disk!!")|tojson|safe}};
+		var $BABEL_STR_REMOVE = {{_("Remove")|tojson|safe}};
+		var $BABEL_STR_CANCEL = {{_("Cancel")|tojson|safe}};
+	</script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/servers.js') }}"></script>
 {% endblock %}
