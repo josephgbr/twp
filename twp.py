@@ -96,7 +96,7 @@ if not os.path.isdir(SERVERS_BASEPATH):
     
     
 # Global Vars
-BannedList = BannedList()
+BanList = BannedList()
 
 
 # Start Flask App
@@ -129,13 +129,17 @@ def before_request():
     '''
     executes functions before all requests
     '''
-
+    
+    BanList.refresh()
+    if not request.path.startswith('/banned') and BanList.find(request.remote_addr):
+        return redirect(url_for('banned'))
+    
     if request.view_args and 'lang_code' in request.view_args:
         g.current_lang = request.view_args['lang_code']
         request.view_args.pop('lang_code')
-    BannedList.refresh()
-    check_session()
+        
     g.db = connect_db()
+    check_session()
 
 @app.teardown_request
 def teardown_request(exception):
@@ -173,9 +177,11 @@ def overview():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if get_login_tries() >= LOGIN_MAX_TRIES:
-        flash(_('Session Banned: Can\'t login in this website! Fuck you :)', 'danger'))
-        return redirect("/overview") 
+    if not BanList.find(request.remote_addr) and get_login_tries() >= LOGIN_MAX_TRIES:
+        BanList.add(request.remote_addr, LOGIN_BAN_TIME);
+        session['login_try'] = 0;
+        return redirect(url_for("banned")) 
+    
     if request.method == 'POST':
         request_username = request.form['username']
         request_passwd = str_sha512_hex_encode(request.form['password'])
@@ -215,10 +221,9 @@ def logout():
         return redirect(url_for('overview'))
     return redirect(current_url)
 
-@app.route('/about', methods=['GET'])
-def about():
-    session['prev_url'] = request.path;
-    return render_template('about.html', twp=TWP_INFO)
+@app.route('/banned', methods=['GET'])
+def banned():
+    return render_template('banned.html', twp=TWP_INFO), 403
 
 @app.route('/servers', methods=['GET'])
 def servers():

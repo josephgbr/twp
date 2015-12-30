@@ -16,27 +16,28 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.    
 #########################################################################################
+import re, time
 
 class BannedList(object):
 	def __init__(self):
 		self.banlist = []
 	
 	def add(self, address, time):
-		if address in addresslist:
+		if address in self.banlist:
 			raise Exception('Address already banned')
 		self.banlist.append(BanLine(address, time))
 	
 	def find(self, address=None):
-		output = BannedList()
+		output = []
 		if address: address = re.compile(address, re.IGNORECASE)
 		for line in self.banlist:
 			if address == None or address.search(line.address):
-				output.add(line)
+				output.append(line)
 		return output
 	
 	def refresh(self):
 		for line in self.banlist:
-			if line.end >= time.time():
+			if time.time() >= line.end:
 				self.banlist.remove(line)
 	
 	def sort(self, cmp=None, key=None, reverse=False):
@@ -47,6 +48,9 @@ class BannedList(object):
 	
 	def clear(self):
 		del self.banlist[:]
+		
+	def __len__(self):
+		return len(self.banlist)
 	
 	def __iter__(self):
 		return iter(self.banlist)
@@ -56,9 +60,9 @@ class BannedList(object):
 
 
 class BanLine(object):
-	def __init__(self, address, time):
+	def __init__(self, address, time_ban):
 		self.address = address
-		sefl.end = time.time() + time
+		self.end = time.time() + time_ban
 	
 	def __repr__(self):
 		return "<Ban ip='{0}' end='{1}'>".format(self.address,self.end)
