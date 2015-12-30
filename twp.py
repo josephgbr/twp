@@ -18,7 +18,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twp
-import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil
+import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil, binascii
 from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -26,8 +26,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from flask.ext.babel import Babel, _, refresh; refresh()
-from pngcanvas import *
 from twp import BannedList, BannerGenerator
+from os import urandom
 try:
     import configparser
 except ImportError:
@@ -38,8 +38,11 @@ except ImportError:
 config = configparser.SafeConfigParser()
 config.readfp(open('twp.conf'))
 
-
-SECRET_KEY = b'4f54ffe39b613241ff7f864c51ea443537b7db9626969157'
+SECRET_KEY = config.get('global', 'secret', None)
+if not SECRET_KEY:
+    SECRET_KEY = binascii.hexlify(os.urandom(24)).decode()
+    config.set('global', 'secret', SECRET_KEY)
+    config.write(open('twp.conf', 'w'))
 
 BRAND_NAME = config.get('overview', 'brand_name')
 BRAND_URL = config.get('overview', 'brand_url')
@@ -82,6 +85,7 @@ JOBS = [
     }
 ]
 BABEL_DEFAULT_LOCALE = 'en'
+
 IP = twp.get_public_ip();
 
 
