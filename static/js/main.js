@@ -141,14 +141,15 @@ function update_config_textarea($ta, param, new_value)
         var objMatch = lines[i].match(/^([^#\s]+)\s([^#\r\n]+)/);
         if (objMatch && param.toLowerCase() === objMatch[1].toLowerCase())
         {
-        	nvalue += param+" "+new_value+"\n";
+        	if (new_value)
+        		nvalue += param+" "+new_value+"\n";
             replaced = true;
         }
         else
         	nvalue += lines[i]+"\n";
 	}
 	
-    if (!replaced)
+    if (!replaced && new_value)
     	nvalue += param+" "+new_value+"\n";
     
     $ta.val(nvalue);
