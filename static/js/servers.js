@@ -193,18 +193,6 @@ $(function(){
 		    	 $("#modal_instance_configuration #alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
 		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
-		    	 
-		    	 for (var i in data['maps'])
-		    	 { 
-		    		 var row = "<tr><td><input type='checkbox' name='map_used' /></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
-		    		 $("#maplist").append(row);
-		    		 row = "<option value='"+data['maps'][i].name+"'>"+data['maps'][i].name+"</option>"
-		    		 $("#default_maps").append(row);
-		    	 }
-		    	 
-		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", "ctf5");
-		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_name", "Edited by Javascript");
-		    	 update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_invented", "lal la la la");
 	    	 }
 	    	 else
 	    	 {
@@ -214,13 +202,24 @@ $(function(){
 	    	 }
 	     });
 	});
-	
-	// Change default map
-	$(document).on("select", "#modal_instance_configuration #default_map", function() {
-		console.log($(this).val());
+	// Select map
+	$(document).on("change", ".check_map", function() {
+		var maps = new Array();
+		$("input[name=map_used]:checked").each(function(){
+			maps.push($(this).data('map'));
+		});
+		
+		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", maps[0]);
+		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", maps.join(" "));
 	});
-    $("#modal_instance_configuration input[type='checkbox']:checked").each(function() {
-    	console.log("ssss");
+	
+	// Select Tab
+	$("ul.nav-tabs > li > a").on("shown.bs.tab", function (e) {
+        var id = $(e.target).attr("href").substr(1);
+        var srvid = $('#form-server-config #srvid').val();
+        
+        if ("maps" === id)
+        	refresh_server_maps_list(srvid);
     });
 	
 	// Press "OK" button in Server Instance Configuration
@@ -334,3 +333,27 @@ $(function(){
 	});
 	
 });
+
+function refresh_server_maps_list(srvid)
+{
+    var maps = new Array();
+    var maps_str = get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation");
+    if (maps_str)
+    	maps = maps_str.split(" ");
+    maps.push(get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_map"));
+    
+	    $.post($SCRIPT_ROOT + '/_get_server_maps/'+srvid, '', function(data) {
+    	 check_server_data(data);
+    	 
+    	 if (data['success'])
+    	 {
+    		 $("#maplist").html("");
+	    	 for (var i in data['maps'])
+	    	 { 
+	    		 var mapSelected = maps.indexOf(data['maps'][i].name)>=0;
+	    		 var row = "<tr><td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
+	    		 $("#maplist").append(row);
+	    	 }
+    	 }
+    });
+}

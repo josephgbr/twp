@@ -81,7 +81,7 @@ function check_server_data(data)
 	{
 		bootbox.dialog({
 			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> "+$BABEL_STR_SESSION_EXPIRED+" <i class='fa fa-warning'></i></p>",
-			title: $STR_BABEL_TITLE_SESSION_EXPIRED,
+			title: $BABEL_STR_TITLE_SESSION_EXPIRED,
 			buttons: {
 				success: {
 					label: "Oh!",
@@ -115,6 +115,19 @@ function get_host_localtime()
 	$.post($SCRIPT_ROOT + '/_refresh_host_localtime', '', function(data) {
 		$("#localtime").text(data['localtime']);
 	});
+}
+
+function get_config_value_textarea($ta, param)
+{
+	var lines = $ta.splitlines();
+	for (var i in lines)
+	{
+        var objMatch = lines[i].match(/^([^#\s]+)\s([^#\r\n]+)/);
+        if (objMatch && param.toLowerCase() === objMatch[1].toLowerCase())
+        	return objMatch[2];
+	}
+	
+	return undefined;
 }
 
 function update_config_textarea($ta, param, new_value)

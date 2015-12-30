@@ -561,10 +561,18 @@ def get_server_config(id):
             else:
                 srvcfg = ""
             
+            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
+    return jsonify({'notauth':True})
+
+@app.route('/_get_server_maps/<int:id>', methods=['POST'])
+def get_server_maps(id):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        if srv:            
             ## Maps
             maps = twp.get_mod_maps(SERVERS_BASEPATH, srv['base_folder'])
-            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename,
-                            'maps':maps})
+            return jsonify({'success':True, 'maps':maps})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
