@@ -154,3 +154,28 @@ function update_config_textarea($ta, param, new_value)
     
     $ta.val(nvalue);
 }
+
+function generate_wizard($wizard)
+{
+	$.getJSON($SCRIPT_ROOT+'/static/js/base_conf.json', function(data){
+		var html = "";
+		$.each(data, function(key, val){			
+			if ("select" === val.type)
+			{
+				html += "<label for='"+key+"'>"+val.label+"</label>";
+				html += "<select id='"+key+"' class='form-control' title='"+(val.tooltip?val.tooltip:'')+"'>";
+				for (var i in val.values)
+					html += "<option value='"+val.values[i]+"' "+(val.values[i]==val.default?'selected':'')+">"+val.values[i]+"</option>";
+				html += "</select>"
+			}
+			else if ("checkbox" === val.type)
+				html += "<input id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1===val.default?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+			else
+			{
+				html += "<label for='"+key+"'>"+val.label+"</label>";
+				html += "<input id='"+key+"' type="+val.type+" value='"+(val.default?val.default:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control' title='"+(val.tooltip?val.tooltip:'')+"' />";
+			}
+		});
+		$wizard.html(html);
+	});
+}

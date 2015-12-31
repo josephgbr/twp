@@ -239,6 +239,7 @@ $(function(){
 		    	 $("#modal_instance_configuration #check_alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
 		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
+		    	 generate_wizard($('#wizard'));
 	    	 }
 	    	 else
 	    	 {
