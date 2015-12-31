@@ -159,23 +159,40 @@ function generate_wizard($wizard)
 {
 	$.getJSON($SCRIPT_ROOT+'/static/js/base_conf.json', function(data){
 		var html = "";
-		$.each(data, function(key, val){			
-			if ("select" === val.type)
-			{
-				html += "<label for='"+key+"'>"+val.label+"</label>";
-				html += "<select id='"+key+"' class='form-control' title='"+(val.tooltip?val.tooltip:'')+"'>";
-				for (var i in val.values)
-					html += "<option value='"+val.values[i]+"' "+(val.values[i]==val.default?'selected':'')+">"+val.values[i]+"</option>";
-				html += "</select>"
-			}
-			else if ("checkbox" === val.type)
-				html += "<input id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1===val.default?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
-			else
-			{
-				html += "<label for='"+key+"'>"+val.label+"</label>";
-				html += "<input id='"+key+"' type="+val.type+" value='"+(val.default?val.default:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control' title='"+(val.tooltip?val.tooltip:'')+"' />";
-			}
+		
+		// Create Menu
+		html += "<ul id='simple-tabs' class='nav nav-pills nav-justified' role='tablist'>";
+		$.each(data, function(section, variables){
+			html += "<li><a href='#"+section+"' data-toggle='tab'>"+section+"</a></li>";
 		});
+		html += "</ul>";
+		
+		// Fill Panels
+		html += "<div class='tab-content' style='margin-top:1.5em;'>";
+		$.each(data, function(section, variables){		  	
+			html += "<div class='tab-pane' id='"+section+"' style='overflow:auto; height:220px;'>";
+			$.each(variables, function(key, val){			
+				if ("select" === val.type)
+				{
+					html += "<label for='"+key+"'>"+val.label+"</label>";
+					html += "<select id='"+key+"' class='form-control' title='"+(val.tooltip?val.tooltip:'')+"'>";
+					for (var i in val.values)
+						html += "<option value='"+val.values[i]+"' "+(val.values[i]==val.default?'selected':'')+">"+val.values[i]+"</option>";
+					html += "</select>"
+				}
+				else if ("checkbox" === val.type)
+					html += "<input id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1===val.default?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+				else
+				{
+					html += "<label for='"+key+"'>"+val.label+"</label>";
+					html += "<input id='"+key+"' type="+val.type+" value='"+(val.default?val.default:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control' title='"+(val.tooltip?val.tooltip:'')+"' />";
+				}
+			});
+			html += "</div>";
+		});
+		html += "</div>";
+		
 		$wizard.html(html);
+		$('#simple-tabs a:first').tab('show');
 	});
 }

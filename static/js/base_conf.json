@@ -1,178 +1,184 @@
 {
-	"sv_name":
+	"Engine":
 	{
-		"default": "unnamed server",
-		"type": "text",
-		"label": "Nombre del servidor",
-		"tooltip": "Name displayed in the server list"
+		"sv_name":
+		{
+			"default": "unnamed server",
+			"type": "text",
+			"label": "Nombre del servidor",
+			"tooltip": "Name displayed in the server list"
+		},
+		
+		"bindaddr":
+		{
+			"type": "text",
+			"label": "Bind Address",
+			"tooltip": "Address to bind"
+		},
+		
+		"sv_port":
+		{
+			"type": "number",
+			"label": "Server Port",
+			"tooltip": "Port the server will listen on",
+			"default": "8303"
+		},
+		
+		"sv_external_port":
+		{
+			"type": "number",
+			"label": "External Port",
+			"tooltip": "Port to report to the master servers (e.g. in case of a firewall rename)",
+			"default": "0"
+		},
+		
+		"sv_max_clients":
+		{
+			"type": "number",
+			"label": "Max Clients",
+			"tooltip": "Number of clients that can be connected to the server at the same time",
+			"default": "8",
+			"range": [1,16]
+		},
+		
+		"sv_max_clients_per_ip":
+		{
+			"type": "number",
+			"label": "Max Clients per IP",
+			"tooltip": "Number of clients with the same ip that can be connected to the server at the same time",
+			"default": "2",
+			"range": [1,16]
+		},
+		
+		"sv_high_bandwidth":
+		{
+			"type": "checkbox",
+			"label": "High Bandwidth",
+			"tooltip": "Use high bandwidth mode, for LAN servers only"
+		},
+		
+		"sv_register":
+		{
+			"type": "checkbox",
+			"label": "Register",
+			"tooltip": "Register on the master servers",
+			"default": 1
+		},
+		
+		"sv_rcon_password":
+		{
+			"type": "text",
+			"label": "RCon Password",
+			"tooltip": "Password to access the remote console (if not set, rcon is disabled)"
+		},
+		
+		"password":
+		{
+			"type": "text",
+			"label": "Password",
+			"tooltip": "Password to connect to the server"	
+		},
+		
+		"logfile":
+		{
+			"type": "text",
+			"label": "Logfile",
+			"tooltip": "Path to a logfile"
+		},
+		
+		"console_output_level":
+		{
+			"type": "number",
+			"label": "Console Output Level",
+			"tooltip": "Adjust the amount of messages in the console",
+			"default": "0"
+		},
+		
+		"sv_rcon_max_tries":
+		{
+			"type": "number",
+			"label": "RCon Max Tries",
+			"tooltip": "Maximum number of tries for remote console authetication",
+			"default": "3"
+		},
+		
+		"sv_rcon_bantime":
+		{
+			"type": "number",
+			"label": "RCon Ban Time",
+			"tooltip": "Time (in minutes) a client gets banned if remote console authentication fails (0 makes it just use kick)",
+			"default": "5"
+		},
+		
+		"sv_auto_demo_record":
+		{
+			"type": "checkbox",
+			"label": "Auto Demo Record",
+			"tooltip": "Automatically record demos"
+		},
+		
+		"sv_auto_demo_max":
+		{
+			"type": "number",
+			"label": "Auto Demo Max",
+			"tooltip": "Maximum number of automatically recorded demos (0 = no limit)",
+			"default": "10"
+		},
+		
+		"ec_bindaddr":
+		{
+			"type": "text",
+			"label": "External Console Bind Address",
+			"tooltip": "Address to bind the external console to. Anything but 'localhost' is dangerous",
+			"default": "localhost"
+		},
+		
+		"ec_port":
+		{
+			"type": "number",
+			"label": "External Console Port",
+			"tooltip": "Port to use for the external console"
+		},
+		
+		"ec_password":
+		{
+			"type": "text",
+			"label": "External Console Password"
+		},
+		
+		"ec_bantime":
+		{
+			"type": "number",
+			"label": "External Console Ban Time",
+			"tooltip": "The time a client gets banned if econ authentication fails. 0 just closes the connection",
+			"default": "0"
+		},
+		
+		"ec_auth_timeout":
+		{
+			"type": "number",
+			"label": "External Console Auth Timeout",
+			"tooltip": "Time in seconds before the the econ authentication times out",
+			"default": "30"
+		},
+		
+		"ec_output_level":
+		{
+			"type": "number",
+			"label": "External Console Output Level",
+			"tooltip": "Adjusts the amount of information in the external console",
+			"default": "1"
+		}
 	},
 	
-	"bindaddr":
+	"Game":
 	{
-		"type": "text",
-		"label": "Bind Address",
-		"tooltip": "Address to bind"
-	},
-	
-	"sv_port":
-	{
-		"type": "number",
-		"label": "Server Port",
-		"tooltip": "Port the server will listen on",
-		"default": "8303"
-	},
-	
-	"sv_external_port":
-	{
-		"type": "number",
-		"label": "External Port",
-		"tooltip": "Port to report to the master servers (e.g. in case of a firewall rename)",
-		"default": "0"
-	},
-	
-	"sv_max_clients":
-	{
-		"type": "number",
-		"label": "Max Clients",
-		"tooltip": "Number of clients that can be connected to the server at the same time",
-		"default": "8",
-		"range": [1,16]
-	},
-	
-	"sv_max_clients_per_ip":
-	{
-		"type": "number",
-		"label": "Max Clients per IP",
-		"tooltip": "Number of clients with the same ip that can be connected to the server at the same time",
-		"default": "2",
-		"range": [1,16]
-	},
-	
-	"sv_high_bandwidth":
-	{
-		"type": "checkbox",
-		"label": "High Bandwidth",
-		"tooltip": "Use high bandwidth mode, for LAN servers only"
-	},
-	
-	"sv_register":
-	{
-		"type": "checkbox",
-		"label": "Register",
-		"tooltip": "Register on the master servers",
-		"default": 1
-	},
-	
-	"sv_rcon_password":
-	{
-		"type": "text",
-		"label": "RCon Password",
-		"tooltip": "Password to access the remote console (if not set, rcon is disabled)"
-	},
-	
-	"password":
-	{
-		"type": "text",
-		"label": "Password",
-		"tooltip": "Password to connect to the server"	
-	},
-	
-	"logfile":
-	{
-		"type": "text",
-		"label": "Logfile",
-		"tooltip": "Path to a logfile"
-	},
-	
-	"console_output_level":
-	{
-		"type": "number",
-		"label": "Console Output Level",
-		"tooltip": "Adjust the amount of messages in the console",
-		"default": "0"
-	},
-	
-	"sv_rcon_max_tries":
-	{
-		"type": "number",
-		"label": "RCon Max Tries",
-		"tooltip": "Maximum number of tries for remote console authetication",
-		"default": "3"
-	},
-	
-	"sv_rcon_bantime":
-	{
-		"type": "number",
-		"label": "RCon Ban Time",
-		"tooltip": "Time (in minutes) a client gets banned if remote console authentication fails (0 makes it just use kick)",
-		"default": "5"
-	},
-	
-	"sv_auto_demo_record":
-	{
-		"type": "checkbox",
-		"label": "Auto Demo Record",
-		"tooltip": "Automatically record demos"
-	},
-	
-	"sv_auto_demo_max":
-	{
-		"type": "number",
-		"label": "Auto Demo Max",
-		"tooltip": "Maximum number of automatically recorded demos (0 = no limit)",
-		"default": "10"
-	},
-	
-	"ec_bindaddr":
-	{
-		"type": "text",
-		"label": "External Console Bind Address",
-		"tooltip": "Address to bind the external console to. Anything but 'localhost' is dangerous",
-		"default": "localhost"
-	},
-	
-	"ec_port":
-	{
-		"type": "number",
-		"label": "External Console Port",
-		"tooltip": "Port to use for the external console"
-	},
-	
-	"ec_password":
-	{
-		"type": "text",
-		"label": "External Console Password"
-	},
-	
-	"ec_bantime":
-	{
-		"type": "number",
-		"label": "External Console Ban Time",
-		"tooltip": "The time a client gets banned if econ authentication fails. 0 just closes the connection",
-		"default": "0"
-	},
-	
-	"ec_auth_timeout":
-	{
-		"type": "number",
-		"label": "External Console Auth Timeout",
-		"tooltip": "Time in seconds before the the econ authentication times out",
-		"default": "30"
-	},
-	
-	"ec_output_level":
-	{
-		"type": "number",
-		"label": "External Console Output Level",
-		"tooltip": "Adjusts the amount of information in the external console",
-		"default": "1"
-	},
-	
-	"test":
-	{
-		"type": "select",
-		"label": "Esto es un test!",
-		"values": ["dm", "ctf", "fgg"],
-		"default": "ctf"
+		"test":
+		{
+			"type": "select",
+			"label": "Esto es un test!",
+			"values": ["dm", "ctf", "fgg"],
+			"default": "ctf"
+		}
 	}
 }
