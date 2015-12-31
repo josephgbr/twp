@@ -88,8 +88,12 @@ class BannerGenerator(object):
 			players = '%d/%d' % (self._netinfo.players,self._netinfo.max_players) if is_online else ". . ."
 			is_visible = _('Yes') if self._server['register'] else _('No')
 			is_public = _('No') if self._server['password'] else _('Yes')
-			draw.text((15, 25), "Players: %s - Map: %s - Game Type: %s - Public: %s - Visible: %s" 
-								% (players, map, gametype.upper(), is_public, is_visible), 
+			draw.text((15, 25), "%s: %s - %s: %s - %s: %s - %s: %s - %s: %s" 
+								% (_('Players'), players,
+                                   _('Map'), map, 
+                                   _('Game Type'), gametype.upper(), 
+                                   _('Public'), is_public, 
+                                   _('Visible'), is_visible), 
 					fill=(0, 0, 0), font=self._fontSmall)
 		else:
 			draw.text((15, 25), _('SERVER OFFLINE'), fill=(240, 10, 5), font=self._fontSmall)			

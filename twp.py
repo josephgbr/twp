@@ -61,7 +61,7 @@ SERVERS_BASEPATH = config.get('overview', 'servers')
 SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 UPLOAD_FOLDER = '/tmp/'
 MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
-ALLOWED_EXTENSIONS = set(['zip', 'gz'])
+ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
 LOGFILE = config.get('log', 'file')
 LOGBYTES = config.getint('log', 'maxbytes')
 LOGIN_MAX_TRIES = config.getint('login', 'max_tries')
@@ -288,7 +288,7 @@ def players():
 @app.route('/maps', methods=['GET'])
 def maps():
     session['prev_url'] = request.path;
-    return render_template('index.html', twp=TWP_INFO)
+    return redirect(url_for('overview'))
 
 @app.route('/settings', methods=['GET','POST'])
 def settings():
@@ -309,7 +309,7 @@ def install_mod():
         if 'url' in request.form and not request.form['url'] == '':
             try:
                 twp.install_mod_from_url(request.form['url'], SERVERS_BASEPATH)
-            except Exception, e:
+            except Exception as e:
                 flash(_("Error: %s") % str(e), 'danger')
             else:
                 flash(_('Mod installed successfully'), 'info')
@@ -362,6 +362,40 @@ def log(id, code, name):
         flash(_('Server not found!'), "danger")
     return render_template('log.html', twp=TWP_INFO, ip=IP, server=srv, logcode=code, logname=name, logdate=logdate)
     
+
+@app.route('/_upload_maps/<int:id>', methods=['POST'])
+def upload_maps(id):
+    if 'logged_in' in session and session['logged_in']:
+        srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        if srv:
+            download_folder = r'%s/%s/data/maps' % (SERVERS_BASEPATH, srv['base_folder'])
+            app.logger.info(len(request.files))
+            if 'file' in request.files:
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
+                    if filename.endswith(".tar.gz"):
+                        twp.extract_targz(fullpath, download_folder, True)
+                    elif filename.endswith(".zip"):
+                        twp.extract_zip(fullpath, download_folder, True)
+                    elif filename.endswith(".map"):
+                        try:
+                            fullpath_download = r'%s/%s' % (download_folder, filename)
+                            if os.path.exists(fullpath_download):
+                                os.remove(fullpath_download)
+                            shutil.move(fullpath, fullpath_download)
+                        except Exception as e:
+                            return jsonify({'error':True, 'errormsg':str(e)})
+                    return jsonify({'success':True})
+                else:
+                    return jsonify({'error':True, 'errormsg':_('Error: Can\'t upload selected maps')})
+            else:
+                return jsonify({'error':True, 'errormsg':_('Error: No file detected!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
+    else:
+        return jsonify({'error':True, 'errormsg':_('Error: You haven\'t permissions for upload new maps!')})
 
 @app.route('/_remove_mod', methods=['POST'])
 def remove_mod():
@@ -607,7 +641,7 @@ def start_server(id):
             
             try:
                 start_server_instance(srv['base_folder'], srv['bin'], srv['fileconfig'])
-            except Exception, e:
+            except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             
             time.sleep(1) # Be nice with the server...
@@ -625,7 +659,7 @@ def stop_server(id):
                 if conn[0] == server['port'] and conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                     try:
                         os.kill(int(conn[1]), signal.SIGTERM)
-                    except Exception, e:
+                    except Exception as e:
                         return jsonify({'error':True, 'errormsg':_('System failure: {0}').format(str(e))})
                     else:
                         return jsonify({'success':True})
@@ -675,7 +709,7 @@ def get_current_server_instance_log(id, seek):
                 logcontent = cfgfile.read()
                 logseek = cfgfile.tell()
                 cfgfile.close()
-            except Exception, e:
+            except Exception as e:
                 return jsonify({'success':True, 'content':None, 'seek':0})
             
             lines = logcontent.splitlines()
@@ -711,7 +745,7 @@ def get_selected_server_instance_log(id, code, name):
                 cfgfile = open(log_file, "r")
                 logcontent = cfgfile.read()
                 cfgfile.close()
-            except Exception, e:
+            except Exception as e:
                 return jsonify({'success':True, 'content':None})
             
             lines = logcontent.splitlines()
@@ -750,7 +784,7 @@ def send_econ_command():
             rcv = ''
             try:
                 rcv = twp.send_econ_command(int(srv['econ_port']), srv['econ_password'], econ_cmd)
-            except Exception, e:
+            except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
@@ -770,7 +804,7 @@ def kick_ban_player(id):
             try:
                 if not twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
-            except Exception, e:
+            except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})

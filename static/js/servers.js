@@ -24,10 +24,10 @@ $(function(){
 	$(document).on("change", "#install-mod input[type='file']", function() {
 		var $this = $(this);
 		var $btn = $('#install-mod-button');
-	    var filename =  $this.val().replace(/^.*[\\\/]/, '');
+		var file = this.files[0];
 	     
 	    $btn.removeClass('btn-default').addClass('btn-success disabled');
-	    $btn.html("<i class='fa fa-refresh fa-spin'></i> Installing '"+filename+"'...");
+	    $btn.html("<i class='fa fa-refresh fa-spin'></i> "+$BABEL_STR_INSTALLING+" '"+file.name+"'...");
 	     
 		bootbox.dialog({
 			message: "<div class='text-center text-muted'><h1><i class='fa fa-circle-o-notch fa-spin'></i><br/>"+$BABEL_STR_PLEASE_WAIT+"</h1></div>",
@@ -36,6 +36,52 @@ $(function(){
 		
 		$('#install-mod #url').val('');
 	    $('#install-mod').submit();
+	});
+	
+	// Send Map Archive
+	$(document).on("change", "#upload-maps input[type='file']", function() {
+		var $this = $(this);
+		var $btn = $('#btn-upload-map');
+		var srvid = $('#form-server-config #srvid').val();
+		var file = this.files[0];
+		var origHTML = $btn.html();
+	     
+	    $btn.removeClass('btn-default').addClass('btn-success disabled');
+	    $btn.html("<i class='fa fa-refresh fa-spin'></i> "+$BABEL_STR_UPLOADING+" '"+file.name+"'...");
+		
+    	$.ajax({
+    		url: '/_upload_maps/'+srvid,
+			type: 'POST',
+			data: new FormData($('#upload-maps')[0]),
+            contentType: false,
+            cache: false,
+            processData: false,
+            async: false,
+			success: function(data){
+				check_server_data(data);
+				
+				if (data['success'])
+				{
+					refresh_server_maps_list(srvid);
+					
+					if (".map" === file.name.substr(-4))
+					{
+						var $line = $("tr#row-"+file.name.substr(0, file.name.length-4));
+						var $list = $("#maplist-container");
+						$list.animate({
+						    scrollTop: $line.offset().top - $list.offset().top + $list.scrollTop()
+						});
+					}
+				}
+			    $btn.removeClass('btn-default').removeClass('btn-success disabled').addClass('btn-default');
+			    $btn.html(origHTML);
+			},
+			error: function(){
+				check_server_data({'error':true, 'errormsg':$BABEL_STR_UNEXPECTED_ERROR});
+			    $btn.removeClass('btn-default').removeClass('btn-success disabled').addClass('btn-default');
+			    $btn.html(origHTML);
+			}
+    	});
 	});
 	
 	// Open dialog for type external url mod package
@@ -349,7 +395,7 @@ function refresh_server_maps_list(srvid)
 	    	 for (var i in data['maps'])
 	    	 { 
 	    		 var mapSelected = maps.indexOf(data['maps'][i].name)>=0;
-	    		 var row = "<tr><td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
+	    		 var row = "<tr id='row-"+data['maps'][i].name+"'><td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
 	    		 $("#maplist").append(row);
 	    	 }
     	 }

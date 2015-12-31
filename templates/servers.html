@@ -116,6 +116,9 @@
 {% endblock %}
 {% block script %}
 	<script type="text/javascript">
+		var $BABEL_STR_INSTALLING = {{_("Installing")|tojson|safe}};
+		var $BABEL_STR_UPLOADING = {{_("Uploading")|tojson|safe}};
+		var $BABEL_STR_UNEXPECTED_ERROR = {{_("Unexpected error!")|tojson|safe}};
 		var $BABEL_STR_PLEASE_WAIT = {{_("PLEASE WAIT...")|tojson|safe}};
 		var $BABEL_STR_URL_TO_PACKAGE = {{_("URL to .zip or .tar.gz Teeworlds Package:")|tojson|safe}};
 		var $BABEL_STR_INSTALLING = {{_("Installing...")|tojson|safe}};

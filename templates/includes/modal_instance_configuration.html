@@ -26,11 +26,16 @@
 							<div class="tab-pane" id="maps">
 								<div class="row text-right">
 									<div class="col-md-12">
-										<button class="btn btn-default"><i class="fa fa-cloud-upload"></i> {{ _('Upload Maps') }}</button>
+										<form id="upload-maps">
+											<fieldset class="btn-file">
+												<button id="btn-upload-map" class="btn btn-default"><i class="fa fa-cloud-upload"></i> {{ _('Upload Maps') }}</button>
+												<input type="file" name="file" id="file" />
+											</fieldset>
+										</form>
 									</div>
 								</div>
 								
-								<div style="overflow:auto; height:220px; margin-top:0.5em;">
+								<div id="maplist-container" style="overflow:auto; height:220px; margin-top:0.5em;">
 									<table class="table table-condensed table-hover table-striped">
 										<thead>
 											<th style="width:10px">&nbsp;</th>
