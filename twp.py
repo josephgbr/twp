@@ -546,7 +546,8 @@ def set_server_binary(id, binfile):
 def save_server_config():
     if 'logged_in' in session and session['logged_in']:
         srvid = int(request.form['srvid'])
-        alaunch = 1 if 'alsrv' in request.form and request.form['alsrv'] == 'on' else 0;
+        app.logger.info(request.form)
+        alaunch = 1 if 'alsrv' in request.form and request.form['alsrv'] == 'true' else 0;
         srvcfg = request.form['srvcfg'];
         srv = query_db('select fileconfig,base_folder from servers where rowid=?', [srvid], one=True)
         if srv:

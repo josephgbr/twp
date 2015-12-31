@@ -236,13 +236,13 @@ $(function(){
 	    	 
 	    	 if (data['success'])
 	    	 {
-		    	 $("#modal_instance_configuration #alsrv").prop('checked', data['alsrv']);
+		    	 $("#modal_instance_configuration #check_alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
 		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
 	    	 }
 	    	 else
 	    	 {
-		    	 $("#modal_instance_configuration #alsrv").prop('checked', false);
+		    	 $("#modal_instance_configuration #check_alsrv").prop('checked', false);
 		    	 $("#modal_instance_configuration #srvcfg").val("");
 		    	 $("#modal_instance_configuration .modal-title").text($BABEL_STR_INSTANCE_CONF);
 	    	 }
@@ -255,6 +255,11 @@ $(function(){
 		
 		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length > 0)?maps[0]:undefined);
 		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);
+	});
+	
+	// Select re-launch if offline
+	$(document).on("change", "#check_alsrv", function() {
+		$("#modal_instance_configuration #alsrv").val($(this).is(":checked"));
 	});
 	
 	// Select Tab
