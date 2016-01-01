@@ -9,3 +9,6 @@ servers/
 *.pyc
 *.save
 .*~
+*.db
+
+twp.conf
