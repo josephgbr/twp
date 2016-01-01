@@ -5,7 +5,7 @@
 		{
 			"default": "unnamed server",
 			"type": "text",
-			"label": "Nombre del servidor",
+			"label": "Name",
 			"tooltip": "Name displayed in the server list"
 		},
 		
@@ -172,13 +172,166 @@
 	},
 	
 	"Game":
-	{
-		"test":
+	{	
+		"sv_warmup":
+		{
+			"type": "number",
+			"label": "Warmup",
+			"tooltip": "Warmup time between rounds",
+			"default": "0"
+		},
+		
+		"sv_scorelimit":
+		{
+			"type": "number",
+			"label": "Score Limit",
+			"tooltip": "NScore limit of the game (0 disables it)",
+			"default": "20"
+		},
+		
+		"sv_timelimit":
+		{
+			"type": "number",
+			"label": "Time Limit",
+			"tooltip": "Time limit of the game (in case of equal points there will be sudden death)",
+			"default": "0"
+		},
+		
+		"sv_gametype":
 		{
 			"type": "select",
-			"label": "Esto es un test!",
-			"values": ["dm", "ctf", "fgg"],
-			"default": "ctf"
+			"label": "Game Type",
+			"tooltip": "Gametype (dm/ctf/tdm) (This setting needs the map to be reloaded in order to take effect)",
+			"values": ["dm", "ctf", "tdm"],
+			"default": "dm"
+		},
+		
+		"sv_rounds_per_map":
+		{
+			"type": "number",
+			"label": "Rounds per Map",
+			"tooltip": "Number of rounds before changing to next map in rotation",
+			"default": 1
+		},
+		
+		"sv_motd":
+		{
+			"type": "text",
+			"label": "Motd",
+			"tooltip": "Message of the day, shown in server info and when joining a server"
+		},
+		
+		"sv_spectator_slots":
+		{
+			"type": "number",
+			"label": "Spectator Slots",
+			"tooltip": "Number of clients that can only be spectators",
+			"default": "0"	
+		},
+		
+		"sv_teambalance_time":
+		{
+			"type": "text",
+			"label": "Team Balance Time",
+			"tooltip": "Time in minutes after the teams are uneven, to auto balance",
+			"default": "1"
+		},
+		
+		"sv_spamprotection":
+		{
+			"type": "checkbox",
+			"label": "Spam Protection",
+			"tooltip": "Enable spam filter",
+			"default": "1"
+		},
+		
+		"sv_rcon_max_tries":
+		{
+			"type": "number",
+			"label": "RCon Max Tries",
+			"tooltip": "Maximum number of tries for remote console authetication",
+			"default": "3"
+		},
+		
+		"sv_tournament_mode":
+		{
+			"type": "checkbox",
+			"label": "Tournament Mode",
+			"tooltip": "Players will automatically join as spectator",
+			"default": "0"
+		},
+		
+		"sv_respawn_delay_tdm":
+		{
+			"type": "number",
+			"label": "Respawn Delay (TDM)",
+			"tooltip": "Time in seconds needed to respawn in the tdm gametype",
+			"default": "3"
+		},
+		
+		"sv_auto_demo_max":
+		{
+			"type": "number",
+			"label": "Auto Demo Max",
+			"tooltip": "Maximum number of automatically recorded demos (0 = no limit)",
+			"default": "10"
+		},
+		
+		"sv_teamdamage":
+		{
+			"type": "checkbox",
+			"label": "Team Damage",
+			"tooltip": "Enable friendly fire",
+			"default": "0"
+		},
+		
+		"sv_powerups":
+		{
+			"type": "checkbox",
+			"label": "Powerups",
+			"tooltip": "Enable powerups (katana)",
+			"default": "1"
+		},
+		
+		"sv_vote_kick":
+		{
+			"type": "checkbox",
+			"label": "Vote Kick",
+			"tooltip": "Enable kick voting",
+			"default": "1"
+		},
+		
+		"sv_vote_kick_bantime":
+		{
+			"type": "number",
+			"label": "Vote Kick Ban Time",
+			"tooltip": "Time in minutes to ban a player if kicked by voting (0 equals only kick)",
+			"default": "5"
+		},
+		
+		"sv_vote_kick_min":
+		{
+			"type": "number",
+			"label": "Vote Kick Min",
+			"tooltip": "Minimum number of players required to start a kick vote",
+			"default": "0"
+		},
+		
+		"sv_inactivekick_time":
+		{
+			"type": "number",
+			"label": "Inactive Kick Time",
+			"tooltip": "Time in minutes after an inactive player will be taken care of",
+			"default": "3"
+		},
+		
+		"sv_inactivekick":
+		{
+			"type": "number",
+			"label": "Inactive Kick",
+			"tooltip": "How to deal with inactive players (0 = move to spectator, 1 = move to free spectator slot/kick, 2 = kick)",
+			"default": "1",
+			"range": [0,2]
 		}
 	}
 }

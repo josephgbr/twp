@@ -628,6 +628,21 @@ def get_mod_configs(mod_folder):
         return jsonify(jsoncfgs)
     return jsonify({'notauth':True})
 
+@app.route('/_get_mod_wizard_config/<int:id>', methods=['POST'])
+def get_mod_wizard_config(id):
+    if 'logged_in' in session and session['logged_in']:        
+        srv = query_db('select base_folder from servers WHERE rowid=?', [id], one=True)
+        if srv:
+            fullpath = r'%s/%s/config.json' % (SERVERS_BASEPATH,srv['base_folder'])
+            if os.path.isfile(fullpath):
+                cfgfile = open(fullpath, "r")
+                config = cfgfile.read()
+                cfgfile.close()
+                return jsonify({'success':True, 'config':config})
+            return jsonify({'success':True}) # Not exists, no problem
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
+    return jsonify({'notauth':True})
+
 @app.route('/_start_server_instance/<int:id>', methods=['POST'])
 def start_server(id):
     if 'logged_in' in session and session['logged_in']:        

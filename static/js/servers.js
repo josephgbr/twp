@@ -239,7 +239,6 @@ $(function(){
 		    	 $("#modal_instance_configuration #check_alsrv").prop('checked', data['alsrv']);
 		    	 $("#modal_instance_configuration #srvcfg").val(data['srvcfg']);
 		    	 $("#modal_instance_configuration .modal-title").text("Instance Configuration: "+data['fileconfig']);
-		    	 generate_wizard($('#wizard'));
 	    	 }
 	    	 else
 	    	 {
@@ -258,6 +257,12 @@ $(function(){
 		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);
 	});
 	
+	// Change wizard value
+	$(document).on("change", ".wizard-param", function() {
+		var $this = $(this);
+		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), $this.val());
+	});
+	
 	// Select re-launch if offline
 	$(document).on("change", "#check_alsrv", function() {
 		$("#modal_instance_configuration #alsrv").val($(this).is(":checked"));
@@ -270,6 +275,8 @@ $(function(){
         
         if ("maps" === id)
         	refresh_server_maps_list(srvid);
+        else if ("wizard" === id)
+        	generate_wizard($('#wizard'), srvid);
     });
 	
 	// Press "OK" button in Server Instance Configuration
