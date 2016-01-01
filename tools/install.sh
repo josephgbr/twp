@@ -8,6 +8,7 @@ echo '   ╚═╝      ╚══╝╚══╝   ╚═╝     '
 echo '               Teeworlds Web Panel Automatic installer'
 echo -e "\n"
 
+
 if [[ -z $SUDO_USER ]]; then
 	echo -e "Error, can't read user installation!"
 	exit 1
@@ -94,7 +95,7 @@ hash git &> /dev/null || {
 }
 
 git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
-chown -R $INSTALL_USER:$INSTALL_USER $INSTALL_DIR
+chown -R "$INSTALL_USER":"$INSTALL_USER" "$INSTALL_DIR"
 
 echo -e '\nInstallation complete!\n\n'
 
@@ -176,4 +177,3 @@ echo 'Connect you on http://your-ip-address:8000/ (Example: http://localhost:800
 echo 'User: admin'
 echo 'Password: admin'
 echo -e "*** DON'T FORGET CHANGE DEFAULT ADMIN PASSWORD!!! ***\n\n"
-
