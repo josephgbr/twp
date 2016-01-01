@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: TWP v.0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-01-01 16:56+0100\n"
-"PO-Revision-Date: 2015-12-08 03:16+0100\n"
+"PO-Revision-Date: 2016-01-01 17:10+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
-"Language-Team: <dev@redneboa.es>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team:  <dev@redneboa.es>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
+"X-Generator: Poedit 1.5.4\n"
+"Language: Spanish\n"
 
 #: twp.py:197
 msgid "You are logged in!"
@@ -30,9 +32,8 @@ msgid "You are logged out!"
 msgstr "Sesión cerrada correctamente!"
 
 #: twp.py:256 twp.py:362
-#, fuzzy
 msgid "Server not found!"
-msgstr "No se han encontrado servidores!"
+msgstr "Servidor no encontrado!"
 
 #: twp.py:297
 msgid "Settings updates successfully"
@@ -69,9 +70,8 @@ msgid "Logfile not exists!"
 msgstr "Archivo de registro no definido!"
 
 #: twp.py:393
-#, fuzzy
 msgid "Error: Can't upload selected maps"
-msgstr "Error: No se ha podido instalar el mod seleccionado"
+msgstr "Error: No se han podido subir los mapas seleccionados"
 
 #: twp.py:396 twp.py:599 twp.py:621 twp.py:632 twp.py:659 twp.py:681
 #, fuzzy
@@ -79,23 +79,20 @@ msgid "Invalid Operation: Server not exists!"
 msgstr "Operación Inválida: Servidor no encontrado!"
 
 #: twp.py:398
-#, fuzzy
 msgid "Error: You haven't permissions for upload new maps!"
-msgstr "Error: No tienes permisos para instalar nuevos mods!"
+msgstr "Error: No tienes permisos para subir nuevos mapas!"
 
 #: twp.py:411
-#, fuzzy
 msgid "Error: Map not exists!"
-msgstr "Error: La carpeta de mod no existe!"
+msgstr "Error: El mapa no existe!"
 
 #: twp.py:412 twp.py:534 twp.py:701 twp.py:764 twp.py:800 twp.py:869
 msgid "Invalid Operation: Server not found!"
 msgstr "Operación Inválida: Servidor no encontrado!"
 
 #: twp.py:413
-#, fuzzy
 msgid "Invalid Operation: Map not defined!"
-msgstr "Operación Inválida: Servidor no encontrado!"
+msgstr "Operación Inválida: Mapa no definido!"
 
 #: twp.py:429
 msgid "Error: Folder mod not exists!"
@@ -111,20 +108,19 @@ msgstr "El nombre del archivo de configuración no es válido."
 
 #: twp.py:486
 msgid ""
-"Can't exits two servers with the same configuration file.<br/>Please "
-"change configuration file name and try again."
+"Can't exits two servers with the same configuration file.<br/>Please change "
+"configuration file name and try again."
 msgstr ""
-"No pueden exisitir dos servidores con el mismo archivo de "
-"configuración.<br/>Porfavor cambia el nombre del archivo de configuración"
-" e intentalo de nuevo."
+"No pueden exisitir dos servidores con el mismo archivo de configuración.<br/"
+">Porfavor cambia el nombre del archivo de configuración e intentalo de nuevo."
 
 #: twp.py:494 twp.py:583
 msgid ""
 "Can't exits two servers with the same log file.<br/>Please check "
 "configuration and try again."
 msgstr ""
-"No puedes existir dos servidores con el mismo archivo de registro "
-"(log).<br/>Porfavor verifica la configuración e intentalo de nuevo."
+"No puedes existir dos servidores con el mismo archivo de registro (log).<br/"
+">Porfavor verifica la configuración e intentalo de nuevo."
 
 #: twp.py:500
 msgid ""
@@ -137,11 +133,11 @@ msgstr ""
 #: twp.py:576
 #, fuzzy
 msgid ""
-"Can't exits two servers with the same 'sv_port' in the same "
-"MOD.<br/>Please check configuration and try again."
+"Can't exits two servers with the same 'sv_port' in the same MOD.<br/>Please "
+"check configuration and try again."
 msgstr ""
-"No pueden existir dos servidores con el mismo 'sv_port' en el mismo "
-"MOD.<br/>Porfavor verifica la configuración e intentalo de nuevo."
+"No pueden existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/"
+">Porfavor verifica la configuración e intentalo de nuevo."
 
 #: twp.py:668
 msgid "Undefined server binary file!!"
@@ -198,11 +194,11 @@ msgstr "No se han encontrado servidores!"
 
 #: twp.py:1002
 msgid "Server Offline"
-msgstr ""
+msgstr "Servidor Desconectado"
 
 #: templates/banned.html:4
 msgid "User Banned"
-msgstr ""
+msgstr "Usuario baneado"
 
 #: templates/banned.html:8
 #, fuzzy
@@ -267,23 +263,23 @@ msgstr "Buscando servidores locales en el servidor maestro..."
 
 #: templates/index.html:69
 msgid "Uptime:"
-msgstr ""
+msgstr "Encendido:"
 
 #: templates/index.html:70
 msgid "day(s)"
-msgstr ""
+msgstr "día(s)"
 
 #: templates/index.html:72
 msgid "free"
-msgstr ""
+msgstr "libre"
 
 #: templates/layout.html:40
 msgid "Proudly hosted on"
-msgstr ""
+msgstr "Orgullosamente hospedado en"
 
 #: templates/layout.html:51
 msgid "The session has expired"
-msgstr ""
+msgstr "La sesión ha caducado"
 
 #: templates/layout.html:52
 #, fuzzy
@@ -292,20 +288,19 @@ msgstr "La sesión ha expirado!"
 
 #: templates/layout.html:53
 msgid "Interal error has ocurred!"
-msgstr ""
+msgstr "Ha ocurrido un error interno!"
 
 #: templates/layout.html:54
 msgid "Error - Ooops!"
-msgstr ""
+msgstr "Error - Uuups!"
 
 #: templates/layout.html:55
 msgid "Damn"
-msgstr ""
+msgstr "Maldición"
 
 #: templates/log.html:2
-#, fuzzy
 msgid "Server Log"
-msgstr "Información del Servidor"
+msgstr "Log Servidor"
 
 #: templates/log.html:9 templates/search.html:21 templates/server.html:10
 #: templates/servers.html:2 templates/includes/nav.html:18
@@ -320,7 +315,8 @@ msgstr "REGISTRO NO DEFINIDO"
 msgid "SERVER NOT FOUND"
 msgstr "SERVIDOR NO ENCONTRADO"
 
-#: templates/login.html:2 templates/login.html:8 templates/includes/nav.html:42
+#: templates/login.html:2 templates/login.html:8
+#: templates/includes/nav.html:42
 msgid "Sign In"
 msgstr "Entrar"
 
@@ -348,7 +344,8 @@ msgstr "Lista de todos los jugadores conectados a la máquina."
 msgid "Updated every minute"
 msgstr "Actualizado cada minuto"
 
-#: templates/players.html:20 templates/search.html:62 templates/server.html:124
+#: templates/players.html:20 templates/search.html:62
+#: templates/server.html:124
 #: templates/includes/modal_instance_configuration.html:40
 msgid "Name"
 msgstr "Nombre"
@@ -407,9 +404,8 @@ msgid "Server Info"
 msgstr "Información del Servidor"
 
 #: templates/server.html:15 templates/includes/modal_create_banner.html:6
-#, fuzzy
 msgid "Create Banner"
-msgstr "Crear instancia"
+msgstr "Crear Banner"
 
 #: templates/server.html:23
 msgid "General"
@@ -439,13 +435,13 @@ msgstr "Dirección"
 msgid "Visible"
 msgstr "Visible"
 
-#: templates/server.html:77 templates/server.html:84 twp/banner_generator.py:89
-#: twp/banner_generator.py:90
+#: templates/server.html:77 templates/server.html:84
+#: twp/banner_generator.py:89 twp/banner_generator.py:90
 msgid "Yes"
 msgstr "Si"
 
-#: templates/server.html:77 templates/server.html:84 twp/banner_generator.py:89
-#: twp/banner_generator.py:90
+#: templates/server.html:77 templates/server.html:84
+#: twp/banner_generator.py:89 twp/banner_generator.py:90
 msgid "No"
 msgstr "No"
 
@@ -483,7 +479,7 @@ msgstr "SERVIDOR DESCONECTADO"
 
 #: templates/server.html:199
 msgid "Unknown"
-msgstr ""
+msgstr "Desconocido"
 
 #: templates/servers.html:11
 msgid "Install Mod"
@@ -539,49 +535,47 @@ msgstr "No se han encontrado servidores!"
 
 #: templates/servers.html:119
 msgid "Installing"
-msgstr ""
+msgstr "Instalando"
 
 #: templates/servers.html:120
 msgid "Uploading"
-msgstr ""
+msgstr "Subiendo"
 
 #: templates/servers.html:121
 msgid "Unexpected error!"
-msgstr ""
+msgstr "Error inesperado!"
 
 #: templates/servers.html:122
 msgid "PLEASE WAIT..."
-msgstr ""
+msgstr "PORFAVOR ESPERA..."
 
 #: templates/servers.html:123
 msgid "URL to .zip or .tar.gz Teeworlds Package:"
-msgstr ""
+msgstr "URL al .zip o .tar.gz del paquete Teeworlds:"
 
 #: templates/servers.html:124
 msgid "Installing..."
-msgstr ""
+msgstr "Instalando..."
 
 #: templates/servers.html:125
 msgid "Are you sure?"
-msgstr ""
+msgstr "¿Estás seguro?"
 
 #: templates/servers.html:126
-#, fuzzy
 msgid "Delete configuration file from disk."
-msgstr "El nombre del archivo de configuración no es válido."
+msgstr "Borrar archivo de configuración del disco."
 
 #: templates/servers.html:127
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 #: templates/servers.html:128
-#, fuzzy
 msgid "Server Instance"
-msgstr "Crear instancia"
+msgstr "Instancia del Servidor"
 
 #: templates/servers.html:129
 msgid "Sending..."
-msgstr ""
+msgstr "Enviando..."
 
 #: templates/servers.html:130
 #: templates/includes/modal_instance_configuration.html:6
@@ -590,25 +584,24 @@ msgstr "Configuración de la Instancia"
 
 #: templates/servers.html:135
 msgid "Starting..."
-msgstr ""
+msgstr "Arrancando..."
 
 #: templates/servers.html:137
 msgid "This can't be canceled and erase all mod data on the disk!!"
 msgstr ""
+"Esto no se puede cancelar y borrará todos los datos del mod en el disco!!"
 
 #: templates/servers.html:138
-#, fuzzy
 msgid "Remove"
-msgstr "Borrar Mod"
+msgstr "Borrar"
 
 #: templates/servers.html:139
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: templates/servers.html:140
-#, fuzzy
 msgid "Remove Map"
-msgstr "Borrar Mod"
+msgstr "Borrar Mapa"
 
 #: templates/settings.html:2 templates/settings.html:8
 #: templates/includes/nav.html:36
@@ -636,40 +629,36 @@ msgid "Change"
 msgstr "Cambiar"
 
 #: templates/includes/modal_create_banner.html:10
-#, fuzzy
 msgid "Server Name Color"
-msgstr "Nombre del Servidor"
+msgstr "Color Nombre del Servidor"
 
 #: templates/includes/modal_create_banner.html:17
 msgid "Detail Color"
-msgstr ""
+msgstr "Color Detalle"
 
 #: templates/includes/modal_create_banner.html:24
-#, fuzzy
 msgid "Address Color"
-msgstr "Dirección"
+msgstr "Color Dirección"
 
 #: templates/includes/modal_create_banner.html:31
 msgid "Gradient Start"
-msgstr ""
+msgstr "Degradado Inicio"
 
 #: templates/includes/modal_create_banner.html:38
 msgid "Gradient End"
-msgstr ""
+msgstr "Degradado Fin"
 
 #: templates/includes/modal_create_banner.html:46
-#, fuzzy
 msgid "Generate"
-msgstr "General"
+msgstr "Generar"
 
 #: templates/includes/modal_create_banner.html:49
-#, fuzzy
 msgid "Preview"
-msgstr "General"
+msgstr "Vista Previa"
 
 #: templates/includes/modal_create_banner.html:53
 msgid "Share URL"
-msgstr ""
+msgstr "Compartir URL"
 
 #: templates/includes/modal_external_console.html:6
 msgid "External Console"
@@ -696,7 +685,7 @@ msgstr "Auto-Lanzar si desconectado"
 
 #: templates/includes/modal_instance_configuration.html:16
 msgid "Wizard"
-msgstr ""
+msgstr "Asistente"
 
 #: templates/includes/modal_instance_configuration.html:17
 #: templates/includes/nav.html:20
@@ -705,15 +694,15 @@ msgstr "Mapas"
 
 #: templates/includes/modal_instance_configuration.html:18
 msgid "Advance"
-msgstr ""
+msgstr "Avanzado"
 
 #: templates/includes/modal_instance_configuration.html:29
 msgid "Upload Maps"
-msgstr ""
+msgstr "Subir Mapas"
 
 #: templates/includes/modal_instance_configuration.html:41
 msgid "Size"
-msgstr ""
+msgstr "Tamaño"
 
 #: templates/includes/modal_instance_configuration.html:57
 msgid "Here goes your"
@@ -758,9 +747,8 @@ msgid "Toggle navigation"
 msgstr "Conmutar navegación"
 
 #: templates/includes/nav.html:29
-#, fuzzy
 msgid "(Server Local Time)"
-msgstr "Nombre del Servidor"
+msgstr "(Hora Local del Servidor)"
 
 #: templates/includes/nav.html:38
 msgid "Logout"
@@ -768,45 +756,28 @@ msgstr "Cerrar Sesión"
 
 #: templates/includes/server_log.html:4
 msgid "Filter by"
-msgstr ""
+msgstr "Filtrar por"
 
 #: templates/includes/server_log.html:7
-#, fuzzy
 msgid "Errors"
-msgstr "Error: %s"
+msgstr "Errores"
 
 #: templates/includes/server_log.html:8
 msgid "Warnings"
-msgstr ""
+msgstr "Advertencias"
 
 #: templates/includes/server_log.html:9
 msgid "Highlighted"
-msgstr ""
+msgstr "Destacado"
 
 #: templates/includes/server_log.html:12
 msgid "Desc"
-msgstr ""
+msgstr "Desc"
 
 #: templates/includes/server_log.html:13
 msgid "Asc"
-msgstr ""
+msgstr "Asc"
 
 #: templates/includes/server_log.html:21
 msgid "Section"
 msgstr "Sección"
-
-#~ msgid "Operation Invalid: Server not exists!"
-#~ msgstr "Operación Inválida: El servidor no existe!"
-
-#~ msgid "Operation Invalid: Server not found"
-#~ msgstr "Operación Inválida: Servidor no encontrado"
-
-#~ msgid "Operation Invalid: Server not found!"
-#~ msgstr "Operación Inválida: Servidor no encontrado!"
-
-#~ msgid "Sing In"
-#~ msgstr "Entrar"
-
-#~ msgid "Default Map:"
-#~ msgstr ""
-
