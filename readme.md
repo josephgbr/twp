@@ -27,7 +27,7 @@ _NOTE: If you want an production deploy read '[Deploying](https://github.com/Cyt
 
 **Automatic (Full) --Warning: builtin server--**
 ```bash
-$ sudo wget http://twp.redneboa.es -O - | bash
+$ wget http://cytral.github.io/twp/tools/install.sh && sudo bash install.sh
 ```
 
 **Manual (Basic)**
