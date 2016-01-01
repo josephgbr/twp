@@ -72,7 +72,7 @@ python -c 'import flask' &> /dev/null || {
 	pip install flask==0.10.1 1> /dev/null
 }
 
-python -c 'import Flask_APScheduler' &> /dev/null || {
+python -c 'import flask_apscheduler' &> /dev/null || {
 	echo '| + Flask-APScheduler Python...'
 	pip install Flask-APScheduler==1.3.3 1> /dev/null
 }
