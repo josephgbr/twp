@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-12-23 06:08+0100\n"
+"POT-Creation-Date: 2016-01-01 16:56+0100\n"
 "PO-Revision-Date: 2015-12-23 06:06+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,153 +18,173 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: twp.py:172
-msgid "Session Banned: Can't login in this website! Fuck you :)"
-msgstr ""
-
-#: twp.py:186
+#: twp.py:197
 msgid "You are logged in!"
 msgstr ""
 
-#: twp.py:194
+#: twp.py:205
 msgid "Invalid username or password! ({0}/{1})"
 msgstr ""
 
-#: twp.py:207
+#: twp.py:218
 msgid "You are logged out!"
 msgstr ""
 
-#: twp.py:246 twp.py:352
+#: twp.py:256 twp.py:362
 msgid "Server not found!"
 msgstr ""
 
-#: twp.py:287
+#: twp.py:297
 msgid "Settings updates successfully"
 msgstr ""
 
-#: twp.py:292
+#: twp.py:302
 msgid "Can't access to settings page"
 msgstr ""
 
-#: twp.py:303
+#: twp.py:313
 #, python-format
 msgid "Error: %s"
 msgstr ""
 
-#: twp.py:305 twp.py:317
+#: twp.py:315 twp.py:327
 msgid "Mod installed successfully"
 msgstr ""
 
-#: twp.py:320
+#: twp.py:330
 msgid "Error: Can't install selected mod package"
 msgstr ""
 
-#: twp.py:322
+#: twp.py:332 twp.py:395
 msgid "Error: No file detected!"
 msgstr ""
 
-#: twp.py:324
+#: twp.py:334
 msgid "Error: You haven't permissions for install new mods!"
 msgstr ""
 
-#: twp.py:346 twp.py:691
+#: twp.py:356 twp.py:775
 msgid "Logfile not exists!"
 msgstr ""
 
-#: twp.py:369
-msgid "Error: Folder mod not exists!"
+#: twp.py:393
+msgid "Error: Can't upload selected maps"
 msgstr ""
 
-#: twp.py:371 twp.py:837
-msgid "Error: Old or new password not defined!"
+#: twp.py:396 twp.py:599 twp.py:621 twp.py:632 twp.py:659 twp.py:681
+msgid "Invalid Operation: Server not exists!"
+msgstr ""
+
+#: twp.py:398
+msgid "Error: You haven't permissions for upload new maps!"
 msgstr ""
 
 #: twp.py:411
+msgid "Error: Map not exists!"
+msgstr ""
+
+#: twp.py:412 twp.py:534 twp.py:701 twp.py:764 twp.py:800 twp.py:869
+msgid "Invalid Operation: Server not found!"
+msgstr ""
+
+#: twp.py:413
+msgid "Invalid Operation: Map not defined!"
+msgstr ""
+
+#: twp.py:429
+msgid "Error: Folder mod not exists!"
+msgstr ""
+
+#: twp.py:431 twp.py:921
+msgid "Error: Old or new password not defined!"
+msgstr ""
+
+#: twp.py:471
 msgid "Invalid configuration file name."
 msgstr ""
 
-#: twp.py:426
+#: twp.py:486
 msgid ""
 "Can't exits two servers with the same configuration file.<br/>Please "
 "change configuration file name and try again."
 msgstr ""
 
-#: twp.py:434 twp.py:522
+#: twp.py:494 twp.py:583
 msgid ""
 "Can't exits two servers with the same log file.<br/>Please check "
 "configuration and try again."
 msgstr ""
 
-#: twp.py:440
+#: twp.py:500
 msgid ""
 "Can't exits two servers with the same 'ec_port'.<br/>Please check "
 "configuration and try again."
 msgstr ""
 
-#: twp.py:474 twp.py:617 twp.py:680 twp.py:716 twp.py:785
-msgid "Invalid Operation: Server not found!"
-msgstr ""
-
-#: twp.py:515
+#: twp.py:576
 msgid ""
 "Can't exits two servers with the same 'sv_port' in the same "
 "MOD.<br/>Please check configuration and try again."
 msgstr ""
 
-#: twp.py:538 twp.py:563 twp.py:597
-msgid "Invalid Operation: Server not exists!"
-msgstr ""
-
-#: twp.py:584
+#: twp.py:668
 msgid "Undefined server binary file!!"
 msgstr ""
 
-#: twp.py:588
+#: twp.py:672
 msgid "Can't run two servers in the same port!"
 msgstr ""
 
-#: twp.py:611
+#: twp.py:695
 msgid "System failure: {0}"
 msgstr ""
 
-#: twp.py:615
+#: twp.py:699
 msgid "Invalid Operation: Can't found server pid"
 msgstr ""
 
-#: twp.py:644
+#: twp.py:728
 msgid "Logfile not defined!"
 msgstr ""
 
-#: twp.py:738 twp.py:758
+#: twp.py:822 twp.py:842
 msgid "Invalid Operation: Server not found or econ not configured!"
 msgstr ""
 
-#: twp.py:746
+#: twp.py:830
 msgid "Client player not defined!"
 msgstr ""
 
-#: twp.py:754
+#: twp.py:838
 msgid "Can't found '{0}' player!"
 msgstr ""
 
-#: twp.py:825
+#: twp.py:909
 msgid "Undefined Chart!"
 msgstr ""
 
-#: twp.py:835
+#: twp.py:919
 msgid "Error: Can't change admin password. Check settings and try again."
 msgstr ""
 
-#: twp.py:848
+#: twp.py:932
 msgid "Session timed out!"
 msgstr ""
 
-#: twp.py:903
+#: twp.py:987
 msgid "Server binary not found"
 msgstr ""
 
-#: twp.py:918
+#: twp.py:1002
 msgid "Server Offline"
+msgstr ""
+
+#: templates/banned.html:4
+msgid "User Banned"
+msgstr ""
+
+#: templates/banned.html:8
+msgid "Session Banned: Can't join in this website! Fuck you :)"
 msgstr ""
 
 #: templates/index.html:2 templates/includes/nav.html:17
@@ -196,17 +216,18 @@ msgid "Server Name"
 msgstr ""
 
 #: templates/index.html:54 templates/search.html:28 templates/server.html:55
-#: templates/servers.html:43
+#: templates/servers.html:43 twp/banner_generator.py:94
 msgid "Game Type"
 msgstr ""
 
-#: templates/index.html:55 templates/players.html:2 templates/search.html:58
-#: templates/server.html:24 templates/server.html:69
-#: templates/includes/nav.html:19
+#: templates/index.html:55 templates/index.html:71 templates/players.html:2
+#: templates/search.html:58 templates/server.html:24 templates/server.html:69
+#: templates/server.html:198 templates/includes/nav.html:19
+#: twp/banner_generator.py:92
 msgid "Players"
 msgstr ""
 
-#: templates/index.html:56 templates/server.html:62
+#: templates/index.html:56 templates/server.html:62 twp/banner_generator.py:93
 msgid "Map"
 msgstr ""
 
@@ -222,8 +243,40 @@ msgstr ""
 msgid "Searching for local servers in master list..."
 msgstr ""
 
+#: templates/index.html:69
+msgid "Uptime:"
+msgstr ""
+
+#: templates/index.html:70
+msgid "day(s)"
+msgstr ""
+
+#: templates/index.html:72
+msgid "free"
+msgstr ""
+
 #: templates/layout.html:40
 msgid "Proudly hosted on"
+msgstr ""
+
+#: templates/layout.html:51
+msgid "The session has expired"
+msgstr ""
+
+#: templates/layout.html:52
+msgid "Session Expired!"
+msgstr ""
+
+#: templates/layout.html:53
+msgid "Interal error has ocurred!"
+msgstr ""
+
+#: templates/layout.html:54
+msgid "Error - Ooops!"
+msgstr ""
+
+#: templates/layout.html:55
+msgid "Damn"
 msgstr ""
 
 #: templates/log.html:2
@@ -272,7 +325,7 @@ msgid "Updated every minute"
 msgstr ""
 
 #: templates/players.html:20 templates/search.html:62 templates/server.html:124
-#: templates/includes/modal_instance_configuration.html:41
+#: templates/includes/modal_instance_configuration.html:40
 msgid "Name"
 msgstr ""
 
@@ -302,18 +355,22 @@ msgid "Port"
 msgstr ""
 
 #: templates/search.html:36 templates/servers.html:51
+#: templates/servers.html:133
 msgid "Not Register Server"
 msgstr ""
 
 #: templates/search.html:36 templates/servers.html:51
+#: templates/servers.html:134
 msgid "Register Server"
 msgstr ""
 
 #: templates/search.html:37 templates/servers.html:52
+#: templates/servers.html:131
 msgid "Public Server"
 msgstr ""
 
 #: templates/search.html:37 templates/servers.html:52
+#: templates/servers.html:132
 msgid "Private Server"
 msgstr ""
 
@@ -353,7 +410,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: templates/server.html:76
+#: templates/server.html:76 twp/banner_generator.py:96
 msgid "Visible"
 msgstr ""
 
@@ -367,7 +424,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: templates/server.html:83
+#: templates/server.html:83 twp/banner_generator.py:95
 msgid "Public"
 msgstr ""
 
@@ -395,8 +452,12 @@ msgstr ""
 msgid "Ban"
 msgstr ""
 
-#: templates/server.html:154 twp/banner_generator.py:95
+#: templates/server.html:154 twp/banner_generator.py:99
 msgid "SERVER OFFLINE"
+msgstr ""
+
+#: templates/server.html:199
+msgid "Unknown"
 msgstr ""
 
 #: templates/servers.html:11
@@ -423,7 +484,7 @@ msgstr ""
 msgid "Config"
 msgstr ""
 
-#: templates/servers.html:65
+#: templates/servers.html:65 templates/servers.html:136
 msgid "Start"
 msgstr ""
 
@@ -449,6 +510,75 @@ msgstr ""
 
 #: templates/servers.html:105
 msgid "No servers found!"
+msgstr ""
+
+#: templates/servers.html:119
+msgid "Installing"
+msgstr ""
+
+#: templates/servers.html:120
+msgid "Uploading"
+msgstr ""
+
+#: templates/servers.html:121
+msgid "Unexpected error!"
+msgstr ""
+
+#: templates/servers.html:122
+msgid "PLEASE WAIT..."
+msgstr ""
+
+#: templates/servers.html:123
+msgid "URL to .zip or .tar.gz Teeworlds Package:"
+msgstr ""
+
+#: templates/servers.html:124
+msgid "Installing..."
+msgstr ""
+
+#: templates/servers.html:125
+msgid "Are you sure?"
+msgstr ""
+
+#: templates/servers.html:126
+msgid "Delete configuration file from disk."
+msgstr ""
+
+#: templates/servers.html:127
+msgid "Delete"
+msgstr ""
+
+#: templates/servers.html:128
+msgid "Server Instance"
+msgstr ""
+
+#: templates/servers.html:129
+msgid "Sending..."
+msgstr ""
+
+#: templates/servers.html:130
+#: templates/includes/modal_instance_configuration.html:6
+msgid "Instance Configuration"
+msgstr ""
+
+#: templates/servers.html:135
+msgid "Starting..."
+msgstr ""
+
+#: templates/servers.html:137
+msgid "This can't be canceled and erase all mod data on the disk!!"
+msgstr ""
+
+#: templates/servers.html:138
+msgid "Remove"
+msgstr ""
+
+#: templates/servers.html:139
+msgid "Cancel"
+msgstr ""
+
+#: templates/servers.html:140
+msgid "Remove Map"
 msgstr ""
 
 #: templates/settings.html:2 templates/settings.html:8
@@ -527,24 +657,20 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:6
-msgid "Instance Configuration"
-msgstr ""
-
-#: templates/includes/modal_instance_configuration.html:13
+#: templates/includes/modal_instance_configuration.html:12
 msgid "Auto-Launch if offline:"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:18
+#: templates/includes/modal_instance_configuration.html:16
 msgid "Wizard"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:19
+#: templates/includes/modal_instance_configuration.html:17
 #: templates/includes/nav.html:20
 msgid "Maps"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:20
+#: templates/includes/modal_instance_configuration.html:18
 msgid "Advance"
 msgstr ""
 
@@ -552,11 +678,7 @@ msgstr ""
 msgid "Upload Maps"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:33
-msgid "Default Map:"
-msgstr ""
-
-#: templates/includes/modal_instance_configuration.html:42
+#: templates/includes/modal_instance_configuration.html:41
 msgid "Size"
 msgstr ""
 
@@ -637,4 +759,10 @@ msgstr ""
 #: templates/includes/server_log.html:21
 msgid "Section"
 msgstr ""
+
+#~ msgid "Session Banned: Can't login in this website! Fuck you :)"
+#~ msgstr ""
+
+#~ msgid "Default Map:"
+#~ msgstr ""
 

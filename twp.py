@@ -397,6 +397,22 @@ def upload_maps(id):
     else:
         return jsonify({'error':True, 'errormsg':_('Error: You haven\'t permissions for upload new maps!')})
 
+@app.route('/_remove_map/<int:id>', methods=['POST'])
+def remove_map(id):
+    if 'logged_in' in session and session['logged_in']:
+        if 'map' in request.form:
+            map = request.form['map']
+            srv = query_db("SELECT base_folder FROM servers WHERE rowid=?", [id], one=True)
+            if srv:
+                fullpath = r'%s/%s/data/maps/%s.map' % (SERVERS_BASEPATH,srv['base_folder'],map)
+                if os.path.isfile(fullpath):
+                    os.unlink(fullpath)
+                    return jsonify({'success':True})
+                return jsonify({'error':True, 'errormsg':_('Error: Map not exists!')})
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
+        return jsonify({'error':True, 'errormsg':_('Invalid Operation: Map not defined!')})
+    return jsonify({'notauth':True})
+
 @app.route('/_remove_mod', methods=['POST'])
 def remove_mod():
     if 'logged_in' in session and session['logged_in']:

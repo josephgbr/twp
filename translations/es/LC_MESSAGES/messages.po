@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v.0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-12-23 06:08+0100\n"
+"POT-Creation-Date: 2016-01-01 16:56+0100\n"
 "PO-Revision-Date: 2015-12-08 03:16+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language-Team: <dev@redneboa.es>\n"
@@ -17,74 +17,99 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: twp.py:172
-msgid "Session Banned: Can't login in this website! Fuck you :)"
-msgstr "Sesión baneada: No puedes logearte en esta página! Que te jodan :)"
-
-#: twp.py:186
+#: twp.py:197
 msgid "You are logged in!"
 msgstr "Te has logeado correctamente!"
 
-#: twp.py:194
+#: twp.py:205
 msgid "Invalid username or password! ({0}/{1})"
 msgstr "Nombre de usuario o contraseña incorrecto ({0}/{1})"
 
-#: twp.py:207
+#: twp.py:218
 msgid "You are logged out!"
 msgstr "Sesión cerrada correctamente!"
 
-#: twp.py:246 twp.py:352
+#: twp.py:256 twp.py:362
 #, fuzzy
 msgid "Server not found!"
 msgstr "No se han encontrado servidores!"
 
-#: twp.py:287
+#: twp.py:297
 msgid "Settings updates successfully"
 msgstr "Configuración actualizada correctamente"
 
-#: twp.py:292
+#: twp.py:302
 msgid "Can't access to settings page"
 msgstr "No puedes acceder a la página de configuración"
 
-#: twp.py:303
+#: twp.py:313
 #, python-format
 msgid "Error: %s"
 msgstr "Error: %s"
 
-#: twp.py:305 twp.py:317
+#: twp.py:315 twp.py:327
 msgid "Mod installed successfully"
 msgstr "Mos instalado correctamente"
 
-#: twp.py:320
+#: twp.py:330
 msgid "Error: Can't install selected mod package"
 msgstr "Error: No se ha podido instalar el mod seleccionado"
 
-#: twp.py:322
+#: twp.py:332 twp.py:395
 msgid "Error: No file detected!"
 msgstr "Error: Archivo no detectado!"
 
-#: twp.py:324
+#: twp.py:334
 msgid "Error: You haven't permissions for install new mods!"
 msgstr "Error: No tienes permisos para instalar nuevos mods!"
 
-#: twp.py:346 twp.py:691
+#: twp.py:356 twp.py:775
 #, fuzzy
 msgid "Logfile not exists!"
 msgstr "Archivo de registro no definido!"
 
-#: twp.py:369
+#: twp.py:393
+#, fuzzy
+msgid "Error: Can't upload selected maps"
+msgstr "Error: No se ha podido instalar el mod seleccionado"
+
+#: twp.py:396 twp.py:599 twp.py:621 twp.py:632 twp.py:659 twp.py:681
+#, fuzzy
+msgid "Invalid Operation: Server not exists!"
+msgstr "Operación Inválida: Servidor no encontrado!"
+
+#: twp.py:398
+#, fuzzy
+msgid "Error: You haven't permissions for upload new maps!"
+msgstr "Error: No tienes permisos para instalar nuevos mods!"
+
+#: twp.py:411
+#, fuzzy
+msgid "Error: Map not exists!"
+msgstr "Error: La carpeta de mod no existe!"
+
+#: twp.py:412 twp.py:534 twp.py:701 twp.py:764 twp.py:800 twp.py:869
+msgid "Invalid Operation: Server not found!"
+msgstr "Operación Inválida: Servidor no encontrado!"
+
+#: twp.py:413
+#, fuzzy
+msgid "Invalid Operation: Map not defined!"
+msgstr "Operación Inválida: Servidor no encontrado!"
+
+#: twp.py:429
 msgid "Error: Folder mod not exists!"
 msgstr "Error: La carpeta de mod no existe!"
 
-#: twp.py:371 twp.py:837
+#: twp.py:431 twp.py:921
 msgid "Error: Old or new password not defined!"
 msgstr "Error: La antigüa o la nueva contraseña no está definida!"
 
-#: twp.py:411
+#: twp.py:471
 msgid "Invalid configuration file name."
 msgstr "El nombre del archivo de configuración no es válido."
 
-#: twp.py:426
+#: twp.py:486
 msgid ""
 "Can't exits two servers with the same configuration file.<br/>Please "
 "change configuration file name and try again."
@@ -93,7 +118,7 @@ msgstr ""
 "configuración.<br/>Porfavor cambia el nombre del archivo de configuración"
 " e intentalo de nuevo."
 
-#: twp.py:434 twp.py:522
+#: twp.py:494 twp.py:583
 msgid ""
 "Can't exits two servers with the same log file.<br/>Please check "
 "configuration and try again."
@@ -101,7 +126,7 @@ msgstr ""
 "No puedes existir dos servidores con el mismo archivo de registro "
 "(log).<br/>Porfavor verifica la configuración e intentalo de nuevo."
 
-#: twp.py:440
+#: twp.py:500
 msgid ""
 "Can't exits two servers with the same 'ec_port'.<br/>Please check "
 "configuration and try again."
@@ -109,11 +134,7 @@ msgstr ""
 "No puedes existir dos servidores con el mismo 'ec_port'.<br/>Porfavor "
 "verifica la configuración e intentalo de nuevo."
 
-#: twp.py:474 twp.py:617 twp.py:680 twp.py:716 twp.py:785
-msgid "Invalid Operation: Server not found!"
-msgstr "Operación Inválida: Servidor no encontrado!"
-
-#: twp.py:515
+#: twp.py:576
 #, fuzzy
 msgid ""
 "Can't exits two servers with the same 'sv_port' in the same "
@@ -122,67 +143,71 @@ msgstr ""
 "No pueden existir dos servidores con el mismo 'sv_port' en el mismo "
 "MOD.<br/>Porfavor verifica la configuración e intentalo de nuevo."
 
-#: twp.py:538 twp.py:563 twp.py:597
-#, fuzzy
-msgid "Invalid Operation: Server not exists!"
-msgstr "Operación Inválida: Servidor no encontrado!"
-
-#: twp.py:584
+#: twp.py:668
 msgid "Undefined server binary file!!"
 msgstr "El ejecutable del servidor no está definido!!"
 
-#: twp.py:588
+#: twp.py:672
 msgid "Can't run two servers in the same port!"
 msgstr "No se pueden ejecutar dos servidores en el mismo puerto!"
 
-#: twp.py:611
+#: twp.py:695
 msgid "System failure: {0}"
 msgstr "Fallo del sistema: {0}"
 
-#: twp.py:615
+#: twp.py:699
 #, fuzzy
 msgid "Invalid Operation: Can't found server pid"
 msgstr "Operación Inválida: No se puede encontrar el 'pid' del servidor"
 
-#: twp.py:644
+#: twp.py:728
 msgid "Logfile not defined!"
 msgstr "Archivo de registro no definido!"
 
-#: twp.py:738 twp.py:758
+#: twp.py:822 twp.py:842
 #, fuzzy
 msgid "Invalid Operation: Server not found or econ not configured!"
 msgstr "Operación Inválida: Servidor no encontrado o 'econ' no configurado!"
 
-#: twp.py:746
+#: twp.py:830
 msgid "Client player not defined!"
 msgstr "Jugador no definido!"
 
-#: twp.py:754
+#: twp.py:838
 msgid "Can't found '{0}' player!"
 msgstr "No se puede encontrar al jugador '{0}'!"
 
-#: twp.py:825
+#: twp.py:909
 msgid "Undefined Chart!"
 msgstr "Gráfica no definida!"
 
-#: twp.py:835
+#: twp.py:919
 msgid "Error: Can't change admin password. Check settings and try again."
 msgstr ""
 "Error: No se puede camiar la contraseña de administrador. Verifica la "
 "configuración e intentalo de nuevo."
 
-#: twp.py:848
+#: twp.py:932
 msgid "Session timed out!"
 msgstr "La sesión ha expirado!"
 
-#: twp.py:903
+#: twp.py:987
 #, fuzzy
 msgid "Server binary not found"
 msgstr "No se han encontrado servidores!"
 
-#: twp.py:918
+#: twp.py:1002
 msgid "Server Offline"
 msgstr ""
+
+#: templates/banned.html:4
+msgid "User Banned"
+msgstr ""
+
+#: templates/banned.html:8
+#, fuzzy
+msgid "Session Banned: Can't join in this website! Fuck you :)"
+msgstr "Sesión baneada: No puedes logearte en esta página! Que te jodan :)"
 
 #: templates/index.html:2 templates/includes/nav.html:17
 msgid "Overview"
@@ -213,17 +238,18 @@ msgid "Server Name"
 msgstr "Nombre del Servidor"
 
 #: templates/index.html:54 templates/search.html:28 templates/server.html:55
-#: templates/servers.html:43
+#: templates/servers.html:43 twp/banner_generator.py:94
 msgid "Game Type"
 msgstr "Tipo de Juego"
 
-#: templates/index.html:55 templates/players.html:2 templates/search.html:58
-#: templates/server.html:24 templates/server.html:69
-#: templates/includes/nav.html:19
+#: templates/index.html:55 templates/index.html:71 templates/players.html:2
+#: templates/search.html:58 templates/server.html:24 templates/server.html:69
+#: templates/server.html:198 templates/includes/nav.html:19
+#: twp/banner_generator.py:92
 msgid "Players"
 msgstr "Jugadores"
 
-#: templates/index.html:56 templates/server.html:62
+#: templates/index.html:56 templates/server.html:62 twp/banner_generator.py:93
 msgid "Map"
 msgstr "Mapa"
 
@@ -239,8 +265,41 @@ msgstr "No se pueden encontrar servidor locales en el servidor maestro"
 msgid "Searching for local servers in master list..."
 msgstr "Buscando servidores locales en el servidor maestro..."
 
+#: templates/index.html:69
+msgid "Uptime:"
+msgstr ""
+
+#: templates/index.html:70
+msgid "day(s)"
+msgstr ""
+
+#: templates/index.html:72
+msgid "free"
+msgstr ""
+
 #: templates/layout.html:40
 msgid "Proudly hosted on"
+msgstr ""
+
+#: templates/layout.html:51
+msgid "The session has expired"
+msgstr ""
+
+#: templates/layout.html:52
+#, fuzzy
+msgid "Session Expired!"
+msgstr "La sesión ha expirado!"
+
+#: templates/layout.html:53
+msgid "Interal error has ocurred!"
+msgstr ""
+
+#: templates/layout.html:54
+msgid "Error - Ooops!"
+msgstr ""
+
+#: templates/layout.html:55
+msgid "Damn"
 msgstr ""
 
 #: templates/log.html:2
@@ -290,7 +349,7 @@ msgid "Updated every minute"
 msgstr "Actualizado cada minuto"
 
 #: templates/players.html:20 templates/search.html:62 templates/server.html:124
-#: templates/includes/modal_instance_configuration.html:41
+#: templates/includes/modal_instance_configuration.html:40
 msgid "Name"
 msgstr "Nombre"
 
@@ -320,18 +379,22 @@ msgid "Port"
 msgstr "Puerto"
 
 #: templates/search.html:36 templates/servers.html:51
+#: templates/servers.html:133
 msgid "Not Register Server"
 msgstr "Servidor No Registrado"
 
 #: templates/search.html:36 templates/servers.html:51
+#: templates/servers.html:134
 msgid "Register Server"
 msgstr "Servidor Registrado"
 
 #: templates/search.html:37 templates/servers.html:52
+#: templates/servers.html:131
 msgid "Public Server"
 msgstr "Servidor Público"
 
 #: templates/search.html:37 templates/servers.html:52
+#: templates/servers.html:132
 msgid "Private Server"
 msgstr "Servidor Privado"
 
@@ -372,7 +435,7 @@ msgstr "Desconectado"
 msgid "Address"
 msgstr "Dirección"
 
-#: templates/server.html:76
+#: templates/server.html:76 twp/banner_generator.py:96
 msgid "Visible"
 msgstr "Visible"
 
@@ -386,7 +449,7 @@ msgstr "Si"
 msgid "No"
 msgstr "No"
 
-#: templates/server.html:83
+#: templates/server.html:83 twp/banner_generator.py:95
 msgid "Public"
 msgstr "Público"
 
@@ -414,9 +477,13 @@ msgstr "Kick"
 msgid "Ban"
 msgstr "Ban"
 
-#: templates/server.html:154 twp/banner_generator.py:95
+#: templates/server.html:154 twp/banner_generator.py:99
 msgid "SERVER OFFLINE"
 msgstr "SERVIDOR DESCONECTADO"
+
+#: templates/server.html:199
+msgid "Unknown"
+msgstr ""
 
 #: templates/servers.html:11
 msgid "Install Mod"
@@ -442,7 +509,7 @@ msgstr "Borrar Mod"
 msgid "Config"
 msgstr "Configuración"
 
-#: templates/servers.html:65
+#: templates/servers.html:65 templates/servers.html:136
 msgid "Start"
 msgstr "Iniciar"
 
@@ -469,6 +536,79 @@ msgstr "Ninguna instancia definida!"
 #: templates/servers.html:105
 msgid "No servers found!"
 msgstr "No se han encontrado servidores!"
+
+#: templates/servers.html:119
+msgid "Installing"
+msgstr ""
+
+#: templates/servers.html:120
+msgid "Uploading"
+msgstr ""
+
+#: templates/servers.html:121
+msgid "Unexpected error!"
+msgstr ""
+
+#: templates/servers.html:122
+msgid "PLEASE WAIT..."
+msgstr ""
+
+#: templates/servers.html:123
+msgid "URL to .zip or .tar.gz Teeworlds Package:"
+msgstr ""
+
+#: templates/servers.html:124
+msgid "Installing..."
+msgstr ""
+
+#: templates/servers.html:125
+msgid "Are you sure?"
+msgstr ""
+
+#: templates/servers.html:126
+#, fuzzy
+msgid "Delete configuration file from disk."
+msgstr "El nombre del archivo de configuración no es válido."
+
+#: templates/servers.html:127
+msgid "Delete"
+msgstr ""
+
+#: templates/servers.html:128
+#, fuzzy
+msgid "Server Instance"
+msgstr "Crear instancia"
+
+#: templates/servers.html:129
+msgid "Sending..."
+msgstr ""
+
+#: templates/servers.html:130
+#: templates/includes/modal_instance_configuration.html:6
+msgid "Instance Configuration"
+msgstr "Configuración de la Instancia"
+
+#: templates/servers.html:135
+msgid "Starting..."
+msgstr ""
+
+#: templates/servers.html:137
+msgid "This can't be canceled and erase all mod data on the disk!!"
+msgstr ""
+
+#: templates/servers.html:138
+#, fuzzy
+msgid "Remove"
+msgstr "Borrar Mod"
+
+#: templates/servers.html:139
+msgid "Cancel"
+msgstr ""
+
+#: templates/servers.html:140
+#, fuzzy
+msgid "Remove Map"
+msgstr "Borrar Mod"
 
 #: templates/settings.html:2 templates/settings.html:8
 #: templates/includes/nav.html:36
@@ -550,24 +690,20 @@ msgstr "Enviar"
 msgid "Close"
 msgstr "Cerrar"
 
-#: templates/includes/modal_instance_configuration.html:6
-msgid "Instance Configuration"
-msgstr "Configuración de la Instancia"
-
-#: templates/includes/modal_instance_configuration.html:13
+#: templates/includes/modal_instance_configuration.html:12
 msgid "Auto-Launch if offline:"
 msgstr "Auto-Lanzar si desconectado"
 
-#: templates/includes/modal_instance_configuration.html:18
+#: templates/includes/modal_instance_configuration.html:16
 msgid "Wizard"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:19
+#: templates/includes/modal_instance_configuration.html:17
 #: templates/includes/nav.html:20
 msgid "Maps"
 msgstr "Mapas"
 
-#: templates/includes/modal_instance_configuration.html:20
+#: templates/includes/modal_instance_configuration.html:18
 msgid "Advance"
 msgstr ""
 
@@ -575,11 +711,7 @@ msgstr ""
 msgid "Upload Maps"
 msgstr ""
 
-#: templates/includes/modal_instance_configuration.html:33
-msgid "Default Map:"
-msgstr ""
-
-#: templates/includes/modal_instance_configuration.html:42
+#: templates/includes/modal_instance_configuration.html:41
 msgid "Size"
 msgstr ""
 
@@ -674,4 +806,7 @@ msgstr "Sección"
 
 #~ msgid "Sing In"
 #~ msgstr "Entrar"
+
+#~ msgid "Default Map:"
+#~ msgstr ""
 

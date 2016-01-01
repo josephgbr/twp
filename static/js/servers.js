@@ -250,11 +250,23 @@ $(function(){
 	});
 	// Select map
 	$(document).on("change", ".check_map", function() {
-		var maps = new Array();
-		$("input[name=map_used]:checked").each(function(){ maps.push($(this).data('map')); });
+		update_advance_config_maps();
+	});
+	
+	// Remove Map
+	$(document).on("click", ".remove-map", function(){
+		var map = $(this).data("map");
+		var srvid = $('#form-server-config #srvid').val();
 		
-		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length > 0)?maps[0]:undefined);
-		update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);
+		$.post($SCRIPT_ROOT+'/_remove_map/'+srvid, 'map='+map, function(data){
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				$("tr#row-"+map).remove();
+				update_advance_config_maps();
+			}
+		});
 	});
 	
 	// Change wizard value
@@ -397,7 +409,8 @@ function refresh_server_maps_list(srvid)
     var maps_str = get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation");
     if (maps_str)
     	maps = maps_str.split(" ");
-    maps.push(get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_map"));
+    
+    	maps.push(get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_map"));
     
 	    $.post($SCRIPT_ROOT + '/_get_server_maps/'+srvid, '', function(data) {
     	 check_server_data(data);
@@ -408,9 +421,77 @@ function refresh_server_maps_list(srvid)
 	    	 for (var i in data['maps'])
 	    	 { 
 	    		 var mapSelected = maps.indexOf(data['maps'][i].name)>=0;
-	    		 var row = "<tr id='row-"+data['maps'][i].name+"'><td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td><td>"+data['maps'][i].name+"</td><td>"+data['maps'][i].size+"</td></tr>";
+	    		 var row = "<tr id='row-"+data['maps'][i].name+"'>";
+	    		 row += "<td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td>";
+	    		 row += "<td>"+data['maps'][i].name+"</td>";
+	    		 row += "<td>"+data['maps'][i].size+"</td>";
+	    		 row += "<td class='text-right'><a class='remove-map btn btn-xs' data-map='"+data['maps'][i].name+"' href='#' title='"+$BABEL_STR_REMOVE_MAP+"'><i class='fa fa-remove'></i></a></td>";
+	    		 row += "</tr>";
 	    		 $("#maplist").append(row);
 	    	 }
     	 }
     });
+}
+
+function generate_wizard($wizard, srvid)
+{
+	$.getJSON($SCRIPT_ROOT+'/static/js/base_conf.json', function(data){
+		$.post($SCRIPT_ROOT+'/_get_mod_wizard_config/'+srvid, '', function(mdata){
+			check_server_data(mdata);
+			
+			var mcfg = data;
+			if (mdata['success'] && mdata['config'])
+				$.extend(true, mcfg, data, $.parseJSON(mdata['config']));
+				
+			var html = "";
+			
+			// Create Menu
+			html += "<ul id='simple-tabs' class='nav nav-pills nav-justified' role='tablist'>";
+			$.each(mcfg, function(section, variables){
+				html += "<li><a href='#"+section.replace(" ","_")+"' data-toggle='tab'>"+section+"</a></li>";
+			});
+			html += "</ul>";
+			
+			// Fill Panels
+			html += "<div class='tab-content' style='margin-top:1.5em;'>";
+			$.each(mcfg, function(section, variables){		  	
+				html += "<div class='tab-pane' id='"+section.replace(" ","_")+"' style='overflow:auto; height:220px;'>";
+				$.each(variables, function(key, val){
+					var rval = get_config_value_textarea($("#modal_instance_configuration #srvcfg"), key);
+					if (!rval)
+						rval = val.default;
+					
+					if ("select" === val.type)
+					{					
+						html += "<label for='"+key+"'>"+val.label+"</label>";
+						html += "<select id='"+key+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
+						for (var i in val.values)
+							html += "<option value='"+val.values[i]+"' "+(val.values[i]==rval?'selected':'')+">"+val.values[i]+"</option>";
+						html += "</select>"
+					}
+					else if ("checkbox" === val.type)
+						html += "<input class='wizard-param' id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1===rval?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+					else
+					{
+						html += "<label for='"+key+"'>"+val.label+"</label>";
+						html += "<input id='"+key+"' type="+val.type+" value='"+(rval?rval:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"' />";
+					}
+				});
+				html += "</div>";
+			});
+			html += "</div>";
+			
+			$wizard.html(html);
+			$('#simple-tabs a:first').tab('show');
+		});
+	});
+}
+
+function update_advance_config_maps()
+{
+	var maps = new Array();
+	$("input[name=map_used]:checked").each(function(){ maps.push($(this).data('map')); });
+	
+	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length > 0)?maps[0]:undefined);
+	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);	
 }
