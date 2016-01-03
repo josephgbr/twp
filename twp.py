@@ -17,7 +17,7 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
-import twp
+import twpl
 import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil, binascii
 from io import BytesIO
 from datetime import datetime
@@ -26,7 +26,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from flask.ext.babel import Babel, _, refresh; refresh()
-from twp import BannedList, BannerGenerator
+from twpl import BannedList, BannerGenerator
 from os import urandom
 try:
     import configparser
@@ -77,7 +77,7 @@ SCHEDULER_EXECUTORS = {
 JOBS = [
     {
         'id': 'analyze_all_server_instances',
-        'func': '__main__:analyze_all_server_instances',
+        'func': 'twp:analyze_all_server_instances',
         'trigger': {
             'type': 'cron',
             'second': 30 # minimal time lapse: 1 min
@@ -85,9 +85,9 @@ JOBS = [
     }
 ]
 BABEL_DEFAULT_LOCALE = 'en'
-SUPPORT_LANGUAGES = twp.get_support_languages()
+SUPPORT_LANGUAGES = twpl.get_support_languages()
 
-IP = twp.get_public_ip();
+IP = twpl.get_public_ip();
 
 
 # Try create server directory if needed
@@ -173,7 +173,7 @@ def get_timezone():
 @app.route("/overview", methods=['GET'])
 def overview():
     session['prev_url'] = request.path;
-    return render_template('index.html', twp=TWP_INFO, dist=twp.get_linux_distribution(), ip=IP)
+    return render_template('index.html', twp=TWP_INFO, dist=twpl.get_linux_distribution(), ip=IP)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -230,18 +230,18 @@ def servers():
     session['prev_url'] = request.path;
     # By default all server are offline
     g.db.execute("UPDATE servers SET status='Stopped'")
-    netstat = twp.netstat()
+    netstat = twpl.netstat()
     for conn in netstat:
         if not conn[2]:
             continue
         (rest,base_folder,bin) = conn[2].rsplit('/', 2)
         srv = query_db('select rowid,* from servers where port=? and base_folder=? and bin=?', [conn[0],base_folder,bin], one=True)
         if srv:
-            net_server_info = twp.get_server_net_info("127.0.0.1", [srv])[0]
+            net_server_info = twpl.get_server_net_info("127.0.0.1", [srv])[0]
             g.db.execute("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
                          [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
     g.db.commit()
-    return render_template('servers.html', twp=TWP_INFO, servers=twp.get_local_servers(SERVERS_BASEPATH))
+    return render_template('servers.html', twp=TWP_INFO, servers=twpl.get_local_servers(SERVERS_BASEPATH))
     
 @app.route('/server/<int:id>', methods=['GET'])
 def server(id):
@@ -251,7 +251,7 @@ def server(id):
     issues_count = query_db('select count(rowid) as num from issues where server_id=?', [id], one=True)
     netinfo = None
     if srv:
-        netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+        netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
     return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count['num'])
@@ -260,19 +260,19 @@ def server(id):
 def generate_server_banner(id):
     srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
     if srv:
-        netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+        netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
         banner_image = BannerGenerator((600, 40), srv, netinfo)
         
         if 'title' in request.values:
-            banner_image.titleColor = twp.HTMLColorToRGBA(request.values.get('title'))
+            banner_image.titleColor = twpl.HTMLColorToRGBA(request.values.get('title'))
         if 'detail' in request.values:
-            banner_image.detailColor = twp.HTMLColorToRGBA(request.values.get('detail'))
+            banner_image.detailColor = twpl.HTMLColorToRGBA(request.values.get('detail'))
         if 'address' in request.values:
-            banner_image.addressColor = twp.HTMLColorToRGBA(request.values.get('address'))
+            banner_image.addressColor = twpl.HTMLColorToRGBA(request.values.get('address'))
         if 'grads' in request.values:
-            banner_image.gradStartColor = twp.HTMLColorToRGBA(request.values.get('grads'))
+            banner_image.gradStartColor = twpl.HTMLColorToRGBA(request.values.get('grads'))
         if 'grade' in request.values:
-            banner_image.gradEndColor = twp.HTMLColorToRGBA(request.values.get('grade'))
+            banner_image.gradEndColor = twpl.HTMLColorToRGBA(request.values.get('grade'))
         
         return send_file(banner_image.generate(IP),
                      attachment_filename="server_banner.png",
@@ -308,7 +308,7 @@ def install_mod():
     if 'logged_in' in session and session['logged_in']:
         if 'url' in request.form and not request.form['url'] == '':
             try:
-                twp.install_mod_from_url(request.form['url'], SERVERS_BASEPATH)
+                twpl.install_mod_from_url(request.form['url'], SERVERS_BASEPATH)
             except Exception as e:
                 flash(_("Error: %s") % str(e), 'danger')
             else:
@@ -321,9 +321,9 @@ def install_mod():
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                     fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
                     if filename.endswith(".tar.gz"):
-                        twp.extract_targz(fullpath, SERVERS_BASEPATH, True)
+                        twpl.extract_targz(fullpath, SERVERS_BASEPATH, True)
                     elif filename.endswith(".zip"):
-                        twp.extract_zip(fullpath, SERVERS_BASEPATH, True)
+                        twpl.extract_zip(fullpath, SERVERS_BASEPATH, True)
                     flash(_('Mod installed successfully'), 'info')
                     return redirect(current_url)
                 else:
@@ -357,7 +357,7 @@ def log(id, code, name):
         else:
             dt = datetime.fromtimestamp(time.mktime(time.localtime(int(code, 16))))
             logdate = dt.strftime("%d-%m-%Y %H:%M:%S")
-            netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+            netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
     return render_template('log.html', twp=TWP_INFO, ip=IP, server=srv, logcode=code, logname=name, logdate=logdate)
@@ -377,9 +377,9 @@ def upload_maps(id):
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                     fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
                     if filename.endswith(".tar.gz"):
-                        twp.extract_targz(fullpath, download_folder, True)
+                        twpl.extract_targz(fullpath, download_folder, True)
                     elif filename.endswith(".zip"):
-                        twp.extract_zip(fullpath, download_folder, True)
+                        twpl.extract_zip(fullpath, download_folder, True)
                     elif filename.endswith(".map"):
                         try:
                             fullpath_download = r'%s/%s' % (download_folder, filename)
@@ -434,34 +434,34 @@ def remove_mod():
 @app.route('/_refresh_cpu_host', methods=['POST'])
 def refresh_cpu_host():
     if 'logged_in' in session and session['logged_in']:
-        return twp.host_cpu_percent()
+        return twpl.host_cpu_percent()
     return jsonify({})
 
 @app.route('/_refresh_uptime_host', methods=['POST'])
 def refresh_uptime_host():
     if 'logged_in' in session and session['logged_in']:
-        return jsonify(twp.host_uptime())
+        return jsonify(twpl.host_uptime())
     return jsonify({})
 
 @app.route('/_refresh_disk_host', methods=['POST'])
 def refresh_disk_host():
     if 'logged_in' in session and session['logged_in']:
-        return jsonify(twp.host_disk_usage(partition=config.get('overview', 'partition')))
+        return jsonify(twpl.host_disk_usage(partition=config.get('overview', 'partition')))
     return jsonify({})
 
 @app.route('/_refresh_memory_host', methods=['POST'])
 def refresh_memory_containers():
     if 'logged_in' in session and session['logged_in']:
-        return jsonify(twp.host_memory_usage())
+        return jsonify(twpl.host_memory_usage())
     return jsonify({})
 
 @app.route('/_refresh_host_localtime', methods=['POST'])
 def refresh_host_localtime():
-    return jsonify(twp.host_localtime())
+    return jsonify(twpl.host_localtime())
 
 @app.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
-    return jsonify(twp.get_tw_masterserver_list(IP))
+    return jsonify(twpl.get_tw_masterserver_list(IP))
 
 @app.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
 def create_server_instance(mod_folder):
@@ -475,7 +475,7 @@ def create_server_instance(mod_folder):
         
         # Search for mod binaries, if only exists one use it
         bin = None
-        srv_bins = twp.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
+        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
         if len(srv_bins) == 1:
             bin = srv_bins[0]
         
@@ -485,7 +485,7 @@ def create_server_instance(mod_folder):
             return jsonify({'error':True, 
                             'errormsg':_("Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again.")})
                     
-        cfgbasic = twp.get_data_config_basics(fullpath_fileconfig)
+        cfgbasic = twpl.get_data_config_basics(fullpath_fileconfig)
         
         # Check if the logfile are be using by other server with the same base_folder
         srvMatch = query_db('select rowid from servers where base_folder=? and logfile=?', [mod_folder, cfgbasic['logfile']], one=True)
@@ -510,10 +510,10 @@ def create_server_instance(mod_folder):
         try:
             if cfgbasic['name'] == 'unnamed server':
                 cfgbasic['name'] = "Server created with Teeworlds Web Panel"
-                twp.write_config_param(fullpath_fileconfig, "sv_name", cfgbasic['name'])
+                twpl.write_config_param(fullpath_fileconfig, "sv_name", cfgbasic['name'])
             if not fport == int(cfgbasic['port']):
                 cfgbasic['port'] = str(fport)
-                twp.write_config_param(fullpath_fileconfig, "sv_port", cfgbasic['port'])
+                twpl.write_config_param(fullpath_fileconfig, "sv_port", cfgbasic['port'])
         except Exception, e:
              return jsonify({'error':True, 'errormsg':str(e)})
             
@@ -550,7 +550,7 @@ def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
         srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
         # Check that is a correct binary name (exists in mod folder)
-        srv_bins = twp.get_mod_binaries(SERVERS_BASEPATH, srv['base_folder'])
+        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, srv['base_folder'])
         if binfile in srv_bins:
             g.db.execute("UPDATE servers SET bin=? WHERE rowid=?", [binfile, id])
             g.db.commit()
@@ -567,7 +567,7 @@ def save_server_config():
         srvcfg = request.form['srvcfg'];
         srv = query_db('select fileconfig,base_folder from servers where rowid=?', [srvid], one=True)
         if srv:
-            cfgbasic = twp.parse_data_config_basics(srvcfg)
+            cfgbasic = twpl.parse_data_config_basics(srvcfg)
             
             srvMatch = query_db('select rowid from servers where base_folder=? and port=? and rowid<>?',
                                 [srv['base_folder'], cfgbasic['port'], srvid], one=True)
@@ -627,7 +627,7 @@ def get_server_maps(id):
         srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
         if srv:            
             ## Maps
-            maps = twp.get_mod_maps(SERVERS_BASEPATH, srv['base_folder'])
+            maps = twpl.get_mod_maps(SERVERS_BASEPATH, srv['base_folder'])
             return jsonify({'success':True, 'maps':maps})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
@@ -636,7 +636,7 @@ def get_server_maps(id):
 def get_mod_configs(mod_folder):
     if 'logged_in' in session and session['logged_in']:
         jsoncfgs = {'configs':[]}
-        cfgs = twp.get_mod_configs(SERVERS_BASEPATH, mod_folder)
+        cfgs = twpl.get_mod_configs(SERVERS_BASEPATH, mod_folder)
         for config in cfgs:
             srv = query_db('select rowid from servers where fileconfig=? and base_folder=?', [config,mod_folder], one=True)
             if not srv:
@@ -686,7 +686,7 @@ def stop_server(id):
     if 'logged_in' in session and session['logged_in']:
         server = query_db("SELECT port,base_folder,bin FROM servers WHERE rowid=?", [id], one=True)
         if server:
-            netstat = twp.netstat()
+            netstat = twpl.netstat()
             for conn in netstat:
                 if conn[0] == server['port'] and conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                     try:
@@ -815,7 +815,7 @@ def send_econ_command():
             econ_cmd = request.form['cmd']
             rcv = ''
             try:
-                rcv = twp.send_econ_command(int(srv['econ_port']), srv['econ_password'], econ_cmd)
+                rcv = twpl.send_econ_command(int(srv['econ_port']), srv['econ_password'], econ_cmd)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
@@ -834,7 +834,7 @@ def kick_ban_player(id):
             nick = request.form['nick']
             action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
             try:
-                if not twp.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
+                if not twpl.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
@@ -941,7 +941,7 @@ def utility_processor():
         servers = query_db('select rowid,* from servers where base_folder=?', [mod_folder])
         return servers
     def get_mod_binaries(mod_folder):
-        return twp.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
+        return twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
     return dict(get_mod_instances=get_mod_instances, 
                 get_mod_binaries=get_mod_binaries)
 
@@ -957,7 +957,7 @@ def analyze_all_server_instances():
     g.db.execute("UPDATE servers SET status='Stopped'")
     
     # Check Server & Player Status
-    netstat = twp.netstat()
+    netstat = twpl.netstat()
     for conn in netstat:
         if not conn[2]:
             continue
@@ -967,7 +967,7 @@ def analyze_all_server_instances():
             srv = query_db("SELECT rowid,* FROM servers WHERE port=? AND base_folder=? AND bin=?", [conn[0], base_folder, bin], one=True)
             if srv:
                 g.db.execute("UPDATE servers set status='Running' where rowid=?", [srv['rowid']])
-                netinfo = twp.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+                netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
                 for player in netinfo.playerlist:
                     g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now', 'localtime'))",
                                 [srv['rowid'], player.name, player.clan, player.country])
@@ -1018,7 +1018,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
            
 def shutdown_all_server_instances():
-    netstat = twp.netstat()
+    netstat = twpl.netstat()
     for conn in netstat:
         servers = query_db("SELECT base_folder,bin FROM servers WHERE port=?", [conn[0]])
         for srv in servers:
