@@ -46,4 +46,4 @@ dependencies:
 test:
   override:
     - |
-        python twp.py
+        python test.py
