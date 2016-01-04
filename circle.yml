@@ -1,9 +1,3 @@
-dependencies:
-  pre:
-    - sudo apt-get update
-    - sudo apt-get install -y gcc python python-dev python-pip git libjpeg-dev zlib1g-dev
-
-## Customize test commands
 test:
   override:
     - python test.py
