@@ -19,6 +19,7 @@
 # UNIT TEST
 
 import os
+import shutil
 import twp
 import unittest
 import tempfile
@@ -31,22 +32,26 @@ class TWPTestCase(unittest.TestCase):
             password=password
         ), follow_redirects=True)
     
-    def logout(self):
-        return self.app.get('/logout', follow_redirects=True)
-    
     def setUp(self):
         self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
         twp.app.config['TESTING'] = True
+        twp.SERVERS_BASEPATH = "/tmp"
         self.app = twp.app.test_client()
         twp.init_db()
 
     def tearDown(self):
         os.close(self.db_fd)
         
-    def test_login_logout(self):
-        rv = self.login('admin', 'admin')
-        assert 'You are logged in!' in rv.data
-        rv = self.logout()
+    def test_login_security(self):
+        rv = self.login('1234', '1234')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('12345', '12345')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('123456', '123456')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('1234567', '1234567')
+        assert 'Banned' in rv.data
+
 
 if __name__ == '__main__':
     unittest.main()

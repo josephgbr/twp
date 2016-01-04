@@ -1,3 +1,4 @@
 test:
   override:
-    - python test.py
+    - python test_login_security.py
+    - python test_app.py

@@ -68,10 +68,12 @@
 							        <span class="caret"></span>
 							    </a>
 							    <ul class="dropdown-menu" data-id="{{mod_inst.rowid}}">
-							    	{% for bin in server_bins %}
-							    	<li class="{% if mod_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
-							    	{% endfor %}
-							    	{% if server_bins == [] %}
+							    	{% if not server_bins == None %}
+							    		{% for bin in server_bins %}
+							    		<li class="{% if mod_inst.bin == bin %}active{% endif %}"><a href="#" class="menu-item-server-bin">{{bin}}</a></li>
+							    		{% endfor %}
+							    	{% endif %}
+							    	{% if server_bins == None or server_bins == [] %}
 							    	<li class="text-center text-muted bg-warning"><i class="fa fa-warning"></i> {{ _('No binaries found!') }}</li>
 							    	{% endif %}
 							    </ul>

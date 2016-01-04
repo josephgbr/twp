@@ -484,7 +484,7 @@ def create_server_instance(mod_folder):
         # Search for mod binaries, if only exists one use it
         bin = None
         srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
-        if len(srv_bins) == 1:
+        if srv_bins and len(srv_bins) == 1:
             bin = srv_bins[0]
         
         # Check if other server are using the same configuration file
@@ -559,7 +559,7 @@ def set_server_binary(id, binfile):
         srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
         # Check that is a correct binary name (exists in mod folder)
         srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, srv['base_folder'])
-        if binfile in srv_bins:
+        if not srv_bins == None and binfile in srv_bins:
             g.db.execute("UPDATE servers SET bin=? WHERE rowid=?", [binfile, id])
             g.db.commit()
             return jsonify({'success':True})
