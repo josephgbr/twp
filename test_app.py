@@ -38,15 +38,16 @@ class TWPTestCase(unittest.TestCase):
     def setUp(self):
         self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
         twp.app.config['TESTING'] = True
-        twp.SERVERS_BASEPATH = "/tmp"
+        twp.SERVERS_BASEPATH = "/tmp/twp_test"
+        os.mkdir(twp.SERVERS_BASEPATH)
         self.test_server_folder = r'%s/twsrv' % twp.SERVERS_BASEPATH
         self.app = twp.app.test_client()
         twp.init_db()
 
     def tearDown(self):
         os.close(self.db_fd)
-        if os.path.isdir(self.test_server_folder):
-            shutil.rmtree(self.test_server_folder)
+        if os.path.isdir(twp.SERVERS_BASEPATH):
+            shutil.rmtree(twp.SERVERS_BASEPATH)
         
     def test_login_logout(self):
         rv = self.login('admin', 'admin')
