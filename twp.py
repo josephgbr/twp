@@ -58,7 +58,6 @@ PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
 DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
-SERVERS_BASEPATH = r'%s/%s' % (os.getcwd(), SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 UPLOAD_FOLDER = '/tmp/'
 MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
@@ -104,6 +103,8 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 babel = Babel(app)
 
+# Check Servers path
+SERVERS_BASEPATH = r'%s/%s' % (app.root_path, SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 
 # SQLite
 def connect_db():
@@ -121,6 +122,13 @@ def query_db(query, args=(), one=False):
     rv = [dict((cur.description[idx][0], value)
           for idx, value in enumerate(row)) for row in cur.fetchall()]
     return (rv[0] if rv else None) if one else rv
+
+def init_db():
+    """Initializes the database."""
+    db = connect_db()
+    with app.open_resource('schema.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
 
 
 # App Callbacks
@@ -1043,6 +1051,7 @@ scheduler.start()
 
 # Init Module
 if __name__ == "__main__":
+    init_db()
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)
