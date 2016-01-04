@@ -35,11 +35,13 @@ class TWPTestCase(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
     
     def setUp(self):
+        self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
         twp.app.config['TESTING'] = True
         self.app = twp.app.test_client()
+        twp.init_db()
 
-    #def tearDown(self):
-        #os.close(self.db_fd)
+    def tearDown(self):
+        os.close(self.db_fd)
         
     def test_login_logout(self):
         rv = self.login('admin', 'admin')
