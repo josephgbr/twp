@@ -141,7 +141,7 @@ function update_config_textarea($ta, param, new_value)
         var objMatch = lines[i].match(/^([^#\s]+)\s([^#\r\n]+)/);
         if (objMatch && param.toLowerCase() === objMatch[1].toLowerCase())
         {
-        	if (new_value)
+        	if (typeof new_value !== undefined)
         		nvalue += param+" "+new_value+"\n";
             replaced = true;
         }
@@ -149,7 +149,7 @@ function update_config_textarea($ta, param, new_value)
         	nvalue += lines[i]+"\n";
 	}
 	
-    if (!replaced && new_value)
+    if (!replaced && typeof new_value !== undefined)
     	nvalue += param+" "+new_value+"\n";
     
     $ta.val(nvalue);

@@ -272,7 +272,10 @@ $(function(){
 	// Change wizard value
 	$(document).on("change", ".wizard-param", function() {
 		var $this = $(this);
-		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), $this.val());
+		var value = $this.val();
+		if ($this.is("input") && "checkbox" === $this.prop("type"))
+			value = $this.prop('checked')?1:0;
+		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), value);
 	});
 	
 	// Select re-launch if offline
@@ -470,7 +473,9 @@ function generate_wizard($wizard, srvid)
 						html += "</select>"
 					}
 					else if ("checkbox" === val.type)
-						html += "<input class='wizard-param' id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1===rval?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+					{
+						html += "<input class='wizard-param' id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1==rval?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+					}
 					else
 					{
 						html += "<label for='"+key+"'>"+val.label+"</label>";
