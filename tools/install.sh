@@ -67,27 +67,6 @@ hash pip &> /dev/null || {
 	apt-get install -y python-pip 1> /dev/null
 }
 
-python -c 'import flask' &> /dev/null || {
-	echo '| + Flask Python...'
-	pip install flask==0.10.1 1> /dev/null
-}
-
-python -c 'import flask_apscheduler' &> /dev/null || {
-	echo '| + Flask-APScheduler Python...'
-	pip install Flask-APScheduler==1.3.3 1> /dev/null
-}
-
-python -c 'import flask.ext.babel' &> /dev/null || {
-	echo '| + Flask-Babel Python...'
-	pip install Flask-Babel==0.9 1> /dev/null
-}
-
-python -c 'import PIL' &> /dev/null || {
-	echo '| + Pillow Python...'
-	pip install Pillow==3.0.0 1> /dev/null
-}
-
-
 echo 'Cloning Teeworlds Web Panel...'
 hash git &> /dev/null || {
 	echo '+ Installing Git'
@@ -96,6 +75,9 @@ hash git &> /dev/null || {
 
 git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 chown -R "$INSTALL_USER":"$INSTALL_USER" "$INSTALL_DIR"
+
+echo 'Installing dependencies...'
+pip install -r "$INSTALL_DIR/requirements.txt" 1> /dev/null
 
 echo -e '\nInstallation complete!\n\n'
 
@@ -168,7 +150,7 @@ exit 0
 EOF
 
 chmod +x '/etc/init.d/twp'
-update-rc.d twp defaults &> /dev/null
+update-rc.d twp defaults 1> /dev/null
 echo -e 'Done\n'
 /etc/init.d/twp start
 

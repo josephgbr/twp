@@ -55,30 +55,13 @@ hash pip &> /dev/null || {
 	apt-get install -y python-pip 1> /dev/null
 }
 
-python -c 'import flask' &> /dev/null || {
-	echo '| + Flask Python...'
-	pip install flask==0.10.1 1> /dev/null
-}
-
-python -c 'import flask_apscheduler' &> /dev/null || {
-	echo '| + Flask-APScheduler Python...'
-	pip install Flask-APScheduler==1.3.3 1> /dev/null
-}
-
-python -c 'import flask.ext.babel' &> /dev/null || {
-	echo '| + Flask-Babel Python...'
-	pip install Flask-Babel==0.9 1> /dev/null
-}
-
-python -c 'import PIL' &> /dev/null || {
-	echo '| + Pillow Python...'
-	pip install Pillow==3.0.0 1> /dev/null
-}
-
 tmp=$(mktemp -d)
 
 echo 'Backuping database...'
 [[ -f "$INSTALL_DIR/twp.db" ]] && cp "$INSTALL_DIR/twp.db" "$tmp" || echo "Can't backup the database!"
+
+echo 'Backuping servers...'
+[[ -d "$INSTALL_DIR/servers" ]] && cp -r "$INSTALL_DIR/servers" "$tmp" || echo "Not needed"
 
 echo 'Removing old version...'
 rm -r $INSTALL_DIR 1> /dev/null
@@ -91,6 +74,9 @@ cp "$tmp/twp.db" "$INSTALL_DIR/twp.db"
 rm -R "$tmp"
 
 chown -R $INSTALL_USER:$INSTALL_USER $INSTALL_DIR
+
+echo 'Installing dependencies...'
+pip install -r "$INSTALL_DIR/requirements.txt" 1> /dev/null
 
 /etc/init.d/twp start
 
