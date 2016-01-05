@@ -4,11 +4,11 @@
 .settings/*
 servers/
 
+twp.conf
+
 *.pot
 *.log
 *.pyc
 *.save
 *.db
 .*~
-
-twp.conf
