@@ -71,6 +71,10 @@ git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 
 echo 'Restore database...'
 cp "$tmp/twp.db" "$INSTALL_DIR/twp.db"
+
+echo 'Restore servers...'
+[[ -d "$tmp/servers" ]] && cp -r "$tmp/servers" "$INSTALL_DIR"
+
 rm -R "$tmp"
 
 chown -R $INSTALL_USER:$INSTALL_USER $INSTALL_DIR
