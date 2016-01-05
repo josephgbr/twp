@@ -4,8 +4,7 @@
 .settings/*
 servers/
 
-twp.conf
-
+*.conf
 *.pot
 *.log
 *.pyc
