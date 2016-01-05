@@ -77,7 +77,7 @@ git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 chown -R "$INSTALL_USER":"$INSTALL_USER" "$INSTALL_DIR"
 
 echo 'Installing dependencies...'
-pip install -r "$INSTALL_DIR/requirements.txt" 1> /dev/null
+pip install -r "$INSTALL_DIR/requirements.txt"
 
 echo -e '\nInstallation complete!\n\n'
 
