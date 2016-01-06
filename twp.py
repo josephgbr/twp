@@ -89,7 +89,6 @@ BABEL_DEFAULT_LOCALE = 'en'
 SUPPORT_LANGUAGES = twpl.get_support_languages()
 
 IP = twpl.get_public_ip();
-DEBUG = True
 
 
 # Try create server directory if needed
