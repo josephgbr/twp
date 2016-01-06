@@ -76,7 +76,7 @@ SCHEDULER_EXECUTORS = {
 JOBS = [
     {
         'id': 'analyze_all_server_instances',
-        'func': 'twp:analyze_all_server_instances',
+        'func': '__main__:analyze_all_server_instances',
         'trigger': {
             'type': 'cron',
             'second': 30 # minimal time lapse: 1 min
