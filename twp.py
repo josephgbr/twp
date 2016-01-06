@@ -32,6 +32,8 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+import logging
+logging.basicConfig()
 
 
 # Configuration
@@ -69,14 +71,14 @@ SSL = config.getboolean('global','ssl')
 PKEY = config.get('ssl','pkey')
 CERT = config.get('ssl','cert')
 SSL = False if not os.path.isfile(PKEY) or not os.path.isfile(CERT) else SSL
-SCHEDULER_VIEWS_ENABLED = True
+SCHEDULER_VIEWS_ENABLED = False
 SCHEDULER_EXECUTORS = {
     'default': {'type': 'threadpool', 'max_workers': 5}
 }
 JOBS = [
     {
         'id': 'analyze_all_server_instances',
-        'func': '__main__:analyze_all_server_instances',
+        'func': 'twp:analyze_all_server_instances',
         'trigger': {
             'type': 'cron',
             'second': 30 # minimal time lapse: 1 min
@@ -87,6 +89,7 @@ BABEL_DEFAULT_LOCALE = 'en'
 SUPPORT_LANGUAGES = twpl.get_support_languages()
 
 IP = twpl.get_public_ip();
+DEBUG = True
 
 
 # Try create server directory if needed
@@ -237,7 +240,7 @@ def banned():
 def servers():
     session['prev_url'] = request.path;
     # By default all server are offline
-    g.db.execute("UPDATE servers SET status='Stopped'")
+    query_db("UPDATE servers SET status='Stopped'")
     netstat = twpl.netstat()
     for conn in netstat:
         if not conn[2]:
@@ -246,7 +249,7 @@ def servers():
         srv = query_db('select rowid,* from servers where port=? and base_folder=? and bin=?', [conn[0],base_folder,bin], one=True)
         if srv:
             net_server_info = twpl.get_server_net_info("127.0.0.1", [srv])[0]
-            g.db.execute("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
+            query_db("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
                          [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
     g.db.commit()
     return render_template('servers.html', twp=TWP_INFO, servers=twpl.get_local_servers(SERVERS_BASEPATH))
@@ -956,66 +959,68 @@ def utility_processor():
 
 # Jobs
 def analyze_all_server_instances():
-    if not hasattr(g, 'db'):
+    with app.app_context():
+        if hasattr(g, 'db'):
+            g.db.close()
         g.db = connect_db()
-    
-    # By default all are offline
-    g.db.execute("UPDATE players SET status=0")
-    # By default all servers are offline
-    g.db.execute("UPDATE servers SET status='Stopped'")
-    
-    # Check Server & Player Status
-    netstat = twpl.netstat()
-    for conn in netstat:
-        if not conn[2]:
-            continue
-        objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
-        if objMatch:
-            (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
-            srv = query_db("SELECT rowid,* FROM servers WHERE port=? AND base_folder=? AND bin=?", [conn[0], base_folder, bin], one=True)
-            if srv:
-                g.db.execute("UPDATE servers set status='Running' where rowid=?", [srv['rowid']])
-                netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
-                for player in netinfo.playerlist:
-                    g.db.execute("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now', 'localtime'))",
-                                [srv['rowid'], player.name, player.clan, player.country])
-                    
-                    playerMatch = query_db('select * from players where lower(name)=?', [player.name.lower()], one=True)
-                    if not playerMatch:
-                        g.db.execute("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now', 'localtime'),datetime('now', 'localtime'),1)",
-                                     [player.name])
-                    else:
-                        g.db.execute("UPDATE players SET last_seen_date=datetime('now', 'localtime'), status=1 WHERE lower(name)=?",
-                                     [player.name.lower()])
-                    
-    # Reopen Offline Servers
-    servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1")
-    for server in servers:            
-        if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
-            g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", [server['rowid'], _('Server binary not found')])
-            continue
         
-        current_time_hex = hex(int(time.time())).split('x')[1]
-        logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, server['base_folder'])
-        log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['logfile'])
-        # Create logs folder if not exists
-        if not os.path.isdir(logs_folder):
-            os.makedirs(logs_folder)
-        # Move current log to logs folder
-        if os.path.isfile(log_file):
-            shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server['logfile']))
-        # Report issue
-        g.db.execute("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", 
-                     [server['rowid'], 
-                     "%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server['rowid'], current_time_hex, server['logfile'])])
-        # Open server
-        start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
-    
-    g.db.commit()
+        # By default all are offline
+        query_db("UPDATE players SET status=0")
+        # By default all servers are offline
+        query_db("UPDATE servers SET status='Stopped'")
+        
+        # Check Server & Player Status
+        netstat = twpl.netstat()
+        for conn in netstat:
+            if not conn[2]:
+                continue
+            objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
+            if objMatch:
+                (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
+                srv = query_db("SELECT rowid,* FROM servers WHERE port=? AND base_folder=? AND bin=?", [conn[0], base_folder, bin], one=True)
+                if srv:
+                    query_db("UPDATE servers set status='Running' where rowid=?", [srv['rowid']])
+                    netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+                    for player in netinfo.playerlist:
+                        query_db("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now', 'localtime'))",
+                                    [srv['rowid'], player.name, player.clan, player.country])
+                        
+                        playerMatch = query_db('select * from players where lower(name)=?', [player.name.lower()], one=True)
+                        if not playerMatch:
+                            query_db("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now', 'localtime'),datetime('now', 'localtime'),1)",
+                                         [player.name])
+                        else:
+                            query_db("UPDATE players SET last_seen_date=datetime('now', 'localtime'), status=1 WHERE lower(name)=?",
+                                         [player.name.lower()])
+                        
+        # Reopen Offline Servers
+        servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1")
+        for server in servers:            
+            if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
+                query_db("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", [server['rowid'], _('Server binary not found')])
+                continue
             
-    if hasattr(g, 'db'):
-        g.db.close()
-
+            current_time_hex = hex(int(time.time())).split('x')[1]
+            logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, server['base_folder'])
+            log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['logfile'])
+            # Create logs folder if not exists
+            if not os.path.isdir(logs_folder):
+                os.makedirs(logs_folder)
+            # Move current log to logs folder
+            if os.path.isfile(log_file):
+                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server['logfile']))
+            # Report issue
+            query_db("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", 
+                         [server['rowid'], 
+                         "%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server['rowid'], current_time_hex, server['logfile'])])
+            # Open server
+            start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
+        
+        g.db.commit()
+                
+        if hasattr(g, 'db'):
+            g.db.close()
+        
 
 # Tools
 def str_sha512_hex_encode(strIn):
@@ -1043,7 +1048,7 @@ def get_login_tries():
     return int(session.get('login_try')) if 'login_try' in session else 0
 
 
-# Start Scheduler
+# Init APScheduler
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()

@@ -25,10 +25,7 @@ from banned_list import BannedList
 from netstat import netstat
 from urllib import urlretrieve
 from banner_generator import BannerGenerator
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
+from urllib2 import urlopen, URLError
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
 def is_text_file(filename):
@@ -53,7 +50,7 @@ def is_text_file(filename):
 def get_public_ip():
     try:
         IP = urlopen('http://api.ipify.org').read()
-    except urllib2.URLError:
+    except URLError:
         IP = None
     return IP
 
