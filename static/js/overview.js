@@ -71,7 +71,7 @@ function mastersrv_servers(){
 			for (var i in data['servers'])
 			{
 				var row = "<tr>";
-				row += "<td>"+reg+"</td>";
+				row += "<td>"+i+"</td>";
 				row += "<td>"+data['servers'][i].name+"</td>";
 				row += "<td>"+data['servers'][i].gametype+"</td>";
 				row += "<td>"+data['servers'][i].players+"/"+data['servers'][i].max_players+"</td>";
