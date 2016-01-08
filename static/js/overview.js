@@ -68,14 +68,15 @@ function mastersrv_servers(){
 		{
 			var $table = $('#twmslist tbody');
 			var cont = 0;
-			for (reg in data['servers']) {
+			for (var i in data['servers'])
+			{
 				var row = "<tr>";
 				row += "<td>"+reg+"</td>";
-				row += "<td>"+data['servers'][reg].name+"</td>";
-				row += "<td>"+data['servers'][reg].gametype+"</td>";
-				row += "<td>"+data['servers'][reg].players+"/"+data['servers'][reg].max_players+"</td>";
-				row += "<td>"+data['servers'][reg].map+"</td>";
-				row += "<td class='text-right'>"+Math.round(data['servers'][reg].latency*1000)+"</td>";
+				row += "<td>"+data['servers'][i].name+"</td>";
+				row += "<td>"+data['servers'][i].gametype+"</td>";
+				row += "<td>"+data['servers'][i].players+"/"+data['servers'][i].max_players+"</td>";
+				row += "<td>"+data['servers'][i].map+"</td>";
+				row += "<td class='text-right'>"+Math.round(data['servers'][i].latency*1000)+"</td>";
 				row += "</tr>";
 				$table.append(row);
 			}
