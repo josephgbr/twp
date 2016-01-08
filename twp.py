@@ -1041,7 +1041,7 @@ def shutdown_all_server_instances():
 
 def start_server_instance(base_folder, bin, fileconfig):
     subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin), '-f', fileconfig],
-                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder),
                     close_fds=True,
                     preexec_fn=os.setsid)
