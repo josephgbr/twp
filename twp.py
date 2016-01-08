@@ -248,7 +248,9 @@ def servers():
         srv = query_db('select rowid,* from servers where port=? and base_folder=? and bin=?', [conn[0],base_folder,bin], one=True)
         if srv:
             net_server_info = twpl.get_server_net_info("127.0.0.1", [srv])[0]
-            query_db("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
+            # FIXME: Check info integrity
+            if net_server_info and net_server_info['netinfo'].gametype:
+                query_db("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
                          [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
     g.db.commit()
     return render_template('servers.html', twp=TWP_INFO, servers=twpl.get_local_servers(SERVERS_BASEPATH))
@@ -1037,11 +1039,12 @@ def shutdown_all_server_instances():
             if conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
                 os.kill(int(conn[1]), signal.SIGTERM)
 
-# TODO: Open how a parent not child...
 def start_server_instance(base_folder, bin, fileconfig):
     subprocess.Popen([r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin), '-f', fileconfig],
-                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder))
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder),
+                    close_fds=True,
+                    preexec_fn=os.setsid)
 
 def get_login_tries():
     return int(session.get('login_try')) if 'login_try' in session else 0
