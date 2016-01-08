@@ -255,8 +255,13 @@ def get_server_net_info(ip, servers):
                              'base_folder':server['base_folder']})
     return servers_info
 
-def get_processes():
-    return netstat()
+def search_server_pid(binpath, fileconfig):
+    cmd = subprocess.check_output(['ps','-A','u'])
+    for line in cmd.splitlines():
+        array_line = [x for x in line.split(' ') if x !='']
+        if '%s -f %s.conf' % (binpath,fileconfig) in line:
+            return array_line[1]
+    return None
 
 def extract_targz(path, scratch_dir, delete=False):
     target_basename = os.path.basename(path[:-len(".tar.gz")])
