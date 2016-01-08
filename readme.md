@@ -33,12 +33,9 @@ $ wget http://cytral.github.io/twp/tools/install.sh && sudo bash install.sh
 **Manual (Basic)**
 ```bash
 $ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev
-$ sudo pip install Flask==0.10.1
-$ sudo pip install Flask-APScheduler==1.3.3
-$ sudo pip install Flask-Babel==0.9
-$ sudo pip install Pillow==3.0.0
 $ git clone https://github.com/CytraL/twp.git "twp"
 $ cd twp
+$ sudo pip install -r requirements.txt
 $ chmod a+x twp.py
 $ ./twp.py
 
@@ -58,11 +55,13 @@ mod_folder
   - data
     + mapres
     + maps
-  config.cfg
-  license.txt
-  readme.txt
+  config.cfg*
+  license.txt*
+  readme.txt*
   teeworlds_srv
+  config.json*
 ```
+_(*) Not required but recommended_
 
 ### Enable Basic Admin Tools
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.

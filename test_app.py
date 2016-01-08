@@ -38,8 +38,7 @@ class TWPTestCase(unittest.TestCase):
     def setUp(self):
         self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
         twp.app.config['TESTING'] = True
-        twp.SERVERS_BASEPATH = "/tmp/twp_test"
-        os.mkdir(twp.SERVERS_BASEPATH)
+        twp.SERVERS_BASEPATH = tempfile.mkdtemp()
         self.test_server_folder = r'%s/twsrv' % twp.SERVERS_BASEPATH
         self.app = twp.app.test_client()
         twp.init_db()
@@ -87,10 +86,8 @@ class TWPTestCase(unittest.TestCase):
             fileconfig='testsrv'
         ), follow_redirects=True)
         assert 'invalidBinary' in rv.data
-        self.logout()
         with open(r'%s/teeworlds_srv' % self.test_server_folder, 'wb') as f:
             f.write(b"\x01\x02\x03");
-        self.login('admin', 'admin')
         rv = self.app.post('/_set_server_binary/1/teeworlds_srv', data=dict(
             fileconfig='testsrv'
         ), follow_redirects=True)

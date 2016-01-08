@@ -116,11 +116,13 @@ def connect_db():
 
     return sqlite3.connect(app.config['DATABASE'])
 
-def query_db(query, args=(), one=False):
+def query_db(query, args=(), one=False, db=None):
     '''
     SQLite3 query function
     '''
-    cur = g.db.execute(query, args)
+    if not db:
+        db = g.db
+    cur = db.execute(query, args)
     rv = [dict((cur.description[idx][0], value)
           for idx, value in enumerate(row)) for row in cur.fetchall()]
     return (rv[0] if rv else None) if one else rv
@@ -131,6 +133,14 @@ def init_db():
     with app.open_resource('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
+    # Set default admin user if needed
+    users = query_db("SELECT * FROM users", db=db)
+    if not users or len(users) == 0:
+        query_db("INSERT INTO users ('username','password') \
+                  VALUES('admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec')",
+                  db=db);
+        db.commit()
+    db.close()
 
 
 # App Callbacks
@@ -287,7 +297,7 @@ def generate_server_banner(id):
             banner_image.gradEndColor = twpl.HTMLColorToRGBA(request.values.get('grade'))
         
         return send_file(banner_image.generate(IP),
-                     attachment_filename="server_banner.png",
+                     attachment_filename='twp-banner-%d.png' % time.time(),
                      as_attachment=False)
         
 @app.route('/players', methods=['GET'])

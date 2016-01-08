@@ -35,7 +35,7 @@ class TWPTestCase(unittest.TestCase):
     def setUp(self):
         self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
         twp.app.config['TESTING'] = True
-        twp.SERVERS_BASEPATH = "/tmp"
+        twp.SERVERS_BASEPATH = tempfile.mkdtemp()
         self.app = twp.app.test_client()
         twp.init_db()
 

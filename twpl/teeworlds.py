@@ -188,7 +188,7 @@ class MasterServer(Handler):
 				serverAddress = (socket.inet_ntop(socket.AF_INET6, data[i:i+16]), unpack("!H", data[i+16:i+18])[0])
 			server = Server(self._parent, serverAddress, master=self)
 			server.request()
-			server.request64()
+			#server.request64()
 			self._parent.serverlist.add(server)
 			self.serverlist.add(server)
 	
