@@ -22,9 +22,9 @@ import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, 
 from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
+from banner_generator import BannerGenerator
 from netstat import netstat
 from urllib import urlretrieve
-from banner_generator import BannerGenerator
 from urllib2 import urlopen, URLError
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python

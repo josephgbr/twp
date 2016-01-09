@@ -5,10 +5,11 @@ TWP is an app-web for manage your local teeworlds linux servers. Inspired by the
 Project Requirements:
 
 **Server Side**
-- [SQLite v3.x](https://www.sqlite.org/) for database
+- [SQLite](https://www.sqlite.org/) for default database
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
  - [Flask APScheduler v1.3.3](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support 
+ - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
 - [Pillow v3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) for generate png images
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*

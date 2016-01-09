@@ -18,24 +18,22 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twpl
-import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil, binascii, tempfile
+import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, \
+        signal, shutil, binascii, tempfile, ConfigParser
 from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory, send_file
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
+                  flash, jsonify, send_from_directory, send_file
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
-from flask.ext.babel import Babel, _, refresh; refresh()
+from flask.ext.babel import Babel, _
 from twpl import BannedList, BannerGenerator
 from os import urandom
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-
 
 # Configuration
-config = configparser.SafeConfigParser()
+config = ConfigParser.SafeConfigParser()
 config.readfp(open('twp.conf'))
 
 SECRET_KEY = config.get('global', 'secret', None)
@@ -56,7 +54,8 @@ DEBUG = config.getboolean('global', 'debug')
 HOST = config.get('global', 'host')
 PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
-DATABASE = config.get('database', 'file')
+SQLALCHEMY_DATABASE_URI = config.get('database', 'file')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 SERVERS_BASEPATH = config.get('overview', 'servers')
 UPLOAD_FOLDER = tempfile.mkdtemp()
 MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
@@ -102,52 +101,29 @@ BanList = BannedList()
 app = Flask(__name__)
 app.config.from_object(__name__)
 babel = Babel(app)
+db = SQLAlchemy(app)
+from models import *
+db.create_all()
 
 # Check Servers path
 SERVERS_BASEPATH = r'%s/%s' % (app.root_path, SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
 
-# SQLite
-def connect_db():
-    '''
-    SQLite3 connect function
-    '''
 
-    return sqlite3.connect(app.config['DATABASE'])
+# Database
+def db_add_and_commit(reg):
+    db.session.add(reg)
+    db.session.commit()
 
-def query_db(query, args=(), one=False, db=None):
-    '''
-    SQLite3 query function
-    '''
-    if not db:
-        db = g.db
-    cur = db.execute(query, args)
-    rv = [dict((cur.description[idx][0], value)
-          for idx, value in enumerate(row)) for row in cur.fetchall()]
-    return (rv[0] if rv else None) if one else rv
-
-def init_db():
-    """Initializes the database."""
-    db = connect_db()
-    with app.open_resource('schema.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-    # Set default admin user if needed
-    users = query_db("SELECT * FROM users", db=db)
-    if not users or len(users) == 0:
-        query_db("INSERT INTO users ('username','password') \
-                  VALUES('admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec')",
-                  db=db);
-        db.commit()
-    db.close()
+def db_init():
+    users_count = Users.query.count()
+    if users_count == 0:
+        user = Users(username='admin', password=str_sha512_hex_encode('admin'))
+        db_add_and_commit(user)
 
 
 # App Callbacks
 @app.before_request
 def before_request():
-    '''
-    executes functions before all requests
-    '''
-    
     BanList.refresh()
     if not request.path.startswith('/banned') and BanList.find(request.remote_addr):
         return redirect(url_for('banned'))
@@ -156,21 +132,15 @@ def before_request():
         g.current_lang = request.view_args['lang_code']
         request.view_args.pop('lang_code')
         
-    g.db = connect_db()
     check_session()
 
-@app.teardown_request
-def teardown_request(exception):
-    '''
-    executes functions after all requests
-    '''
+#@app.teardown_request
+#def teardown_request(exception):
 
-    if hasattr(g, 'db'):
-        g.db.close()
 
 @babel.localeselector
 def get_locale():
-    # if a user is logged in, use the locale from the user settings
+    # FIXME: g.user not used
     user = getattr(g, 'user', None)
     if user is not None:
         return user.locale
@@ -200,14 +170,16 @@ def login():
         session['login_try'] = 0;
         return redirect(url_for("banned")) 
     
+    print g.db
+    users = g.db.session.query(Users)
+    
     if request.method == 'POST':
         request_username = request.form['username']
         request_passwd = str_sha512_hex_encode(request.form['password'])
 
         current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
 
-        user = query_db('select username from users where username=? and password=?', [request_username, request_passwd], one=True)
-
+        user = db.session.query(Users).filter(Users.username == request_username, Users.password == request_passwd).get(1)
         if user:
             session['logged_in'] = True
             session['last_activity'] = int(time.time())
@@ -1054,7 +1026,7 @@ scheduler.start()
 
 # Init Module
 if __name__ == "__main__":
-    init_db()
+    db_init()
     if len(LOGFILE) > 0:
         handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
         handler.setLevel(logging.INFO)

@@ -33,11 +33,11 @@ class TWPTestCase(unittest.TestCase):
         ), follow_redirects=True)
     
     def setUp(self):
-        self.db_fd, twp.app.config['DATABASE'] = tempfile.mkstemp()
+        self.db_fd, twp.app.config['DATABASE'] = 'sqlite:///%s' % tempfile.mkstemp()
         twp.app.config['TESTING'] = True
         twp.SERVERS_BASEPATH = tempfile.mkdtemp()
         self.app = twp.app.test_client()
-        twp.init_db()
+        twp.db_init()
 
     def tearDown(self):
         os.close(self.db_fd)
