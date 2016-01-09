@@ -191,7 +191,7 @@ def get_mod_configs(dir, mod_folder):
     return cfglist
 
 def get_tw_masterserver_list(address=None):
-    tw = Teeworlds(timeout=2)
+    tw = Teeworlds(timeout=5)
     tw.query_masters()
     tw.run_loop()
     
@@ -360,13 +360,13 @@ def write_config_param(filename, param, new_value):
         raise Exception(e)
     
 def send_econ_command(port, password, command):
-    conn = telnetlib.Telnet('localhost', port, 1)
-    conn.read_until(b'Enter password:',1)
+    conn = telnetlib.Telnet('localhost', port, 5)
+    conn.read_until(b'Enter password:',5)
     conn.write("{0}\n".format(password))
     conn.write("{0}\n".format(command))
     chash = generate_random_ascii_string()
     conn.write("echo {0}\n".format(chash))
-    netrcv = conn.read_until(chash, 1)
+    netrcv = conn.read_until(chash, 5)
     conn.write("logout\n")
     conn.close()
     

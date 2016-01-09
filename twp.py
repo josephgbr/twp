@@ -18,7 +18,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twpl
-import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil, binascii
+import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, signal, shutil, binascii, tempfile
 from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -58,7 +58,7 @@ PORT = config.getint('global', 'port')
 THREADED = config.getboolean('global', 'threaded')
 DATABASE = config.get('database', 'file')
 SERVERS_BASEPATH = config.get('overview', 'servers')
-UPLOAD_FOLDER = '/tmp/'
+UPLOAD_FOLDER = tempfile.mkdtemp()
 MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
 LOGFILE = config.get('log', 'file')
@@ -723,18 +723,6 @@ def stop_server(id):
 def get_server_instances_online():
     servers = query_db("SELECT rowid FROM servers WHERE status='Running'")
     return jsonify({'success':True, 'num':len(servers)})
-
-#@app.route('/_reboot')
-#def reboot():
-#    if 'logged_in' in session and session['logged_in']:
-#        shutdown_all_server_instances()
-#        
-#        try:
-#            subprocess.check_call("/sbin/shutdown -r now 'Reboot called by TWP'", shell=True)
-#        except:
-#            return jsonify({ 'error':True, 'errormsg':u"Can't reboot system!<br/><span class='text-muted'>need root privileges</span>"})
-#        return jsonify({'success':True })
-#    return jsonify({'notauth':True})
 
 @app.route('/_get_server_instance_log/<int:id>/<int:seek>', methods=['POST'])
 def get_current_server_instance_log(id, seek):
