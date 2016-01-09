@@ -155,6 +155,40 @@ class TWPTestCase(unittest.TestCase):
         rv = self.app.get('/players', follow_redirects=True)
         assert 'No players found!' in rv.data
 
+class LoginSecurityTestCase(unittest.TestCase):
+
+    def login(self, username, password):
+        return self.app.post('/login', data=dict(
+            username=username,
+            password=password
+        ), follow_redirects=True)
+    
+    def setUp(self):
+        self.db_fd, twp.app.config['DATABASE'] = 'sqlite:///%s' % tempfile.mkstemp()
+        twp.app.config['TESTING'] = True
+        twp.SERVERS_BASEPATH = tempfile.mkdtemp()
+        self.app = twp.app.test_client()
+        twp.db_init()
+
+    def tearDown(self):
+        os.close(self.db_fd)
+        
+    def test_login_security(self):
+        rv = self.login('1234', '1234')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('12345', '12345')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('123456', '123456')
+        assert 'Invalid username or password!' in rv.data
+        rv = self.login('1234567', '1234567')
+        assert 'Banned' in rv.data
+        
+        
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(TWPTestCase))
+    suite.addTest(unittest.makeSuite(LoginSecurityTestCase))
+    return suite
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(defaultTest='suite')

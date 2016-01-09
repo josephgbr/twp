@@ -179,7 +179,7 @@ def login():
 
         current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
 
-        user = db.session.query(Users).filter(Users.username == request_username, Users.password == request_passwd).get(1)
+        user = db.session.query(Users).filter(Users.username == request_username, Users.password == request_passwd).one()
         if user:
             session['logged_in'] = True
             session['last_activity'] = int(time.time())

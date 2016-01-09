@@ -1,4 +1,3 @@
 test:
   override:
-    - python test_login_security.py
-    - python test_app.py
+    - python test_twp.py
