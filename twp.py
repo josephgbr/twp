@@ -1008,7 +1008,7 @@ def start_server_instance(base_folder, bin, fileconfig):
     if proc:
         os.kill(proc, signal.SIGKILL)
     
-    subprocess.Popen([binpath, '-f', '%s.conf' % fileconfig],
+    subprocess.Popen([binpath, '-f', fileconfig],
                     shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                     cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder),
                     close_fds=True,
