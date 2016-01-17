@@ -25,14 +25,18 @@ from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
                   flash, jsonify, send_from_directory, send_file
+from sqlalchemy import or_, func
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _
 from twpl import BannedList, BannerGenerator
 from os import urandom
+import logging
+logging.basicConfig()
 
-# Configuration
+# Configuration //TODO: Move to separate file
 config = ConfigParser.SafeConfigParser()
 config.readfp(open('twp.conf'))
 
@@ -70,7 +74,11 @@ CERT = config.get('ssl','cert')
 SSL = False if not os.path.isfile(PKEY) or not os.path.isfile(CERT) else SSL
 SCHEDULER_VIEWS_ENABLED = False
 SCHEDULER_EXECUTORS = {
-    'default': {'type': 'threadpool', 'max_workers': 5}
+    'default': {'type': 'threadpool', 'max_workers': 5} # Optimal: Num. Cores x 2 + 1
+}
+SCHEDULER_JOB_DEFAULTS = {
+    'coalesce': True,
+    'max_instances': 1
 }
 JOBS = [
     {
@@ -78,7 +86,7 @@ JOBS = [
         'func': 'twp:analyze_all_server_instances',
         'trigger': {
             'type': 'cron',
-            'second': 30 # minimal time lapse: 1 min
+            'second': 30
         }
     }
 ]
@@ -115,9 +123,9 @@ def db_add_and_commit(reg):
     db.session.commit()
 
 def db_init():
-    users_count = Users.query.count()
+    users_count = User.query.count()
     if users_count == 0:
-        user = Users(username='admin', password=str_sha512_hex_encode('admin'))
+        user = User(username='admin', password=str_sha512_hex_encode('admin'))
         db_add_and_commit(user)
 
 
@@ -170,20 +178,18 @@ def login():
         session['login_try'] = 0;
         return redirect(url_for("banned")) 
     
-    print g.db
-    users = g.db.session.query(Users)
-    
     if request.method == 'POST':
         request_username = request.form['username']
         request_passwd = str_sha512_hex_encode(request.form['password'])
 
         current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
 
-        user = db.session.query(Users).filter(Users.username == request_username, Users.password == request_passwd).one()
-        if user:
+        dbuser = db.session.query(User).filter(User.username == request_username, User.password == request_passwd)
+        if dbuser.count() > 0:
+            dbuser = dbuser.one()
             session['logged_in'] = True
             session['last_activity'] = int(time.time())
-            session['username'] = user['username']
+            session['username'] = dbuser.username
             flash(_('You are logged in!'), 'success')
 
             if current_url == url_for('login'):
@@ -218,39 +224,43 @@ def banned():
 @app.route('/servers', methods=['GET'])
 def servers():
     session['prev_url'] = request.path;
-    # By default all server are offline
-    query_db("UPDATE servers SET status='Stopped'")
+
     netstat = twpl.netstat()
     for conn in netstat:
         if not conn[2]:
             continue
         (rest,base_folder,bin) = conn[2].rsplit('/', 2)
-        srv = query_db('select rowid,* from servers where port=? and base_folder=? and bin=?', [conn[0],base_folder,bin], one=True)
-        if srv:
+        srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0], ServerInstance.base_folder==base_folder, ServerInstance.bin==bin)
+        if srv.count() > 0:
+            srv = srv.one()
             net_server_info = twpl.get_server_net_info("127.0.0.1", [srv])[0]
             # FIXME: Check info integrity
             if net_server_info and net_server_info['netinfo'].gametype:
-                query_db("UPDATE servers SET status='Running', name=?, gametype=? WHERE port=? and base_folder=? and bin=?", \
-                         [net_server_info['netinfo'].name, net_server_info['netinfo'].gametype, conn[0], base_folder, bin])
-    g.db.commit()
+                srv.status = 1
+                srv.name = net_server_info['netinfo'].name
+                srv.gametype = net_server_info['netinfo'].gametype
+            else:
+                srv.status = 0
+            db_add_and_commit(srv)
     return render_template('servers.html', twp=TWP_INFO, servers=twpl.get_local_servers(SERVERS_BASEPATH))
     
 @app.route('/server/<int:id>', methods=['GET'])
 def server(id):
     session['prev_url'] = request.path;
-    srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
-    issues = query_db("select strftime('%d-%m-%Y %H:%M:%S',date) as date,message from issues where server_id=? ORDER BY date DESC", [id])
-    issues_count = query_db('select count(rowid) as num from issues where server_id=?', [id], one=True)
+    srv = db.session.query(ServerInstance).get(id)
+    issues = db.session.execute("select strftime('%d-%m-%Y %H:%M:%S',date) as date,message from issue \
+                                 where server_id=:id ORDER BY date DESC", {"id":id})
+    issues_count = issues.rowcount if issues.rowcount > 0 else 0
     netinfo = None
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count['num'])
+    return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count)
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
-    srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
+    srv = db.session.query(ServerInstance).get(id)
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
         banner_image = BannerGenerator((600, 40), srv, netinfo)
@@ -272,7 +282,9 @@ def generate_server_banner(id):
 def players():
     session['prev_url'] = request.path;
     
-    players = query_db("SELECT rowid,strftime('%d-%m-%Y %H:%M',create_date) as create_date, strftime('%d-%m-%Y %H:%M',last_seen_date) as last_seen_date,status,name from players ORDER BY name ASC")
+    players = db.session.execute("SELECT rowid,strftime('%d-%m-%Y %H:%M',create_date) as create_date, \
+                        strftime('%d-%m-%Y %H:%M',last_seen_date) as last_seen_date, \
+                        status,name from player ORDER BY name ASC")
     return render_template('players.html', twp=TWP_INFO, players=players)
 
 @app.route('/maps', methods=['GET'])
@@ -331,17 +343,17 @@ def search():
     searchword = request.args.get('r', '')
 
     sk = "%%%s%%" % searchword
-    servers = query_db("SELECT rowid,* FROM servers WHERE name LIKE ? OR base_folder LIKE ?", [sk,sk])
-    players = query_db("SELECT rowid,* FROM players WHERE name LIKE ?", [sk])
+    servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), ServerInstance.base_folder.like(sk)))
+    players = db.session.query(Player).filter(Player.name.like(sk))
     return render_template('search.html', twp=TWP_INFO, search=searchword, servers=servers, players=players)
 
 @app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
 def log(id, code, name):
-    srv = query_db('select rowid,* from servers where rowid=?', [id], one=True)
+    srv = db.session.query(Server).get(id)
     netinfo = None
     logdate = None
     if srv:
-        log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv['base_folder'], code, name)
+        log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv.base_folder, code, name)
         if not os.path.isfile(log_file):
             flash(_('Logfile not exists!'), "danger")
         else:
@@ -356,9 +368,9 @@ def log(id, code, name):
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
 def upload_maps(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
-            download_folder = r'%s/%s/data/maps' % (SERVERS_BASEPATH, srv['base_folder'])
+            download_folder = r'%s/%s/data/maps' % (SERVERS_BASEPATH, srv.base_folder)
             app.logger.info(len(request.files))
             if 'file' in request.files:
                 file = request.files['file']
@@ -392,9 +404,9 @@ def remove_map(id):
     if 'logged_in' in session and session['logged_in']:
         if 'map' in request.form:
             map = request.form['map']
-            srv = query_db("SELECT base_folder FROM servers WHERE rowid=?", [id], one=True)
+            srv = db.session.query(ServerInstance).get(id)
             if srv:
-                fullpath = r'%s/%s/data/maps/%s.map' % (SERVERS_BASEPATH,srv['base_folder'],map)
+                fullpath = r'%s/%s/data/maps/%s.map' % (SERVERS_BASEPATH,srv.base_folder,map)
                 if os.path.isfile(fullpath):
                     os.unlink(fullpath)
                     return jsonify({'success':True})
@@ -409,10 +421,10 @@ def remove_mod():
         if 'folder' in request.form:
             fullpath_folder = r'%s/%s' % (SERVERS_BASEPATH, request.form['folder'])
             if os.path.exists(fullpath_folder):
-                servers = query_db('select rowid,* from servers where base_folder=?', [request.form['folder']])
+                servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder==request.form['folder'])
                 for srv in servers:
-                    stop_server(srv['rowid'])
-                    remove_server_instance(srv['rowid'],1)
+                    stop_server(srv.id)
+                    remove_server_instance(srv.id,1)
                 shutil.rmtree(fullpath_folder)
                 return jsonify({'success':True})
             else:
@@ -470,30 +482,30 @@ def create_server_instance(mod_folder):
             bin = srv_bins[0]
         
         # Check if other server are using the same configuration file
-        srvMatch = query_db('select rowid from servers where fileconfig=? and base_folder=?', [fileconfig,mod_folder], one=True)
-        if srvMatch:
+        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.fileconfig==fileconfig, ServerInstance.base_folder==mod_folder)
+        if srvMatch.count() > 0:
             return jsonify({'error':True, 
-                            'errormsg':_("Can't exits two servers with the same configuration file.<br/>Please change configuration file name and try again.")})
+                            'errormsg':_("Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again.")})
                     
         cfgbasic = twpl.get_data_config_basics(fullpath_fileconfig)
         
         # Check if the logfile are be using by other server with the same base_folder
-        srvMatch = query_db('select rowid from servers where base_folder=? and logfile=?', [mod_folder, cfgbasic['logfile']], one=True)
-        if srvMatch:
+        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile==cfgbasic['logfile'], ServerInstance.base_folder==mod_folder)
+        if srvMatch.count() > 0:
             return jsonify({'error':True, 
                             'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
-        srvMatch = query_db('select rowid from servers where econ_port=?', [cfgbasic['econ_port']], one=True)
-        if srvMatch:
+        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
+        if srvMatch.count() > 0:
             return jsonify({'error':True, 
                             'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
         while True:
-            srvMatch = query_db('select rowid from servers where base_folder=? and port=?', [mod_folder, str(fport)], one=True)
-            if not srvMatch:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.port==str(fport), ServerInstance.base_folder==mod_folder)
+            if srvMatch.count() < 1:
                 break
             fport += 1
 
@@ -508,42 +520,45 @@ def create_server_instance(mod_folder):
              return jsonify({'error':True, 'errormsg':str(e)})
             
         # If all checks good, create the new instance
-        g.db.execute("INSERT INTO servers (fileconfig,base_folder,bin,port,name,gametype,register,logfile,econ_port,econ_password) \
-                      VALUES (?,?,?,?,?,?,?,?,?,?)",
-                     [fileconfig, mod_folder, bin, str(fport), cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], cfgbasic['logfile'],
-                      cfgbasic['econ_port'], cfgbasic['econ_pass']])
-        g.db.commit()
+        nserver = ServerInstance(fileconfig=fileconfig,
+                                 base_folder=mod_folder,
+                                 bin=bin,
+                                 port=str(fport),
+                                 name=cfgbasic['name'],
+                                 gametype=cfgbasic['gametype'],
+                                 visible=True if cfgbasic['register'] and cfgbasic['register'] == 1 else False,
+                                 public=False if cfgbasic['password'] else True,
+                                 logfile=cfgbasic['logfile'],
+                                 econ_port=cfgbasic['econ_port'],
+                                 econ_password=cfgbasic['econ_pass'],
+                                 status=0)
+        db_add_and_commit(nserver)
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
 @app.route('/_remove_server_instance/<int:id>/<int:delconfig>', methods=['POST'])
 def remove_server_instance(id, delconfig=0):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db("SELECT base_folder,fileconfig FROM servers WHERE rowid=?", [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if not srv:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
         if delconfig == 1:
-            os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']))
+            os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig))
         
-        # The problems of not use a relational database :D
-        g.db.execute("DELETE FROM servers WHERE rowid=?", [id])
-        g.db.execute("DELETE FROM issues WHERE server_id=?", [id])
-        g.db.execute("DELETE FROM players_server WHERE server_id=?", [id])
-        g.db.commit()
-        
+        srv.delete()
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
 @app.route('/_set_server_binary/<int:id>/<string:binfile>', methods=['POST'])
 def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         # Check that is a correct binary name (exists in mod folder)
-        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, srv['base_folder'])
+        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, srv.base_folder)
         if not srv_bins == None and binfile in srv_bins:
-            g.db.execute("UPDATE servers SET bin=? WHERE rowid=?", [binfile, id])
-            g.db.commit()
+            srv.bin = binfile
+            db_add_and_commit(srv)
             return jsonify({'success':True})
         return jsonify({'invalidBinary':True})
     return jsonify({'notauth':True})
@@ -553,32 +568,40 @@ def save_server_config():
     if 'logged_in' in session and session['logged_in']:
         srvid = int(request.form['srvid'])
         app.logger.info(request.form)
-        alaunch = 1 if 'alsrv' in request.form and request.form['alsrv'] == 'true' else 0;
+        alaunch = 'alsrv' in request.form and request.form['alsrv'] == 'true'
         srvcfg = request.form['srvcfg'];
-        srv = query_db('select fileconfig,base_folder from servers where rowid=?', [srvid], one=True)
+        srv = db.session.query(ServerInstance).get(srvid)
         if srv:
             cfgbasic = twpl.parse_data_config_basics(srvcfg)
             
-            srvMatch = query_db('select rowid from servers where base_folder=? and port=? and rowid<>?',
-                                [srv['base_folder'], cfgbasic['port'], srvid], one=True)
-            if srvMatch:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder==srv.base_folder, 
+                                                               ServerInstance.port==cfgbasic['port'], 
+                                                               ServerInstance.id!=srvid)
+            if srvMatch.count() > 0:
                 return jsonify({'error':True, \
                                 'errormsg':_("Can't exits two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
-            srvMatch = query_db('select rowid from servers where base_folder=? and logfile=? and rowid<>?', 
-                                [srv['base_folder'], cfgbasic['logfile'], srvid], one=True)
-            if srvMatch:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder==srv.base_folder, 
+                                                               ServerInstance.logfile==cfgbasic['logfile'], 
+                                                               ServerInstance.id!=srvid)
+            if srvMatch.count() > 0:
                 return jsonify({'error':True, 
                                 'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
             
-            g.db.execute("UPDATE servers SET alaunch=?,port=?,name=?,gametype=?,register=?,password=?,logfile=?,\
-                                  econ_port=?,econ_password=? WHERE rowid=?",
-                         [alaunch, cfgbasic['port'], cfgbasic['name'], cfgbasic['gametype'], cfgbasic['register'], \
-                          cfgbasic['password'], cfgbasic['logfile'], cfgbasic['econ_port'], cfgbasic['econ_pass'], srvid])
-            g.db.commit()
+            srv.alaunch = alaunch
+            srv.port = cfgbasic['port']
+            srv.name = cfgbasic['name']
+            srv.gametype = cfgbasic['gametype']
+            srv.visible = True if cfgbasic['register'] and cfgbasic['register'] == 1 else False
+            srv.public = False if cfgbasic['password'] else True
+            srv.logfile = cfgbasic['logfile']
+            srv.econ_port = cfgbasic['econ_port']
+            srv.econ_password = cfgbasic['econ_pass']
+            db_add_and_commit(srv)
+            
             try:
-                cfgfile = open(r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig']), "w")
+                cfgfile = open(r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig), "w")
                 cfgfile.write(srvcfg)
                 cfgfile.close()
             except IOError as e:
@@ -592,11 +615,11 @@ def save_server_config():
 @app.route('/_get_server_config/<int:id>', methods=['POST'])
 def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select alaunch,fileconfig,base_folder from servers where rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
             ## Config File Text
-            fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['fileconfig'])
-            (filename, rest) = srv['fileconfig'].split('.', 1)
+            fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig)
+            (filename, rest) = srv.fileconfig.split('.', 1)
             if os.path.exists(fullpath_fileconfig):
                 try:
                     cfgfile = open(fullpath_fileconfig, "r")
@@ -607,17 +630,17 @@ def get_server_config(id):
             else:
                 srvcfg = ""
             
-            return jsonify({'success':True, 'alsrv':srv['alaunch'], 'srvcfg':srvcfg, 'fileconfig':filename})
+            return jsonify({'success':True, 'alsrv':srv.alaunch, 'srvcfg':srvcfg, 'fileconfig':filename})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_maps/<int:id>', methods=['POST'])
 def get_server_maps(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db('select base_folder from servers where rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:            
             ## Maps
-            maps = twpl.get_mod_maps(SERVERS_BASEPATH, srv['base_folder'])
+            maps = twpl.get_mod_maps(SERVERS_BASEPATH, srv.base_folder)
             return jsonify({'success':True, 'maps':maps})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
@@ -628,8 +651,9 @@ def get_mod_configs(mod_folder):
         jsoncfgs = {'configs':[]}
         cfgs = twpl.get_mod_configs(SERVERS_BASEPATH, mod_folder)
         for config in cfgs:
-            srv = query_db('select rowid from servers where fileconfig=? and base_folder=?', [config,mod_folder], one=True)
-            if not srv:
+            srv = db.session.query(ServerInstance).filter(ServerInstance.fileconfig==config,
+                                                          ServerInstance.base_folder==mod_folder)
+            if srv.count() < 1:
                 jsoncfgs['configs'].append(os.path.splitext(config)[0])
         return jsonify(jsoncfgs)
     return jsonify({'notauth':True})
@@ -637,9 +661,9 @@ def get_mod_configs(mod_folder):
 @app.route('/_get_mod_wizard_config/<int:id>', methods=['POST'])
 def get_mod_wizard_config(id):
     if 'logged_in' in session and session['logged_in']:        
-        srv = query_db('select base_folder from servers WHERE rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
-            fullpath = r'%s/%s/config.json' % (SERVERS_BASEPATH,srv['base_folder'])
+            fullpath = r'%s/%s/config.json' % (SERVERS_BASEPATH,srv.base_folder)
             if os.path.isfile(fullpath):
                 cfgfile = open(fullpath, "r")
                 config = cfgfile.read()
@@ -652,17 +676,18 @@ def get_mod_wizard_config(id):
 @app.route('/_start_server_instance/<int:id>', methods=['POST'])
 def start_server(id):
     if 'logged_in' in session and session['logged_in']:        
-        srv = query_db('select rowid,* from servers WHERE rowid=?', [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
-            if not srv['bin']:
+            if not srv.bin:
                 return jsonify({'error':True, 'errormsg':_('Undefined server binary file!!')})
             
-            srvMatch = query_db("select rowid from servers WHERE status='Running' and port=?", [srv['port']], one=True)
-            if srvMatch:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.status==1,
+                                                    ServerInstance.port==srv.port)
+            if srvMatch.count() > 0:
                 return jsonify({'error':True, 'errormsg':_('Can\'t run two servers in the same port!')})
             
             try:
-                start_server_instance(srv['base_folder'], srv['bin'], srv['fileconfig'])
+                start_server_instance(srv.base_folder, srv.bin, srv.fileconfig)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             
@@ -674,11 +699,11 @@ def start_server(id):
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
 def stop_server(id):
     if 'logged_in' in session and session['logged_in']:
-        server = query_db("SELECT port,base_folder,bin FROM servers WHERE rowid=?", [id], one=True)
+        server = db.session.query(ServerInstance).get(id)
         if server:
             netstat = twpl.netstat()
             for conn in netstat:
-                if conn[0] == server['port'] and conn[2].endswith('%s/%s' % (server['base_folder'],server['bin'])):
+                if conn[0] == server.port and conn[2].endswith('%s/%s' % (server.base_folder,server.bin)):
                     try:
                         os.kill(int(conn[1]), signal.SIGTERM)
                     except Exception as e:
@@ -693,22 +718,22 @@ def stop_server(id):
 
 @app.route('/_get_server_instances_online', methods=['POST'])
 def get_server_instances_online():
-    servers = query_db("SELECT rowid FROM servers WHERE status='Running'")
-    return jsonify({'success':True, 'num':len(servers)})
+    servers = db.session.query(ServerInstance).filter(ServerInstance.status==1)
+    return jsonify({'success':True, 'num':servers.count()})
 
 @app.route('/_get_server_instance_log/<int:id>/<int:seek>', methods=['POST'])
 def get_current_server_instance_log(id, seek):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db("SELECT port,base_folder,bin,logfile FROM servers WHERE rowid=?", [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
             logcontent = ""
-            if not srv['logfile']:
+            if not srv.logfile:
                 return jsonify({'error':True, 'errormsg':_('Logfile not defined!')})
             try:
-                if srv['logfile'][0] == '/':
-                    fullpath = srv['logfile']
+                if srv.logfile[0] == '/':
+                    fullpath = srv.logfile
                 else:
-                    fullpath = r'%s/%s/%s' % (SERVERS_BASEPATH,srv['base_folder'],srv['logfile'])
+                    fullpath = r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.logfile)
                 
                 file_size = os.path.getsize(fullpath)
                 if seek >= file_size:
@@ -745,10 +770,10 @@ def get_current_server_instance_log(id, seek):
 @app.route('/_get_server_instance_log/<int:id>/<string:code>/<string:name>', methods=['POST'])
 def get_selected_server_instance_log(id, code, name):
     if 'logged_in' in session and session['logged_in']:
-        srv = query_db("SELECT base_folder FROM servers WHERE rowid=?", [id], one=True)
+        srv = db.session.query(ServerInstance).get(id)
         if srv:
             logcontent = ""
-            log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv['base_folder'], code, name)
+            log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv.base_folder, code, name)
             if not os.path.isfile(log_file):
                 return jsonify({'error':True, 'errormsg':_('Logfile not exists!')})
             try:                                
@@ -788,12 +813,12 @@ def send_econ_command():
             return jsonify({'error':True, 'errormsg':'ECon command not defined!'})
         
         srvid = request.form['srvid']
-        srv = query_db("SELECT econ_port,econ_password FROM servers WHERE rowid=?", [srvid], one=True)
-        if srv and srv['econ_port'] and srv['econ_password']:
+        srv = db.session.query(ServerInstance).get(srvid)
+        if srv and srv.econ_port and srv.econ_password:
             econ_cmd = request.form['cmd']
             rcv = ''
             try:
-                rcv = twpl.send_econ_command(int(srv['econ_port']), srv['econ_password'], econ_cmd)
+                rcv = twpl.send_econ_command(int(srv.econ_port), srv.econ_password, econ_cmd)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             return jsonify({'success':True, 'rcv':rcv})
@@ -807,12 +832,12 @@ def kick_ban_player(id):
         if not 'nick' in request.form or not request.form['nick']:
             return jsonify({'error':True, 'errormsg':_('Client player not defined!')})
         
-        srv = query_db("SELECT econ_port,econ_password FROM servers WHERE rowid=?", [id], one=True)
-        if srv and srv['econ_port'] and srv['econ_password']:
+        srv = db.session.query(ServerInstance).get(id)
+        if srv and srv.econ_port and srv.econ_password:
             nick = request.form['nick']
             action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
             try:
-                if not twpl.send_econ_user_action(int(srv['econ_port']), srv['econ_password'], nick, action):
+                if not twpl.send_econ_user_action(int(srv.econ_port), srv.econ_password, nick, action):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
@@ -826,7 +851,7 @@ def get_chart_values(chart, id=None):
     labels = {}
     values = {}
     if chart.lower() == 'server':
-        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
+        query_data = db.session.execute("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
             FROM  (SELECT date('now', 'localtime') as dd \
             UNION SELECT date('now', 'localtime', '-1 day') \
             UNION SELECT date('now', 'localtime', '-2 day') \
@@ -834,55 +859,60 @@ def get_chart_values(chart, id=None):
             UNION SELECT date('now', 'localtime', '-4 day') \
             UNION SELECT date('now', 'localtime', '-5 day') \
             UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
-            LEFT JOIN players_server as tblB \
-            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) AND tblB.server_id=? \
-            GROUP BY strftime('%d-%m-%Y', tblA.dd)", [id])
+            LEFT JOIN player_server_instance as tblB \
+            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) AND tblB.server_id=:id \
+            GROUP BY strftime('%d-%m-%Y', tblA.dd)", {"id":id})
         if query_data:
             labels['players7d'] = []
             values['players7d'] = []
             for value in query_data:
-                labels['players7d'].append(value['date'])
-                values['players7d'].append(value['num'])
+                labels['players7d'].append(value.date)
+                values['players7d'].append(value.num)
         else:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
-        query_data = query_db("SELECT count(clan) as num, clan FROM (SELECT DISTINCT name,clan,server_id FROM players_server \
-                WHERE clan NOT NULL) WHERE server_id=? GROUP BY clan ORDER BY num DESC LIMIT 5", [id])
+        query_data = db.session.execute("SELECT count(clan) as num, clan FROM \
+                                        (SELECT DISTINCT name,clan,server_id FROM player_server_instance \
+                                        WHERE clan NOT NULL) WHERE server_id=:id GROUP BY clan ORDER BY num \
+                                        DESC LIMIT 5", {"id":id})
         if query_data:
             labels['topclan'] = []
             values['topclan'] = []
             for value in query_data:
-                labels['topclan'].append(value['clan'])
-                values['topclan'].append(value['num'])
+                labels['topclan'].append(value.clan)
+                values['topclan'].append(value.num)
                 
-        query_data = query_db("SELECT count(country) as num, country FROM (SELECT DISTINCT name,country,server_id FROM players_server \
-                WHERE clan NOT NULL) WHERE server_id=? GROUP BY country ORDER BY num DESC LIMIT 5", [id])
+        query_data = db.session.execute("SELECT count(country) as num, country FROM \
+                                        (SELECT DISTINCT name,country,server_id FROM player_server_instance \
+                                        WHERE clan NOT NULL) WHERE server_id=:id GROUP BY country \
+                                        ORDER BY num DESC LIMIT 5", {"id":id})
         if query_data:
             labels['topcountry'] = []
             values['topcountry'] = []
             for value in query_data:
-                labels['topcountry'].append(value['country'])
-                values['topcountry'].append(value['num'])
+                labels['topcountry'].append(value.country)
+                values['topcountry'].append(value.num)
             
         return jsonify({'success':True, 'values':values, 'labels':labels})
     elif chart.lower() == 'machine':
-        query_data = query_db("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
-            FROM  (SELECT date('now', 'localtime') as dd \
-            UNION SELECT date('now', 'localtime', '-1 day') \
-            UNION SELECT date('now', 'localtime', '-2 day') \
-            UNION SELECT date('now', 'localtime', '-3 day') \
-            UNION SELECT date('now', 'localtime', '-4 day') \
-            UNION SELECT date('now', 'localtime', '-5 day') \
-            UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
-            LEFT JOIN players_server as tblB \
-            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) \
-            GROUP BY strftime('%d-%m-%Y', tblA.dd)")
+        query_data = db.session.execute("SELECT count(DISTINCT name) as num, \
+                                        strftime('%Y-%m-%d', tblA.dd) as date \
+                                        FROM  (SELECT date('now', 'localtime') as dd \
+                                        UNION SELECT date('now', 'localtime', '-1 day') \
+                                        UNION SELECT date('now', 'localtime', '-2 day') \
+                                        UNION SELECT date('now', 'localtime', '-3 day') \
+                                        UNION SELECT date('now', 'localtime', '-4 day') \
+                                        UNION SELECT date('now', 'localtime', '-5 day') \
+                                        UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
+                                        LEFT JOIN player_server_instance as tblB \
+                                        ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) \
+                                        GROUP BY strftime('%d-%m-%Y', tblA.dd)")
         if query_data:
             labels['players7d'] = []
             values['players7d'] = []
             for value in query_data:
-                labels['players7d'].append(value['date'])
-                values['players7d'].append(value['num'])
+                labels['players7d'].append(value.date)
+                values['players7d'].append(value.num)
         return jsonify({'success':True, 'values':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':_('Undefined Chart!')})
 
@@ -890,9 +920,10 @@ def get_chart_values(chart, id=None):
 def set_user_password(id):
     if 'logged_in' in session and session['logged_in']:
         if 'pass_new' in request.form and 'pass_old' in request.form:
-            rows = g.db.execute("UPDATE users SET password=? WHERE rowid=? AND password=?",[str(request.form['pass_new']), id, str_sha512_hex_encode(str(request.form['pass_old']))])
-            if rows.rowcount > 0:
-                g.db.commit()
+            dbuser = db.session.query(User).filter(User.id==id, User.password==str_sha512_hex_encode(str(request.form['pass_old'])))
+            if dbuser.count() > 0:
+                dbuser.password = str(request.form['pass_new'])
+                db_add_and_commit(dbuser)
                 return jsonify({'success':True})
             return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. Check settings and try again.')})
         else:
@@ -916,7 +947,7 @@ def check_session():
 @app.context_processor
 def utility_processor():
     def get_mod_instances(mod_folder):
-        servers = query_db('select rowid,* from servers where base_folder=?', [mod_folder])
+        servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder==mod_folder)
         return servers
     def get_mod_binaries(mod_folder):
         return twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
@@ -926,63 +957,78 @@ def utility_processor():
 
 # Jobs
 def analyze_all_server_instances():
-    db = connect_db()
-    
-    # By default all are offline
-    query_db("UPDATE players SET status=0", db=db)
-    # By default all servers are offline
-    query_db("UPDATE servers SET status='Stopped'", db=db)
-    
-    # Check Server & Player Status
-    netstat = twpl.netstat()
-    for conn in netstat:
-        if not conn[2]:
-            continue
-        objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
-        if objMatch:
-            (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
-            srv = query_db("SELECT rowid,* FROM servers WHERE port=? AND base_folder=? AND bin=?", [conn[0], base_folder, bin], one=True, db=db)
-            if srv:
-                query_db("UPDATE servers set status='Running' where rowid=?", [srv['rowid']], db=db)
-                netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
-                for player in netinfo.playerlist:
-                    query_db("INSERT INTO players_server (server_id,name,clan,country,date) VALUES (?,?,?,?,datetime('now', 'localtime'))",
-                                [srv['rowid'], player.name, player.clan, player.country], db=db)
-                    
-                    playerMatch = query_db('select * from players where lower(name)=?', [player.name.lower()], one=True, db=db)
-                    if not playerMatch:
-                        query_db("INSERT INTO players (name,create_date,last_seen_date,status) VALUES (?,datetime('now', 'localtime'),datetime('now', 'localtime'),1)",
-                                     [player.name], db=db)
-                    else:
-                        query_db("UPDATE players SET last_seen_date=datetime('now', 'localtime'), status=1 WHERE lower(name)=?",
-                                     [player.name.lower()], db=db)
-                    
-    # Reopen Offline Servers
-    servers = query_db("SELECT rowid,* FROM servers WHERE status='Stopped' and alaunch=1", db=db)
-    for server in servers:            
-        if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['bin'])):
-            query_db("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", [server['rowid'], _('Server binary not found')], db=db)
-            continue
+    with app.app_context():
+        # By default all are offline
+        db.session.query(Player).update({Player.status:0})
+        # By default all servers are offline
+        db.session.query(ServerInstance).update({ServerInstance.status:0})
         
-        current_time_hex = hex(int(time.time())).split('x')[1]
-        logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, server['base_folder'])
-        log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, server['base_folder'], server['logfile'])
-        # Create logs folder if not exists
-        if not os.path.isdir(logs_folder):
-            os.makedirs(logs_folder)
-        # Move current log to logs folder
-        if os.path.isfile(log_file):
-            shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server['logfile']))
-        # Report issue
-        query_db("INSERT INTO issues (server_id,date,message) VALUES (?,datetime('now', 'localtime'),?)", 
-                     [server['rowid'], 
-                     "%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server['rowid'], current_time_hex, server['logfile'])], 
-                     db=db)
-        # Open server
-        start_server_instance(server['base_folder'], server['bin'], server['fileconfig']) 
-    
-    db.commit()
-    db.close()
+        # Check Server & Player Status
+        netstat = twpl.netstat()
+        for conn in netstat:
+            if not conn[2]:
+                continue
+            objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
+            if objMatch:
+                (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
+                srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0],
+                                                        ServerInstance.base_folder==base_folder,
+                                                        ServerInstance.bin==bin)
+                if srv.count() > 0:
+                    srv = srv.one()
+                    srv.status = 1
+                    netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+                    for ntplayer in netinfo.playerlist:
+                        nplayer = Player(server_id = srv.id,
+                                         name = ntplayer.name,
+                                         clan = ntplayer.clan,
+                                         country = ntplayer.country,
+                                         date = datetime.time(),
+                                         status = 1
+                                         )
+                        db.session.add(nplayer)
+                        
+                        playerMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
+                        if playerMatch.count() < 1:
+                            nplayer = Player(name=ntplayer.name,
+                                             create_date=datetime.time(),
+                                             last_seen=datetime.time(),
+                                             status=1)
+                            db.session.add(nplayer)
+                        else:
+                            playerMatch.last_seen = datetime.time()
+                            playerMatch.status = 1
+                            db.session.add(playerMatch)
+                        
+        # Reopen Offline Servers
+        servers = db.session.query(ServerInstance).filter(ServerInstance.status==0, ServerInstance.alaunch==True)
+        for dbserver in servers:            
+            if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, dbserver.base_folder, dbserver.bin)):
+                nissue = Issue(server_id=dbserver.id,
+                               date=datetime.time(),
+                               message=_('Server binary not found'))
+                db.session.add(nissue)
+                continue
+            
+            current_time_hex = hex(int(time.time())).split('x')[1]
+            logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, dbserver.base_folder)
+            log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, dbserver.base_folder, dbserver.logfile)
+            # Create logs folder if not exists
+            if not os.path.isdir(logs_folder):
+                os.makedirs(logs_folder)
+            # Move current log to logs folder
+            if os.path.isfile(log_file):
+                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
+            # Report issue
+            nissue = Issue(server_id=dbserver.id,
+                           date=datetime.time(),
+                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server.id, current_time_hex, server.logfile)
+                           )
+            db.session.add(nissue)
+            # Open server
+            start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
+        
+        db.session.commit()
         
 
 # Tools

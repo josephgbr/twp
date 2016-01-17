@@ -249,10 +249,10 @@ def get_server_net_info(ip, servers):
     
     servers_info = []
     for server in servers:
-        twreq.query_port(ip, int(server['port']))
+        twreq.query_port(ip, int(server.port))
         twreq.run_loop()
-        servers_info.append({'netinfo':twreq.server, 'srvid':server['rowid'], 'fileconfig':server['fileconfig'], 
-                             'base_folder':server['base_folder']})
+        servers_info.append({'netinfo':twreq.server, 'srvid':server.id, 'fileconfig':server.fileconfig, 
+                             'base_folder':server.base_folder})
     return servers_info
 
 def search_server_pid(binpath, fileconfig):

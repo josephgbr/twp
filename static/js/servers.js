@@ -313,15 +313,15 @@ $(function(){
 				$name.text(data['name']);
 				$gametype.text(data['gametype']);
 				
-				if (data['register'] == 0)
-					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', $BABEL_STR_PUBLIC_SERVER);
-				else
+				if (data['visible'] == 0)
 					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', $BABEL_STR_PRIVATE_SERVER);
-				
-				if (data['password'] == 0)
-					$flags.find('.tw-password').css('color','#BBB').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
 				else
+					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', $BABEL_STR_PUBLIC_SERVER);
+				
+				if (data['public'] == 0)
 					$flags.find('.tw-password').css('color','#333').prop('title', $BABEL_STR_REGISTER_SERVER);
+				else
+					$flags.find('.tw-password').css('color','#BBB').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
 				
 				$('#modal_instance_configuration').modal('hide');
 			}

@@ -7,8 +7,8 @@
 
 <ol class="breadcrumb">
 	<li><a href="/servers">{{_('Servers')}}</a></li>
-	<li>{{server['base_folder']}}</li>
-	<li><a href="/server/{{server['rowid']}}">{% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</a></li>
+	<li>{{server.base_folder}}</li>
+	<li><a href="/server/{{server['rowid']}}">{% if is_online %}{{netinfo.name}}{% else %}{{server.name}}{% endif %}</a></li>
 	<li>logs</li>
 </ol>
 
@@ -47,7 +47,7 @@
 {% block script %}
 	{% if server %}
 	<script type="text/javascript">
-		var $SRVID = {{ server['rowid']|tojson|safe }};
+		var $SRVID = {{ server.id|tojson|safe }};
 		var $SRVLOGCODE = {{ logcode|tojson|safe }};
 		var $SRVLOGNAME = {{ logname|tojson|safe }};
 	</script>

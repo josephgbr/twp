@@ -20,11 +20,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from twp import db
 
-class PlayersServer(db.Model):
-    __tablename__ = 'players_server'
+class Player(db.Model):
+    __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("servers.id"))
     name = db.Column(db.String(25))
-    clan = db.Column(db.String(25))
-    country = db.Column(db.Integer)
-    date = db.Column(db.DateTime)
+    create_date = db.Column(db.DateTime)
+    last_seen_date = db.Column(db.DateTime)
+    status = db.Column(db.Integer)

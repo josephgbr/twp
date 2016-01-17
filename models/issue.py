@@ -20,8 +20,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from twp import db
 
-class Users(db.Model):
-    __tablename__ = 'users'
+class Issue(db.Model):
+    __tablename__ = 'issue'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(128), unique=True)
-    password = db.Column(db.String(128))
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
+    date = db.Column(db.DateTime)
+    message = db.Column(db.String(255))
+    

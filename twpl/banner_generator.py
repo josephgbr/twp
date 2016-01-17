@@ -78,16 +78,16 @@ class BannerGenerator(object):
 		draw.rectangle((0, 0, self._image.size[0]-1, self._image.size[1]-1), outline=(120, 120, 120))
 		#wh = self.font.getsize("text")
 		# Title
-		name = self._netinfo.name if is_online else self._server['name']
+		name = self._netinfo.name if is_online else self._server.name
 		draw.text((11, 4), name, fill=(0, 0, 0, 128), font=self._fontLarge)
 		draw.text((10, 3), name, fill=self.titleColor, font=self._fontLarge)
 		# Detail
 		if is_online:
-			gametype = self._netinfo.gametype if self._netinfo.gametype else self._server['gametype']
+			gametype = self._netinfo.gametype if self._netinfo.gametype else self._server.gametype
 			map = self._netinfo.map if is_online else ". . ."
 			players = '%d/%d' % (self._netinfo.players,self._netinfo.max_players) if is_online else ". . ."
-			is_visible = _('Yes') if self._server['register'] else _('No')
-			is_public = _('No') if self._server['password'] else _('Yes')
+			is_visible = _('Yes') if self._server.visible else _('No')
+			is_public = _('Yes') if self._server.public else _('No')
 			draw.text((15, 25), "%s: %s - %s: %s - %s: %s - %s: %s - %s: %s" 
 								% (_('Players'), players,
                                    _('Map'), map, 
@@ -98,7 +98,7 @@ class BannerGenerator(object):
 		else:
 			draw.text((15, 25), _('SERVER OFFLINE'), fill=(240, 10, 5), font=self._fontSmall)			
 		# Address
-		addr = '%s:%s' % (ip, self._server['port'])
+		addr = '%s:%s' % (ip, self._server.port)
 		wh = self._fontLargeBold.getsize(addr)
 		draw.text((self._image.size[0]-wh[0]-10, self._image.size[1]/2-wh[1]/2), addr, 
 				fill=self.addressColor, font=self._fontLargeBold)

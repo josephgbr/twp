@@ -45,8 +45,6 @@ class TWPTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
-        if os.path.isdir(twp.SERVERS_BASEPATH):
-            shutil.rmtree(twp.SERVERS_BASEPATH)
         
     def test_login_logout(self):
         rv = self.login('admin', 'admin')

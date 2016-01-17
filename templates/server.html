@@ -8,7 +8,7 @@
 
 <ol class="breadcrumb">
   <li><a href="/servers">{{_('Servers')}}</a></li>
-  <li class="active">{{server['base_folder']}}</li>
+  <li class="active">{{server.base_folder}}</li>
 </ol>
 
 <div class="text-right">
@@ -16,8 +16,8 @@
 </div>
 
 <div class="page-header">
-	<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server['name']}}{% endif %}</h1>
-</div>
+	<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server.name}}{% endif %}</h1>
+</div> 
 
 <ul class="nav nav-pills nav-justified" role="tablist">
 	<li class="active"><a href="#general" role="tab" data-toggle="tab">{{ _('General') }}</a></li>
@@ -46,14 +46,14 @@
   			<div class="pill-server panel panel-default" style="background-color:#719696;">
   				<i class="fa fa-server fa-4x"></i>
   				<span>{{_('Address')}}</span>
-	  			<b>{{ip}}:{{server['port']}}</b>
+	  			<b>{{ip}}:{{server.port}}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-gametype">
   			<div class="pill-server panel panel-default" style="background-color:#B07E54;">
   				<i class="fa fa-puzzle-piece fa-4x"></i>
   				<span>{{_('Game Type')}}</span>
-	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server['gametype']}}{% endif %}</b>
+	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server.gametype}}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-2" id="server-map">
@@ -74,14 +74,14 @@
   			<div class="pill-server panel panel-default" style="background-color:#9775AA;">
   				<i class="fa fa-eye fa-3x"></i>
   				<span>{{_('Visible')}}</span>
-	  			<b>{% if server['register'] %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
+	  			<b>{% if server.register %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-1" id="server-visible">
   			<div class="pill-server panel panel-default" style="background-color:#764B8E;">
   				<i class="fa fa-lock fa-3x"></i>
   				<span>{{_('Public')}}</span>
-	  			<b>{% if server['password'] %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
+	  			<b>{% if server.password %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
 	  		</div>
   		</div>
   		
@@ -132,7 +132,7 @@
 	  				<td class="col-md-5 pl-name">{{player.name}}</td>
 	  				<td class="col-md-2 pl-clan">{{player.clan}}</td>
 	  				<td class="col-md-4 pl-actions text-right">
-	  					{% if session.logged_in and server['econ_port'] and server['econ_password'] %}
+	  					{% if session.logged_in and server.econ_port and server.econ_password %}
   						<a data-name="{{player.name}}" class="kick-player btn btn-xs btn-warning">
 					        <i class="fa fa-fire"></i> {{ _('Kick') }}
 					    </a>
@@ -161,7 +161,7 @@
   	</div>
 {% if session.logged_in %}
   	<div class="tab-pane" id="log">
-  	{% if not server['logfile'] %}
+  	{% if not server.logfile %}
   		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
 	  		<span class="fa-stack fa-lg">
 			  <i class="fa fa-file-text-o fa-stack-1x"></i>
@@ -194,7 +194,7 @@
 {% block script %}
 	{% if server %}
 	<script type="text/javascript">
-		var $SRVID = {{ server['rowid']|tojson|safe }};
+		var $SRVID = {{ server.id|tojson|safe }};
 		var $BABEL_STR_PLAYERS = {{_("Players")|tojson|safe}};
 		var $BABEL_STR_UNKNOWN = {{_("Unknown")|tojson|safe}};
 	</script>

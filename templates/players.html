@@ -6,15 +6,15 @@
 <div class="row">
 	<div class="panel panel-info">
 		<div class="panel-body">
-		{% if players == [] %}
-			<p class="text-center text-muted">{{ _('No players found!') }}</p>
-		{% else %}
+		{% if players.rowcount > 0 %}
 			{{ _('List of all players connected to the machine.') }}<br/>
 			<span class="text-muted">{{ _('Updated every minute') }}</span>
+		{% else %}
+			<p class="text-center text-muted">{{ _('No players found!') }}</p>
 		{% endif %}
 		</div>
 		
-		{% if players != [] %}
+		{% if players.rowcount > 0 %}
 		<table class="table table-condensed table-striped">
 			<thead>
 				<th>{{ _('Name') }}</th>
@@ -23,7 +23,7 @@
 			</thead>
 			<tbody>
 			{% for player in players %}
-				<tr id="ply-line-{{player.rowid}}" class="{% if player.status == 1 %}success{% endif %}">
+				<tr id="ply-line-{{player.id}}" class="{% if player.status == 1 %}success{% endif %}">
 					<td>{{player.name}}</td>
 					<td class="col-md-3">{{player.create_date}}</td>
 					<td class="col-md-3">{{player.last_seen_date}}</td>

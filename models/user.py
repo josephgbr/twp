@@ -20,10 +20,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from twp import db
 
-class Players(db.Model):
-    __tablename__ = 'players'
+class User(db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25))
-    create_date = db.Column(db.DateTime)
-    last_seen_date = db.Column(db.DateTime)
-    status = db.Column(db.Integer)
+    username = db.Column(db.String(128), unique=True)
+    password = db.Column(db.String(128))

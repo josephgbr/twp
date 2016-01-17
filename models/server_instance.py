@@ -20,10 +20,19 @@
 from flask_sqlalchemy import SQLAlchemy
 from twp import db
 
-class Issues(db.Model):
-    __tablename__ = 'issues'
+class ServerInstance(db.Model):
+    __tablename__ = 'server_instance'
     id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("servers.id"))
-    date = db.Column(db.DateTime)
-    message = db.Column(db.String(255))
-    
+    fileconfig = db.Column(db.String(512))
+    base_folder = db.Column(db.String(128))
+    bin = db.Column(db.String(128))
+    alaunch = db.Column(db.Boolean)
+    port = db.Column(db.String(4))
+    name = db.Column(db.String(128))
+    status = db.Column(db.Integer)
+    gametype = db.Column(db.String(16))
+    visible = db.Column(db.Boolean)
+    public = db.Column(db.Boolean)
+    logfile = db.Column(db.String(128))
+    econ_port = db.Column(db.Integer)
+    econ_password = db.Column(db.String(32))

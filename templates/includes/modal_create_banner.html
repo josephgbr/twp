@@ -1,3 +1,4 @@
+{% if server %}
 <div id="modal_create_banner" class="modal fade">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -48,7 +49,7 @@
 
 				<label for="preview">{{_('Preview')}}:</label>
 				<div id="preview" style="overflow:auto; padding:0.5em;">
-					<img src="{{'/server/%d/banner' % server['rowid']}}" id="server-banner" />
+					<img src="{{'/server/%d/banner' % server.id}}" id="server-banner" />
 				</div>
 				<label style="margin-top:0.5em" for="code">{{_('Share URL')}}:</label>
 				<input type="text" id="share-url" class="form-control" readonly />
@@ -56,3 +57,4 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+{% endif %}

@@ -20,19 +20,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from twp import db
 
-class Servers(db.Model):
-    __tablename__ = 'servers'
+class PlayerServerInstance(db.Model):
+    __tablename__ = 'player_server_instance'
     id = db.Column(db.Integer, primary_key=True)
-    fileconfig = db.Column(db.String(512))
-    base_folder = db.Column(db.String(128))
-    bin = db.Column(db.String(128))
-    alaunch = db.Column(db.Boolean)
-    port = db.Column(db.Integer)
-    name = db.Column(db.String(128))
-    status = db.Column(db.Integer)
-    gametype = db.Column(db.String(16))
-    visible = db.Column(db.Boolean)
-    public = db.Column(db.Boolean)
-    logfile = db.Column(db.String(128))
-    econ_port = db.Column(db.Integer)
-    econ_password = db.Column(db.String(32))
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
+    name = db.Column(db.String(25))
+    clan = db.Column(db.String(25))
+    country = db.Column(db.Integer)
+    date = db.Column(db.DateTime)

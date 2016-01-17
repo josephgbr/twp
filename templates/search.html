@@ -14,7 +14,7 @@
 </h1>
 {% endif %}
 
-{% if servers != [] %}
+{% if servers.count() > 0 %}
 <div class="row">
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -31,17 +31,17 @@
 			</thead>
 			<tbody>
 				{% for mod_inst in servers %}
-				<tr id="srv-line-{{mod_inst.rowid}}" class="{% if mod_inst.status == 'Running' %}success{% endif %}">
+				<tr id="srv-line-{{mod_inst.id}}" class="{% if mod_inst.status == 'Running' %}success{% endif %}">
 					<td class="col-md-1 srv-flags">
-						<i class="fa {% if mod_inst.register == 0 %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.register == 0 %}style="color:#BBB;" title="{{ _('Not Register Server') }}" {% else %}title="{{ _('Register Server') }}" {% endif %}></i>
-						<i class="fa fa-lock tw-password" {% if mod_inst.password == 0 %}style="color:#BBB;" title="{{ _('Public Server') }}" {% else %}title="{{ _('Private Server') }}" {% endif %}></i>
+						<i class="fa {% if not mod_inst.visible %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.visible %}title="{{ _('Register Server') }}" {% else %}style="color:#BBB;" title="{{ _('Not Register Server') }}" {% endif %}></i>
+						<i class="fa fa-lock tw-password" {% if mod_inst.public %}style="color:#BBB;" title="{{ _('Public Server') }}" {% else %}title="{{ _('Private Server') }}" {% endif %}></i>
 					</td>
 					<td class="col-md-1 srv-status">{{mod_inst.status}}</td>
 					<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
 					<td class="col-md-2 srv-gametype">{{mod_inst.gametype}}</td>
 					<td class="col-md-4 srv-name">{{mod_inst.name}}</td>
 					<td class="col-md-3 text-right">
-						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.rowid}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
+						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.id}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
 					</td>
 				</tr>
 				{% endfor %}
@@ -51,7 +51,7 @@
 </div>
 {% endif %}
 
-{% if players != [] %}
+{% if players.count() > 0 %}
 <div class="row">
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -65,7 +65,7 @@
 			</thead>
 			<tbody>
 			{% for player in players %}
-				<tr id="ply-line-{{player.rowid}}" class="{% if player.status == 1 %}success{% endif %}">
+				<tr id="ply-line-{{player.id}}" class="{% if player.status == 1 %}success{% endif %}">
 					<td>{{player.name}}</td>
 					<td class="col-md-3">{{player.create_date}}</td>
 					<td class="col-md-3">{{player.last_seen_date}}</td>
