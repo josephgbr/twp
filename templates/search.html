@@ -36,7 +36,7 @@
 						<i class="fa {% if not mod_inst.visible %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.visible %}title="{{ _('Register Server') }}" {% else %}style="color:#BBB;" title="{{ _('Not Register Server') }}" {% endif %}></i>
 						<i class="fa fa-lock tw-password" {% if mod_inst.public %}style="color:#BBB;" title="{{ _('Public Server') }}" {% else %}title="{{ _('Private Server') }}" {% endif %}></i>
 					</td>
-					<td class="col-md-1 srv-status">{{mod_inst.status}}</td>
+					<td class="col-md-1 srv-status">{{_("Running") if mod_inst.status else _("Stopped")}}</td>
 					<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
 					<td class="col-md-2 srv-gametype">{{mod_inst.gametype}}</td>
 					<td class="col-md-4 srv-name">{{mod_inst.name}}</td>

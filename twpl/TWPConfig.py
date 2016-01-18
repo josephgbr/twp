@@ -14,11 +14,8 @@ class TWPConfig(object):
             self.SECRET_KEY = binascii.hexlify(os.urandom(24)).decode()
             config.set('global', 'secret', self.SECRET_KEY)
             config.write(open('twp.conf', 'w'))
-        # Servers path
+            
         self.SERVERS_BASEPATH = config.get('overview', 'servers')
-        if not os.path.isdir(self.SERVERS_BASEPATH):
-            os.makedirs(self.SERVERS_BASEPATH)
-        
         self.VERSION = "0.2.0"
         self.BRAND_NAME = config.get('overview', 'brand_name')
         self.BRAND_URL = config.get('overview', 'brand_url')

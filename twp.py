@@ -48,7 +48,9 @@ db = SQLAlchemy(app)
 
 # Check Servers path
 app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
-
+if not os.path.isdir(app.config['SERVERS_BASEPATH']):
+    os.makedirs(app.config['SERVERS_BASEPATH'])
+            
 # Create Tables
 class Issue(db.Model):
     __tablename__ = 'issue'
@@ -891,8 +893,8 @@ def get_chart_values(chart, id=None):
 def set_user_password(id):
     if 'logged_in' in session and session['logged_in']:
         if 'pass_new' in request.form and 'pass_old' in request.form:
-            dbuser = db.session.query(User).filter(User.id==id, User.password==str_sha512_hex_encode(str(request.form['pass_old'])))
-            if dbuser.count() > 0:
+            dbuser = db.session.query(User).filter(User.id==id, User.password==str_sha512_hex_encode(str(request.form['pass_old']))).one()
+            if dbuser:
                 dbuser.password = str(request.form['pass_new'])
                 db_add_and_commit(dbuser)
                 return jsonify({'success':True})
@@ -998,7 +1000,6 @@ def analyze_all_server_instances():
         # Open server
         start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
     
-    print "LLEGA!!"
     db.session.commit()
         
 
