@@ -19,7 +19,7 @@
 #########################################################################################
 import twpl
 import subprocess, time, re, hashlib, os, sys, json, logging, time, \
-        signal, shutil, binascii
+        signal, shutil
 from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler

@@ -2,6 +2,7 @@ import ConfigParser
 import tempfile
 import os
 import twpl
+import binascii
 
 class TWPConfig(object):
     def __init__(self):
