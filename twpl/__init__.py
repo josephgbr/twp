@@ -260,8 +260,8 @@ def search_server_pid(binpath, fileconfig):
     cmd = subprocess.check_output(['ps','-A','u'])
     for line in cmd.splitlines():
         array_line = [x for x in line.split(' ') if x !='']
-        if '%s -f %s.conf' % (binpath,fileconfig) in line:
-            return array_line[1]
+        if '%s -f %s' % (binpath,fileconfig) in line:
+            return int(array_line[1])
     return None
 
 def extract_targz(path, scratch_dir, delete=False):

@@ -39,7 +39,6 @@ logging.basicConfig()
 BanList = BannedList()
 PublicIP = twpl.get_public_ip();
 
-
 # Start Flask App
 app = Flask(__name__)
 app.config.from_object(TWPConfig())
@@ -50,7 +49,7 @@ db = SQLAlchemy(app)
 app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
 if not os.path.isdir(app.config['SERVERS_BASEPATH']):
     os.makedirs(app.config['SERVERS_BASEPATH'])
-            
+    
 # Create Tables
 class Issue(db.Model):
     __tablename__ = 'issue'
@@ -199,6 +198,9 @@ def banned():
 def servers():
     session['prev_url'] = request.path;
 
+    db.session.query(ServerInstance).update({ServerInstance.status:0})
+    db.session.commit()
+
     netstat = twpl.netstat()
     for conn in netstat:
         if not conn[2]:
@@ -213,9 +215,7 @@ def servers():
                 srv.status = 1
                 srv.name = net_server_info['netinfo'].name
                 srv.gametype = net_server_info['netinfo'].gametype
-            else:
-                srv.status = 0
-            db_add_and_commit(srv)
+                db_add_and_commit(srv)
     return render_template('servers.html', servers=twpl.get_local_servers(app.config['SERVERS_BASEPATH']))
     
 @app.route('/server/<int:id>', methods=['GET'])
@@ -224,7 +224,8 @@ def server(id):
     srv = db.session.query(ServerInstance).get(id)
     issues = db.session.execute("select strftime('%d-%m-%Y %H:%M:%S',date) as date,message from issue \
                                  where server_id=:id ORDER BY date DESC", {"id":id})
-    issues_count = issues.rowcount if issues.rowcount > 0 else 0
+    issues_count = db.session.execute("select * from issue \
+                                     where server_id=:id ORDER BY date DESC", {"id":id}).scalar()
     netinfo = None
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
@@ -672,18 +673,13 @@ def start_server(id):
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
 def stop_server(id):
     if 'logged_in' in session and session['logged_in']:
-        server = db.session.query(ServerInstance).get(id)
-        if server:
-            netstat = twpl.netstat()
-            for conn in netstat:
-                if conn[0] == server.port and conn[2].endswith('%s/%s' % (server.base_folder,server.bin)):
-                    try:
-                        os.kill(int(conn[1]), signal.SIGTERM)
-                    except Exception as e:
-                        return jsonify({'error':True, 'errormsg':_('System failure: {0}').format(str(e))})
-                    else:
-                        return jsonify({'success':True})
-                    break
+        dbserver = db.session.query(ServerInstance).get(id)
+        if dbserver:
+            binpath = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.bin)
+            proc = twpl.search_server_pid(binpath, dbserver.fileconfig)
+            if proc:
+                os.kill(proc, signal.SIGTERM)
+                return jsonify({'success':True})
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Can\'t found server pid')})
         else:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -930,9 +926,7 @@ def utility_processor():
 
 # Jobs
 def analyze_all_server_instances():
-    # By default all are offline
     db.session.query(Player).update({Player.status:0})
-    # By default all servers are offline
     db.session.query(ServerInstance).update({ServerInstance.status:0})
     
     # Check Server & Player Status
