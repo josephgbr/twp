@@ -36,11 +36,13 @@ class TWPTestCase(unittest.TestCase):
         return self.app.get('/logout', follow_redirects=True)
     
     def setUp(self):
-        self.db_fd, twp.app.config['DATABASE'] = 'sqlite:///%s' % tempfile.mkstemp()
+        self.db_fd, dbfile = tempfile.mkstemp()
+        twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
         twp.app.config['TESTING'] = True
-        twp.SERVERS_BASEPATH = tempfile.mkdtemp()
-        self.test_server_folder = r'%s/twsrv' % twp.SERVERS_BASEPATH
+        twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
+        self.test_server_folder = r'%s/twsrv' % twp.app.config['SERVERS_BASEPATH']
         self.app = twp.app.test_client()
+        twp.db.create_all()
         twp.db_init()
 
     def tearDown(self):
@@ -162,10 +164,12 @@ class LoginSecurityTestCase(unittest.TestCase):
         ), follow_redirects=True)
     
     def setUp(self):
-        self.db_fd, twp.app.config['DATABASE'] = 'sqlite:///%s' % tempfile.mkstemp()
+        self.db_fd, dbfile = tempfile.mkstemp()
+        twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
         twp.app.config['TESTING'] = True
-        twp.SERVERS_BASEPATH = tempfile.mkdtemp()
+        twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
         self.app = twp.app.test_client()
+        twp.db.create_all()
         twp.db_init()
 
     def tearDown(self):

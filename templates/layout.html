@@ -46,7 +46,7 @@
 		<!-- Placed at the end of the document so the pages load faster -->
 		<script type="text/javascript">
 			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-			var $REFRESH_TIME = {{ twp.refresh_time|tojson|safe }} * 1000;
+			var $REFRESH_TIME = {{ config['REFRESH_TIME']|tojson|safe }} * 1000;
 			
 			var $BABEL_STR_SESSION_EXPIRED = {{_("The session has expired")|tojson|safe}};
 			var $BABEL_STR_TITLE_SESSION_EXPIRED = {{_("Session Expired!")|tojson|safe}};

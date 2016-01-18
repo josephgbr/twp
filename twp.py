@@ -18,8 +18,8 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 import twpl
-import subprocess, time, re, hashlib, sqlite3, os, sys, json, logging, time, \
-        signal, shutil, binascii, tempfile, ConfigParser
+import subprocess, time, re, hashlib, os, sys, json, logging, time, \
+        signal, shutil, binascii
 from io import BytesIO
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -31,93 +31,76 @@ from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _
-from twpl import BannedList, BannerGenerator
-from os import urandom
+from twpl import BannedList, BannerGenerator, TWPConfig
 import logging
-logging.basicConfig()
-
-# Configuration //TODO: Move to separate file
-config = ConfigParser.SafeConfigParser()
-config.readfp(open('twp.conf'))
-
-SECRET_KEY = config.get('global', 'secret', None)
-if not SECRET_KEY:
-    SECRET_KEY = binascii.hexlify(os.urandom(24)).decode()
-    config.set('global', 'secret', SECRET_KEY)
-    config.write(open('twp.conf', 'w'))
-
-BRAND_NAME = config.get('overview', 'brand_name')
-BRAND_URL = config.get('overview', 'brand_url')
-TWP_INFO = {
-    'version': '0.1.0',
-    'refresh_time': config.getint('global', 'refresh_time'),
-    'brand_name': BRAND_NAME,
-    'brand_url': BRAND_URL
-}
-DEBUG = config.getboolean('global', 'debug')
-HOST = config.get('global', 'host')
-PORT = config.getint('global', 'port')
-THREADED = config.getboolean('global', 'threaded')
-SQLALCHEMY_DATABASE_URI = config.get('database', 'file')
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-SERVERS_BASEPATH = config.get('overview', 'servers')
-UPLOAD_FOLDER = tempfile.mkdtemp()
-MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
-ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
-LOGFILE = config.get('log', 'file')
-LOGBYTES = config.getint('log', 'maxbytes')
-LOGIN_MAX_TRIES = config.getint('login', 'max_tries')
-LOGIN_BAN_TIME = config.getint('login', 'ban_time')
-SSL = config.getboolean('global','ssl')
-PKEY = config.get('ssl','pkey')
-CERT = config.get('ssl','cert')
-SSL = False if not os.path.isfile(PKEY) or not os.path.isfile(CERT) else SSL
-SCHEDULER_VIEWS_ENABLED = False
-SCHEDULER_EXECUTORS = {
-    'default': {'type': 'threadpool', 'max_workers': 5} # Optimal: Num. Cores x 2 + 1
-}
-SCHEDULER_JOB_DEFAULTS = {
-    'coalesce': True,
-    'max_instances': 1
-}
-JOBS = [
-    {
-        'id': 'analyze_all_server_instances',
-        'func': 'twp:analyze_all_server_instances',
-        'trigger': {
-            'type': 'cron',
-            'second': 30
-        }
-    }
-]
-BABEL_DEFAULT_LOCALE = 'en'
-SUPPORT_LANGUAGES = twpl.get_support_languages()
-
-IP = twpl.get_public_ip();
-
-
-# Try create server directory if needed
-if not os.path.isdir(SERVERS_BASEPATH):
-    os.makedirs(SERVERS_BASEPATH)
+logging.basicConfig() 
     
-    
-# Global Vars
+# Global
 BanList = BannedList()
+PublicIP = twpl.get_public_ip();
 
 
 # Start Flask App
 app = Flask(__name__)
-app.config.from_object(__name__)
+app.config.from_object(TWPConfig())
 babel = Babel(app)
 db = SQLAlchemy(app)
-from models import *
-db.create_all()
 
 # Check Servers path
-SERVERS_BASEPATH = r'%s/%s' % (app.root_path, SERVERS_BASEPATH) if not SERVERS_BASEPATH[0] == '/' else SERVERS_BASEPATH
+app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
+
+# Create Tables
+class Issue(db.Model):
+    __tablename__ = 'issue'
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
+    date = db.Column(db.DateTime)
+    message = db.Column(db.String(255))
+    
+class PlayerServerInstance(db.Model):
+    __tablename__ = 'player_server_instance'
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
+    name = db.Column(db.String(25))
+    clan = db.Column(db.String(25))
+    country = db.Column(db.Integer)
+    date = db.Column(db.DateTime)
+    
+class Player(db.Model):
+    __tablename__ = 'player'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25))
+    create_date = db.Column(db.DateTime)
+    last_seen_date = db.Column(db.DateTime)
+    status = db.Column(db.Integer)
+    
+class ServerInstance(db.Model):
+    __tablename__ = 'server_instance'
+    id = db.Column(db.Integer, primary_key=True)
+    fileconfig = db.Column(db.String(512))
+    base_folder = db.Column(db.String(128))
+    bin = db.Column(db.String(128))
+    alaunch = db.Column(db.Boolean)
+    port = db.Column(db.String(4))
+    name = db.Column(db.String(128))
+    status = db.Column(db.Integer)
+    gametype = db.Column(db.String(16))
+    visible = db.Column(db.Boolean)
+    public = db.Column(db.Boolean)
+    logfile = db.Column(db.String(128))
+    econ_port = db.Column(db.Integer)
+    econ_password = db.Column(db.String(32))
+    
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(128), unique=True)
+    password = db.Column(db.String(128))
+
+db.create_all()
 
 
-# Database
+# DB Methods
 def db_add_and_commit(reg):
     db.session.add(reg)
     db.session.commit()
@@ -145,23 +128,12 @@ def before_request():
 #@app.teardown_request
 #def teardown_request(exception):
 
-
 @babel.localeselector
 def get_locale():
-    # FIXME: g.user not used
-    user = getattr(g, 'user', None)
-    if user is not None:
-        return user.locale
-    # otherwise try to guess the language from the user accept
-    # header the browser transmits. The best match wins.
-    return request.accept_languages.best_match(SUPPORT_LANGUAGES)
+    return request.accept_languages.best_match(app.config['SUPPORT_LANGUAGES'])
 
-# TODO: user!
-@babel.timezoneselector
-def get_timezone():
-    user = getattr(g, 'user', None)
-    if user is not None:
-        return user.timezone
+#@babel.timezoneselector
+#def get_timezone():
 
 
 # Routing
@@ -169,12 +141,12 @@ def get_timezone():
 @app.route("/overview", methods=['GET'])
 def overview():
     session['prev_url'] = request.path;
-    return render_template('index.html', twp=TWP_INFO, dist=twpl.get_linux_distribution(), ip=IP)
+    return render_template('index.html', dist=twpl.get_linux_distribution(), ip=PublicIP)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if not BanList.find(request.remote_addr) and get_login_tries() >= LOGIN_MAX_TRIES:
-        BanList.add(request.remote_addr, LOGIN_BAN_TIME);
+    if not BanList.find(request.remote_addr) and get_login_tries() >= app.config['LOGIN_MAX_TRIES']:
+        BanList.add(request.remote_addr, app.config['LOGIN_BAN_TIME']);
         session['login_try'] = 0;
         return redirect(url_for("banned")) 
     
@@ -198,8 +170,8 @@ def login():
 
         session['login_try'] = get_login_tries()+1
         session['last_login_try'] = int(time.time())
-        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),LOGIN_MAX_TRIES), 'danger')
-    return render_template('login.html', twp=TWP_INFO)
+        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),app.config['LOGIN_MAX_TRIES']), 'danger')
+    return render_template('login.html')
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -219,7 +191,7 @@ def logout():
 
 @app.route('/banned', methods=['GET'])
 def banned():
-    return render_template('banned.html', twp=TWP_INFO), 403
+    return render_template('banned.html'), 403
 
 @app.route('/servers', methods=['GET'])
 def servers():
@@ -242,7 +214,7 @@ def servers():
             else:
                 srv.status = 0
             db_add_and_commit(srv)
-    return render_template('servers.html', twp=TWP_INFO, servers=twpl.get_local_servers(SERVERS_BASEPATH))
+    return render_template('servers.html', servers=twpl.get_local_servers(app.config['SERVERS_BASEPATH']))
     
 @app.route('/server/<int:id>', methods=['GET'])
 def server(id):
@@ -256,7 +228,7 @@ def server(id):
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', twp=TWP_INFO, ip=IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count)
+    return render_template('server.html', ip=PublicIP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count)
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
@@ -276,7 +248,7 @@ def generate_server_banner(id):
         if 'grade' in request.values:
             banner_image.gradEndColor = twpl.HTMLColorToRGBA(request.values.get('grade'))
         
-        return send_file(banner_image.generate(IP), as_attachment=False)
+        return send_file(banner_image.generate(PublicIP), as_attachment=False)
         
 @app.route('/players', methods=['GET'])
 def players():
@@ -285,7 +257,7 @@ def players():
     players = db.session.execute("SELECT rowid,strftime('%d-%m-%Y %H:%M',create_date) as create_date, \
                         strftime('%d-%m-%Y %H:%M',last_seen_date) as last_seen_date, \
                         status,name from player ORDER BY name ASC")
-    return render_template('players.html', twp=TWP_INFO, players=players)
+    return render_template('players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
 def maps():
@@ -299,7 +271,7 @@ def settings():
             flash(_('Settings updates successfully'), 'info')
         else:
             session['prev_url'] = request.path;
-        return render_template('settings.html', twp=TWP_INFO)
+        return render_template('settings.html')
     else:
         flash(_('Can\'t access to settings page'), 'danger')
         return redirect(url_for('overview'))
@@ -310,7 +282,7 @@ def install_mod():
     if 'logged_in' in session and session['logged_in']:
         if 'url' in request.form and not request.form['url'] == '':
             try:
-                twpl.install_mod_from_url(request.form['url'], SERVERS_BASEPATH)
+                twpl.install_mod_from_url(request.form['url'], app.config['SERVERS_BASEPATH'])
             except Exception as e:
                 flash(_("Error: %s") % str(e), 'danger')
             else:
@@ -323,9 +295,9 @@ def install_mod():
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                     fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
                     if filename.endswith(".tar.gz"):
-                        twpl.extract_targz(fullpath, SERVERS_BASEPATH, True)
+                        twpl.extract_targz(fullpath, app.config['SERVERS_BASEPATH'], True)
                     elif filename.endswith(".zip"):
-                        twpl.extract_zip(fullpath, SERVERS_BASEPATH, True)
+                        twpl.extract_zip(fullpath, app.config['SERVERS_BASEPATH'], True)
                     flash(_('Mod installed successfully'), 'info')
                     return redirect(current_url)
                 else:
@@ -345,7 +317,7 @@ def search():
     sk = "%%%s%%" % searchword
     servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), ServerInstance.base_folder.like(sk)))
     players = db.session.query(Player).filter(Player.name.like(sk))
-    return render_template('search.html', twp=TWP_INFO, search=searchword, servers=servers, players=players)
+    return render_template('search.html', search=searchword, servers=servers, players=players)
 
 @app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
 def log(id, code, name):
@@ -353,7 +325,7 @@ def log(id, code, name):
     netinfo = None
     logdate = None
     if srv:
-        log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv.base_folder, code, name)
+        log_file = r'%s/%s/logs/%s-%s' % (app.config['SERVERS_BASEPATH'], srv.base_folder, code, name)
         if not os.path.isfile(log_file):
             flash(_('Logfile not exists!'), "danger")
         else:
@@ -362,7 +334,7 @@ def log(id, code, name):
             netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('log.html', twp=TWP_INFO, ip=IP, server=srv, logcode=code, logname=name, logdate=logdate)
+    return render_template('log.html', ip=PublicIP, server=srv, logcode=code, logname=name, logdate=logdate)
     
 
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
@@ -370,7 +342,7 @@ def upload_maps(id):
     if 'logged_in' in session and session['logged_in']:
         srv = db.session.query(ServerInstance).get(id)
         if srv:
-            download_folder = r'%s/%s/data/maps' % (SERVERS_BASEPATH, srv.base_folder)
+            download_folder = r'%s/%s/data/maps' % (app.config['SERVERS_BASEPATH'], srv.base_folder)
             app.logger.info(len(request.files))
             if 'file' in request.files:
                 file = request.files['file']
@@ -406,7 +378,7 @@ def remove_map(id):
             map = request.form['map']
             srv = db.session.query(ServerInstance).get(id)
             if srv:
-                fullpath = r'%s/%s/data/maps/%s.map' % (SERVERS_BASEPATH,srv.base_folder,map)
+                fullpath = r'%s/%s/data/maps/%s.map' % (app.config['SERVERS_BASEPATH'],srv.base_folder,map)
                 if os.path.isfile(fullpath):
                     os.unlink(fullpath)
                     return jsonify({'success':True})
@@ -419,7 +391,7 @@ def remove_map(id):
 def remove_mod():
     if 'logged_in' in session and session['logged_in']:
         if 'folder' in request.form:
-            fullpath_folder = r'%s/%s' % (SERVERS_BASEPATH, request.form['folder'])
+            fullpath_folder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], request.form['folder'])
             if os.path.exists(fullpath_folder):
                 servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder==request.form['folder'])
                 for srv in servers:
@@ -448,7 +420,7 @@ def refresh_uptime_host():
 @app.route('/_refresh_disk_host', methods=['POST'])
 def refresh_disk_host():
     if 'logged_in' in session and session['logged_in']:
-        return jsonify(twpl.host_disk_usage(partition=config.get('overview', 'partition')))
+        return jsonify(twpl.host_disk_usage(partition=app.config['PARTITON']))
     return jsonify({})
 
 @app.route('/_refresh_memory_host', methods=['POST'])
@@ -463,7 +435,7 @@ def refresh_host_localtime():
 
 @app.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
-    return jsonify(twpl.get_tw_masterserver_list(IP))
+    return jsonify(twpl.get_tw_masterserver_list(PublicIP))
 
 @app.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
 def create_server_instance(mod_folder):
@@ -473,11 +445,11 @@ def create_server_instance(mod_folder):
             return jsonify({'error':True, 'errormsg':_('Invalid configuration file name.')})
         
         fileconfig = '%s.conf' % fileconfig
-        fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,mod_folder,fileconfig)
+        fullpath_fileconfig = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],mod_folder,fileconfig)
         
         # Search for mod binaries, if only exists one use it
         bin = None
-        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
+        srv_bins = twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], mod_folder)
         if srv_bins and len(srv_bins) == 1:
             bin = srv_bins[0]
         
@@ -544,9 +516,9 @@ def remove_server_instance(id, delconfig=0):
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
         if delconfig == 1:
-            os.unlink(r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig))
+            os.unlink(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.fileconfig))
         
-        srv.delete()
+        db.session.delete(srv)
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
@@ -555,7 +527,7 @@ def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
         srv = db.session.query(ServerInstance).get(id)
         # Check that is a correct binary name (exists in mod folder)
-        srv_bins = twpl.get_mod_binaries(SERVERS_BASEPATH, srv.base_folder)
+        srv_bins = twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], srv.base_folder)
         if not srv_bins == None and binfile in srv_bins:
             srv.bin = binfile
             db_add_and_commit(srv)
@@ -567,7 +539,6 @@ def set_server_binary(id, binfile):
 def save_server_config():
     if 'logged_in' in session and session['logged_in']:
         srvid = int(request.form['srvid'])
-        app.logger.info(request.form)
         alaunch = 'alsrv' in request.form and request.form['alsrv'] == 'true'
         srvcfg = request.form['srvcfg'];
         srv = db.session.query(ServerInstance).get(srvid)
@@ -601,7 +572,7 @@ def save_server_config():
             db_add_and_commit(srv)
             
             try:
-                cfgfile = open(r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig), "w")
+                cfgfile = open(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.fileconfig), "w")
                 cfgfile.write(srvcfg)
                 cfgfile.close()
             except IOError as e:
@@ -618,7 +589,7 @@ def get_server_config(id):
         srv = db.session.query(ServerInstance).get(id)
         if srv:
             ## Config File Text
-            fullpath_fileconfig = r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.fileconfig)
+            fullpath_fileconfig = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.fileconfig)
             (filename, rest) = srv.fileconfig.split('.', 1)
             if os.path.exists(fullpath_fileconfig):
                 try:
@@ -640,7 +611,7 @@ def get_server_maps(id):
         srv = db.session.query(ServerInstance).get(id)
         if srv:            
             ## Maps
-            maps = twpl.get_mod_maps(SERVERS_BASEPATH, srv.base_folder)
+            maps = twpl.get_mod_maps(app.config['SERVERS_BASEPATH'], srv.base_folder)
             return jsonify({'success':True, 'maps':maps})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
@@ -649,7 +620,7 @@ def get_server_maps(id):
 def get_mod_configs(mod_folder):
     if 'logged_in' in session and session['logged_in']:
         jsoncfgs = {'configs':[]}
-        cfgs = twpl.get_mod_configs(SERVERS_BASEPATH, mod_folder)
+        cfgs = twpl.get_mod_configs(app.config['SERVERS_BASEPATH'], mod_folder)
         for config in cfgs:
             srv = db.session.query(ServerInstance).filter(ServerInstance.fileconfig==config,
                                                           ServerInstance.base_folder==mod_folder)
@@ -663,7 +634,7 @@ def get_mod_wizard_config(id):
     if 'logged_in' in session and session['logged_in']:        
         srv = db.session.query(ServerInstance).get(id)
         if srv:
-            fullpath = r'%s/%s/config.json' % (SERVERS_BASEPATH,srv.base_folder)
+            fullpath = r'%s/%s/config.json' % (app.config['SERVERS_BASEPATH'],srv.base_folder)
             if os.path.isfile(fullpath):
                 cfgfile = open(fullpath, "r")
                 config = cfgfile.read()
@@ -733,7 +704,7 @@ def get_current_server_instance_log(id, seek):
                 if srv.logfile[0] == '/':
                     fullpath = srv.logfile
                 else:
-                    fullpath = r'%s/%s/%s' % (SERVERS_BASEPATH,srv.base_folder,srv.logfile)
+                    fullpath = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.logfile)
                 
                 file_size = os.path.getsize(fullpath)
                 if seek >= file_size:
@@ -773,7 +744,7 @@ def get_selected_server_instance_log(id, code, name):
         srv = db.session.query(ServerInstance).get(id)
         if srv:
             logcontent = ""
-            log_file = r'%s/%s/logs/%s-%s' % (SERVERS_BASEPATH, srv.base_folder, code, name)
+            log_file = r'%s/%s/logs/%s-%s' % (app.config['SERVERS_BASEPATH'], srv.base_folder, code, name)
             if not os.path.isfile(log_file):
                 return jsonify({'error':True, 'errormsg':_('Logfile not exists!')})
             try:                                
@@ -935,7 +906,7 @@ def set_user_password(id):
 def check_session():
     if 'logged_in' in session and session.get('last_activity') is not None:
         now = int(time.time())
-        limit = now - 60 * config.getint('session', 'time')
+        limit = now - 60 * app.config['SESSION_TIME']
         last_activity = session.get('last_activity')
         if last_activity < limit:
             flash(_('Session timed out!'), 'info')
@@ -950,85 +921,85 @@ def utility_processor():
         servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder==mod_folder)
         return servers
     def get_mod_binaries(mod_folder):
-        return twpl.get_mod_binaries(SERVERS_BASEPATH, mod_folder)
+        return twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], mod_folder)
     return dict(get_mod_instances=get_mod_instances, 
                 get_mod_binaries=get_mod_binaries)
 
 
 # Jobs
 def analyze_all_server_instances():
-    with app.app_context():
-        # By default all are offline
-        db.session.query(Player).update({Player.status:0})
-        # By default all servers are offline
-        db.session.query(ServerInstance).update({ServerInstance.status:0})
-        
-        # Check Server & Player Status
-        netstat = twpl.netstat()
-        for conn in netstat:
-            if not conn[2]:
-                continue
-            objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
-            if objMatch:
-                (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
-                srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0],
-                                                        ServerInstance.base_folder==base_folder,
-                                                        ServerInstance.bin==bin)
-                if srv.count() > 0:
-                    srv = srv.one()
-                    srv.status = 1
-                    netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
-                    for ntplayer in netinfo.playerlist:
-                        nplayer = Player(server_id = srv.id,
-                                         name = ntplayer.name,
-                                         clan = ntplayer.clan,
-                                         country = ntplayer.country,
-                                         date = datetime.time(),
-                                         status = 1
-                                         )
+    # By default all are offline
+    db.session.query(Player).update({Player.status:0})
+    # By default all servers are offline
+    db.session.query(ServerInstance).update({ServerInstance.status:0})
+    
+    # Check Server & Player Status
+    netstat = twpl.netstat()
+    for conn in netstat:
+        if not conn[2]:
+            continue
+        objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
+        if objMatch:
+            (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
+            srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0],
+                                                    ServerInstance.base_folder==base_folder,
+                                                    ServerInstance.bin==bin)
+            if srv.count() > 0:
+                srv = srv.one()
+                srv.status = 1
+                netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+                for ntplayer in netinfo.playerlist:
+                    nplayer = Player(server_id = srv.id,
+                                     name = ntplayer.name,
+                                     clan = ntplayer.clan,
+                                     country = ntplayer.country,
+                                     date = datetime.now(),
+                                     status = 1
+                                     )
+                    db.session.add(nplayer)
+                    
+                    playerMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
+                    if playerMatch.count() < 1:
+                        nplayer = Player(name=ntplayer.name,
+                                         create_date=datetime.now(),
+                                         last_seen=datetime.now(),
+                                         status=1)
                         db.session.add(nplayer)
-                        
-                        playerMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
-                        if playerMatch.count() < 1:
-                            nplayer = Player(name=ntplayer.name,
-                                             create_date=datetime.time(),
-                                             last_seen=datetime.time(),
-                                             status=1)
-                            db.session.add(nplayer)
-                        else:
-                            playerMatch.last_seen = datetime.time()
-                            playerMatch.status = 1
-                            db.session.add(playerMatch)
-                        
-        # Reopen Offline Servers
-        servers = db.session.query(ServerInstance).filter(ServerInstance.status==0, ServerInstance.alaunch==True)
-        for dbserver in servers:            
-            if not os.path.isfile(r'%s/%s/%s' % (SERVERS_BASEPATH, dbserver.base_folder, dbserver.bin)):
-                nissue = Issue(server_id=dbserver.id,
-                               date=datetime.time(),
-                               message=_('Server binary not found'))
-                db.session.add(nissue)
-                continue
-            
-            current_time_hex = hex(int(time.time())).split('x')[1]
-            logs_folder = r'%s/%s/logs' % (SERVERS_BASEPATH, dbserver.base_folder)
-            log_file = r'%s/%s/%s' % (SERVERS_BASEPATH, dbserver.base_folder, dbserver.logfile)
-            # Create logs folder if not exists
-            if not os.path.isdir(logs_folder):
-                os.makedirs(logs_folder)
-            # Move current log to logs folder
-            if os.path.isfile(log_file):
-                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
-            # Report issue
+                    else:
+                        playerMatch.last_seen = datetime.now()
+                        playerMatch.status = 1
+                        db.session.add(playerMatch)
+                    
+    # Reopen Offline Servers
+    servers = db.session.query(ServerInstance).filter(ServerInstance.status==0, ServerInstance.alaunch==True)
+    for dbserver in servers:            
+        if not os.path.isfile(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.bin)):
             nissue = Issue(server_id=dbserver.id,
-                           date=datetime.time(),
-                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), server.id, current_time_hex, server.logfile)
-                           )
+                           date=datetime.now(),
+                           message=_('Server binary not found'))
             db.session.add(nissue)
-            # Open server
-            start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
+            continue
         
-        db.session.commit()
+        current_time_hex = hex(int(time.time())).split('x')[1]
+        logs_folder = r'%s/%s/logs' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
+        log_file = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.logfile)
+        # Create logs folder if not exists
+        if not os.path.isdir(logs_folder):
+            os.makedirs(logs_folder)
+        # Move current log to logs folder
+        if os.path.isfile(log_file):
+            shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
+        # Report issue
+        nissue = Issue(server_id=dbserver.id,
+                       date=datetime.now(),
+                       message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), dbserver.id, current_time_hex, dbserver.logfile)
+                       )
+        db.session.add(nissue)
+        # Open server
+        start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
+    
+    print "LLEGA!!"
+    db.session.commit()
         
 
 # Tools
@@ -1037,7 +1008,7 @@ def str_sha512_hex_encode(strIn):
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
            
 def shutdown_all_server_instances():
     netstat = twpl.netstat()
@@ -1048,7 +1019,7 @@ def shutdown_all_server_instances():
                 os.kill(int(conn[1]), signal.SIGTERM)
 
 def start_server_instance(base_folder, bin, fileconfig):
-    binpath = r'%s/%s/%s' % (SERVERS_BASEPATH, base_folder, bin)
+    binpath = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], base_folder, bin)
     # Force it! (prevent zombie state)
     proc = twpl.search_server_pid(binpath, fileconfig)
     if proc:
@@ -1056,7 +1027,7 @@ def start_server_instance(base_folder, bin, fileconfig):
     
     subprocess.Popen([binpath, '-f', fileconfig],
                     shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    cwd=r'%s/%s' % (SERVERS_BASEPATH, base_folder),
+                    cwd=r'%s/%s' % (app.config['SERVERS_BASEPATH'], base_folder),
                     close_fds=True,
                     preexec_fn=os.setsid)
 
@@ -1068,13 +1039,14 @@ def get_login_tries():
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
+scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, trigger={'second':30, 'type':'cron'})
 
 
 # Init Module
 if __name__ == "__main__":
     db_init()
-    if len(LOGFILE) > 0:
-        handler = RotatingFileHandler(LOGFILE, maxBytes=LOGBYTES, backupCount=1)
+    if len(app.config['LOGFILE']) > 0:
+        handler = RotatingFileHandler(app.config['LOGFILE'], maxBytes=app.config['LOGBYTES'], backupCount=1)
         handler.setLevel(logging.INFO)
         app.logger.addHandler(handler)
     if app.config['SSL']: 

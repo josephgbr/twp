@@ -23,6 +23,7 @@ from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
 from banner_generator import BannerGenerator
+from TWPConfig import TWPConfig
 from netstat import netstat
 from urllib import urlretrieve
 from urllib2 import urlopen, URLError
