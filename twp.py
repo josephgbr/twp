@@ -976,20 +976,25 @@ def analyze_all_server_instances():
             db.session.add(nissue)
             continue
         
-        current_time_hex = hex(int(time.time())).split('x')[1]
-        logs_folder = r'%s/%s/logs' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
-        log_file = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.logfile)
-        # Create logs folder if not exists
-        if not os.path.isdir(logs_folder):
-            os.makedirs(logs_folder)
-        # Move current log to logs folder
-        if os.path.isfile(log_file):
-            shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
-        # Report issue
-        nissue = Issue(server_id=dbserver.id,
-                       date=datetime.now(),
-                       message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), dbserver.id, current_time_hex, dbserver.logfile)
-                       )
+        if dbserver.logfile:
+            current_time_hex = hex(int(time.time())).split('x')[1]
+            logs_folder = r'%s/%s/logs' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
+            log_file = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.logfile)
+            # Create logs folder if not exists
+            if not os.path.isdir(logs_folder):
+                os.makedirs(logs_folder)
+            # Move current log to logs folder
+            if os.path.isfile(log_file):
+                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
+            nissue = Issue(server_id=dbserver.id,
+                           date=datetime.now(),
+                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), dbserver.id, current_time_hex, dbserver.logfile)
+                           )
+        else:
+            nissue = Issue(server_id=dbserver.id,
+                           date=datetime.now(),
+                           message=_('Server Offline')
+                           )
         db.session.add(nissue)
         # Open server
         start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
