@@ -16,6 +16,7 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 import ConfigParser
 import tempfile
 import os
@@ -47,7 +48,7 @@ class TWPConfig(object):
         self.PORT = config.getint('global', 'port')
         self.THREADED = config.getboolean('global', 'threaded')
         
-        self.SQLALCHEMY_DATABASE_URI = config.get('database', 'file')
+        self.SQLALCHEMY_DATABASE_URI = config.get('database', 'uri')
         self.SQLALCHEMY_TRACK_MODIFICATIONS = False
         self.ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
         self.LOGFILE = config.get('log', 'file')
