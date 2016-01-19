@@ -44,9 +44,8 @@ babel = Babel(app)
 db = SQLAlchemy(app)
 
 # Global
-BanList = BannedList()
-PublicIP = twpl.get_public_ip()
-RDBMS_TYPE = app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0].lower()
+BANLIST = BannedList()
+PUBLIC_IP = twpl.get_public_ip()
 
 # Check Servers path
 app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
@@ -123,8 +122,8 @@ def db_init():
 # App Callbacks
 @app.before_request
 def before_request():
-    BanList.refresh()
-    if not request.path.startswith('/banned') and BanList.find(request.remote_addr):
+    BANLIST.refresh()
+    if not request.path.startswith('/banned') and BANLIST.find(request.remote_addr):
         return redirect(url_for('banned'))
     
     if request.view_args and 'lang_code' in request.view_args:
@@ -149,12 +148,12 @@ def get_locale():
 @app.route("/overview", methods=['GET'])
 def overview():
     session['prev_url'] = request.path;
-    return render_template('index.html', dist=twpl.get_linux_distribution(), ip=PublicIP)
+    return render_template('index.html', dist=twpl.get_linux_distribution(), ip=PUBLIC_IP)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if not BanList.find(request.remote_addr) and get_login_tries() >= app.config['LOGIN_MAX_TRIES']:
-        BanList.add(request.remote_addr, app.config['LOGIN_BAN_TIME']);
+    if not BANLIST.find(request.remote_addr) and get_login_tries() >= app.config['LOGIN_MAX_TRIES']:
+        BANLIST.add(request.remote_addr, app.config['LOGIN_BAN_TIME']);
         session['login_try'] = 0;
         return redirect(url_for("banned")) 
     
@@ -236,7 +235,7 @@ def server(id):
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', ip=PublicIP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues.count())
+    return render_template('server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues.count())
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
@@ -256,7 +255,7 @@ def generate_server_banner(id):
         if 'grade' in request.values:
             banner_image.gradEndColor = twpl.HTMLColorToRGBA(request.values.get('grade'))
         
-        return send_file(banner_image.generate(PublicIP), as_attachment=False)
+        return send_file(banner_image.generate(PUBLIC_IP), as_attachment=False)
         
 @app.route('/players', methods=['GET'])
 def players():
@@ -340,7 +339,7 @@ def log(id, code, name):
             netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('log.html', ip=PublicIP, server=srv, logcode=code, logname=name, logdate=logdate)
+    return render_template('log.html', ip=PUBLIC_IP, server=srv, logcode=code, logname=name, logdate=logdate)
     
 
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
@@ -441,7 +440,7 @@ def refresh_host_localtime():
 
 @app.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
-    return jsonify(twpl.get_tw_masterserver_list(PublicIP))
+    return jsonify(twpl.get_tw_masterserver_list(PUBLIC_IP))
 
 @app.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
 def create_server_instance(mod_folder):
@@ -830,6 +829,7 @@ def get_chart_values(chart, id=None):
     if chart.lower() == 'server':
         labels['players7d'] = list()
         values['players7d'] = list()
+        # TODO: Filter only from today-7 to today...
         players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.server_id==id)
         if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})

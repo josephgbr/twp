@@ -69,6 +69,10 @@ _(*) Not required but recommended_
 ### Enable Basic Admin Tools
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
 
+### Available Dialects
+You can change the 'SQLALCHEMY_URI' in 'twp.conf' for use one of these dialects: 
+http://docs.sqlalchemy.org/en/latest/dialects/
+
 ### Deploying
 See how: http://flask.pocoo.org/docs/0.10/deploying/
 
