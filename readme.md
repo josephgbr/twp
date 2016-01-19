@@ -20,7 +20,7 @@ Project Requirements:
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
 - [MomentJS v2.11.1](http://momentjs.com/) for easy date manage
 - [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes
-- [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
+- [JQuery v1.12.0](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
  - [Bootstrap Colorpicker v2.3](http://mjolnic.com/bootstrap-colorpicker/)

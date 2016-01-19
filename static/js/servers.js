@@ -438,7 +438,7 @@ function refresh_server_maps_list(srvid)
 
 function generate_wizard($wizard, srvid)
 {
-	$.getJSON($SCRIPT_ROOT+'/static/js/base_conf.json', function(data){
+	$.getJSON($SCRIPT_ROOT+'/static/json/base_conf.json', function(data){
 		$.post($SCRIPT_ROOT+'/_get_mod_wizard_config/'+srvid, '', function(mdata){
 			check_server_data(mdata);
 			
