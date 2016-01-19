@@ -123,13 +123,7 @@ $(function() {
 			  ykeys: ['a'],
 			  labels: [$BABEL_STR_PLAYERS],
 			  resize: true,
-			  dateFormat: function (x) {
-				  	var d = new Date(x);
-					var curr_date = d.getDate();
-					var curr_month = d.getMonth() + 1; //Months are zero based
-					var curr_year = d.getFullYear();
-					return curr_date + "-" + curr_month + "-" + curr_year; 
-			  }
+			  dateFormat: function (x) { return moment(x).format("DD/MM/YYYY"); }
 		});
 	});
 });

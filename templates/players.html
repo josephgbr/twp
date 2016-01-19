@@ -25,8 +25,8 @@
 			{% for player in players %}
 				<tr id="ply-line-{{player.id}}" class="{% if player.status == 1 %}success{% endif %}">
 					<td>{{player.name}}</td>
-					<td class="col-md-3">{{player.create_date}}</td>
-					<td class="col-md-3">{{player.last_seen_date}}</td>
+					<td class="col-md-3">{{player.create_date.strftime("%d-%m-%Y %H:%M")}}</td>
+					<td class="col-md-3">{{player.last_seen_date.strftime("%d-%m-%Y %H:%M")}}</td>
 				</tr>
 			{% endfor %}
 			</tbody>

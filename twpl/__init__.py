@@ -144,11 +144,12 @@ def host_uptime():
     '''
     
     f = open('/proc/uptime')
-    uptime = int(f.readlines()[0].split('.')[0])
+    line = f.readlines()[0]
+    f.close()
+    uptime = int(line.split(" ")[0].split('.')[0])
     minutes = int(uptime / 60 % 60)
     hours = int(uptime / 60 / 60 % 24)
     days = int(uptime / 60 / 60 / 24)
-    f.close()
     return {'day': days, 
             'time': '%d:%02d' % (hours, minutes)}
     
@@ -161,14 +162,14 @@ def get_linux_distribution():
 
 
 def get_local_servers(dir):
-    srvlist = []
+    srvlist = list()
     for r in os.listdir(dir):
         if os.path.isdir('%s/%s' % (dir,r)):
             srvlist.append(r)
     return srvlist
 
 def get_mod_binaries(dir, mod_folder):
-    binlist = []
+    binlist = list()
     for r in os.listdir('%s/%s' % (dir, mod_folder)):
         fullpath = '%s/%s/%s' % (dir, mod_folder, r)
         if os.path.isfile(fullpath) and not is_text_file(fullpath) and not fnmatch.filter(r, '.*'):
@@ -176,7 +177,7 @@ def get_mod_binaries(dir, mod_folder):
     return binlist if len(binlist) > 0 else None
 
 def get_mod_maps(dir, mod_folder):
-    maplist = []
+    maplist = list()
     for r in os.listdir('%s/%s/data/maps' % (dir, mod_folder)):
         fullpath = '%s/%s/data/maps/%s' % (dir, mod_folder, r)
         if os.path.isfile(fullpath) and not is_text_file(fullpath) and r.endswith('.map'):
@@ -184,7 +185,7 @@ def get_mod_maps(dir, mod_folder):
     return sorted(maplist, key=lambda k: k['name']) if len(maplist) > 0 else None
 
 def get_mod_configs(dir, mod_folder):
-    cfglist = []
+    cfglist = list()
     for r in os.listdir('%s/%s' % (dir, mod_folder)):
         fullpath = '%s/%s/%s' % (dir, mod_folder, r)
         if os.path.isfile(fullpath) and is_text_file(fullpath) and r.endswith('.conf'):
@@ -248,7 +249,7 @@ def get_data_config_basics(fileconfig):
 def get_server_net_info(ip, servers):
     twreq = TWServerRequest(timeout=0.001)
     
-    servers_info = []
+    servers_info = list()
     for server in servers:
         twreq.query_port(ip, int(server.port))
         twreq.run_loop()
@@ -337,7 +338,7 @@ def install_mod_from_url(url, dest):
 
 def write_config_param(filename, param, new_value):
     replaced = False
-    content = []
+    content = list()
     
     try:
         if os.path.isfile(filename):
@@ -411,7 +412,7 @@ def generate_random_ascii_string(size=8):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
 
 def get_support_languages():
-    langs = []
+    langs = list()
     for r in os.listdir('%s/translations' % os.getcwd()):
         fullpath = '%s/translations/%s' % (os.getcwd(), r)
         if os.path.isdir(fullpath):

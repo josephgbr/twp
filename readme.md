@@ -12,11 +12,13 @@ Project Requirements:
  - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
 - [Pillow v3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) for generate png images
+- [MergeDict v0.2.0](https://pypi.python.org/pypi/mergedict/0.2.0) for make the life easier with python dictionaries
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
 - [Font Awesome v4.5.0](http://fontawesome.io/) for awesome icons
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
+- [MomentJS v2.11.1](http://momentjs.com/) for easy date manage
 - [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes
 - [JQuery v1.11.3](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design

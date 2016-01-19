@@ -15,26 +15,31 @@ class TWPConfig(object):
             config.set('global', 'secret', self.SECRET_KEY)
             config.write(open('twp.conf', 'w'))
             
-        self.SERVERS_BASEPATH = config.get('overview', 'servers')
         self.VERSION = "0.2.0"
+        self.UPLOAD_FOLDER = tempfile.mkdtemp()
+        
+        self.SERVERS_BASEPATH = config.get('overview', 'servers')
         self.BRAND_NAME = config.get('overview', 'brand_name')
         self.BRAND_URL = config.get('overview', 'brand_url')
+        self.MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
+        
         self.REFRESH_TIME = config.getint('global', 'refresh_time')
         self.DEBUG = config.getboolean('global', 'debug')
         self.HOST = config.get('global', 'host')
         self.PORT = config.getint('global', 'port')
         self.THREADED = config.getboolean('global', 'threaded')
+        
         self.SQLALCHEMY_DATABASE_URI = config.get('database', 'file')
         self.SQLALCHEMY_TRACK_MODIFICATIONS = False
-        self.UPLOAD_FOLDER = tempfile.mkdtemp()
-        self.MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
         self.ALLOWED_EXTENSIONS = set(['zip', 'gz', 'map'])
         self.LOGFILE = config.get('log', 'file')
         self.LOGBYTES = config.getint('log', 'maxbytes')
         self.LOGIN_MAX_TRIES = config.getint('login', 'max_tries')
         self.LOGIN_BAN_TIME = config.getint('login', 'ban_time')
         self.PARTITION = config.get('overview', 'partition')
+        
         self.SESSION_TIME = config.getint('session', 'time')
+        
         self.SSL = config.getboolean('global','ssl')
         self.PKEY = config.get('ssl','pkey')
         self.CERT = config.get('ssl','cert')
@@ -42,11 +47,14 @@ class TWPConfig(object):
         
         self.SCHEDULER_VIEWS_ENABLED = False
         self.SCHEDULER_EXECUTORS = {
-            'default': {'type': 'threadpool', 'max_workers': 5} # Optimal: Num. Cores x 2 + 1
+            'default': {
+                        'type': 'threadpool', 
+                        'max_workers': 5, # Optimal: Num. Cores x 2 + 1
+                        }
         }
         self.SCHEDULER_JOB_DEFAULTS = {
             'coalesce': True,
-            'max_instances': 1
+            'max_instances': 1,
         }
         
         self.BABEL_DEFAULT_LOCALE = 'en'

@@ -20,12 +20,13 @@
 import twpl
 import subprocess, time, re, hashlib, os, sys, json, logging, time, \
         signal, shutil
+from mergedict import ConfigDict
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
                   flash, jsonify, send_from_directory, send_file
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, desc, asc
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
@@ -35,15 +36,17 @@ from twpl import BannedList, BannerGenerator, TWPConfig
 import logging
 logging.basicConfig() 
     
-# Global
-BanList = BannedList()
-PublicIP = twpl.get_public_ip();
 
 # Start Flask App
 app = Flask(__name__)
 app.config.from_object(TWPConfig())
 babel = Babel(app)
 db = SQLAlchemy(app)
+
+# Global
+BanList = BannedList()
+PublicIP = twpl.get_public_ip()
+RDBMS_TYPE = app.config['SQLALCHEMY_DATABASE_URI'].split(':')[0].lower()
 
 # Check Servers path
 app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
@@ -104,6 +107,10 @@ db.create_all()
 # DB Methods
 def db_add_and_commit(reg):
     db.session.add(reg)
+    db.session.commit()
+    
+def db_delete_and_commit(reg):
+    db.session.delete(reg)
     db.session.commit()
 
 def db_init():
@@ -222,16 +229,14 @@ def servers():
 def server(id):
     session['prev_url'] = request.path;
     srv = db.session.query(ServerInstance).get(id)
-    issues = db.session.execute("select strftime('%d-%m-%Y %H:%M:%S',date) as date,message from issue \
-                                 where server_id=:id ORDER BY date DESC", {"id":id})
-    issues_count = db.session.execute("select * from issue \
-                                     where server_id=:id ORDER BY date DESC", {"id":id}).scalar()
+    issues = db.session.query(Issue).filter(Issue.server_id==srv.id).order_by(desc(Issue.date))
+
     netinfo = None
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', ip=PublicIP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues_count)
+    return render_template('server.html', ip=PublicIP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues.count())
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
@@ -257,9 +262,7 @@ def generate_server_banner(id):
 def players():
     session['prev_url'] = request.path;
     
-    players = db.session.execute("SELECT rowid,strftime('%d-%m-%Y %H:%M',create_date) as create_date, \
-                        strftime('%d-%m-%Y %H:%M',last_seen_date) as last_seen_date, \
-                        status,name from player ORDER BY name ASC")
+    players = db.session.query(Players).order_by(asc(Player.last_seen_date))
     return render_template('players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
@@ -313,8 +316,8 @@ def install_mod():
 
 @app.route('/search', methods=['GET'])
 def search():
-    servers = []
-    players = []
+    servers = list()
+    players = list()
     searchword = request.args.get('r', '')
 
     sk = "%%%s%%" % searchword
@@ -423,7 +426,7 @@ def refresh_uptime_host():
 @app.route('/_refresh_disk_host', methods=['POST'])
 def refresh_disk_host():
     if 'logged_in' in session and session['logged_in']:
-        return jsonify(twpl.host_disk_usage(partition=app.config['PARTITON']))
+        return jsonify(twpl.host_disk_usage(partition=app.config['PARTITION']))
     return jsonify({})
 
 @app.route('/_refresh_memory_host', methods=['POST'])
@@ -465,16 +468,18 @@ def create_server_instance(mod_folder):
         cfgbasic = twpl.get_data_config_basics(fullpath_fileconfig)
         
         # Check if the logfile are be using by other server with the same base_folder
-        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile==cfgbasic['logfile'], ServerInstance.base_folder==mod_folder)
-        if srvMatch.count() > 0:
-            return jsonify({'error':True, 
-                            'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
+        if cfgbasic['logfile']:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile==cfgbasic['logfile'], ServerInstance.base_folder==mod_folder)
+            if srvMatch.count() > 0:
+                return jsonify({'error':True, 
+                                'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
-        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
-        if srvMatch.count() > 0:
-            return jsonify({'error':True, 
-                            'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again.")})
+        if cfgbasic['econ_port']:
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
+            if srvMatch.count() > 0:
+                return jsonify({'error':True, 
+                                'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
@@ -521,7 +526,7 @@ def remove_server_instance(id, delconfig=0):
         if delconfig == 1:
             os.unlink(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.fileconfig))
         
-        db.session.delete(srv)
+        db_delete_and_commit(srv)
         return jsonify({'success':True})
     return jsonify({'notauth':True})
 
@@ -717,7 +722,7 @@ def get_current_server_instance_log(id, seek):
                 return jsonify({'success':True, 'content':None, 'seek':0})
             
             lines = logcontent.splitlines()
-            logcontent = []
+            logcontent = list()
             for line in lines:
                 objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
                 if objMatch:
@@ -753,7 +758,7 @@ def get_selected_server_instance_log(id, code, name):
                 return jsonify({'success':True, 'content':None})
             
             lines = logcontent.splitlines()
-            logcontent = []
+            logcontent = list()
             for line in lines:
                 objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
                 if objMatch:
@@ -817,71 +822,67 @@ def kick_ban_player(id):
 @app.route('/_get_chart_values/<string:chart>', methods=['POST'])
 @app.route('/_get_chart_values/<string:chart>/<int:id>', methods=['POST'])
 def get_chart_values(chart, id=None):
-    labels = {}
-    values = {}
+    today = datetime.now()
+    allowed_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(0, 7)]
+    labels = dict()
+    values = dict()
+    
     if chart.lower() == 'server':
-        query_data = db.session.execute("SELECT count(DISTINCT name) as num, strftime('%Y-%m-%d', tblA.dd) as date \
-            FROM  (SELECT date('now', 'localtime') as dd \
-            UNION SELECT date('now', 'localtime', '-1 day') \
-            UNION SELECT date('now', 'localtime', '-2 day') \
-            UNION SELECT date('now', 'localtime', '-3 day') \
-            UNION SELECT date('now', 'localtime', '-4 day') \
-            UNION SELECT date('now', 'localtime', '-5 day') \
-            UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
-            LEFT JOIN player_server_instance as tblB \
-            ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) AND tblB.server_id=:id \
-            GROUP BY strftime('%d-%m-%Y', tblA.dd)", {"id":id})
-        if query_data:
-            labels['players7d'] = []
-            values['players7d'] = []
-            for value in query_data:
-                labels['players7d'].append(value.date)
-                values['players7d'].append(value.num)
-        else:
+        labels['players7d'] = list()
+        values['players7d'] = list()
+        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.server_id==id)
+        if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
+        chart_data = ConfigDict()
+        for dbplayer in players:
+            strdate = dbplayer.date.strftime("%Y-%m-%d")
+            if not strdate in allowed_dates:
+                continue
+            if not strdate in chart_data.keys() or not dbplayer.name in chart_data[strdate]:
+                chart_data.merge({strdate:[dbplayer.name]})
+        for secc in allowed_dates:
+            labels['players7d'].append(secc)
+            values['players7d'].append(len(chart_data[secc]) if secc in chart_data else 0)
         
         query_data = db.session.execute("SELECT count(clan) as num, clan FROM \
                                         (SELECT DISTINCT name,clan,server_id FROM player_server_instance \
-                                        WHERE clan NOT NULL) WHERE server_id=:id GROUP BY clan ORDER BY num \
+                                        WHERE clan IS NOT NULL) as tbl WHERE tbl.server_id=:id GROUP BY clan ORDER BY num \
                                         DESC LIMIT 5", {"id":id})
         if query_data:
-            labels['topclan'] = []
-            values['topclan'] = []
+            labels['topclan'] = list()
+            values['topclan'] = list()
             for value in query_data:
                 labels['topclan'].append(value.clan)
                 values['topclan'].append(value.num)
                 
         query_data = db.session.execute("SELECT count(country) as num, country FROM \
                                         (SELECT DISTINCT name,country,server_id FROM player_server_instance \
-                                        WHERE clan NOT NULL) WHERE server_id=:id GROUP BY country \
+                                        WHERE clan IS NOT NULL) as tbl WHERE tbl.server_id=:id GROUP BY country \
                                         ORDER BY num DESC LIMIT 5", {"id":id})
         if query_data:
-            labels['topcountry'] = []
-            values['topcountry'] = []
+            labels['topcountry'] = list()
+            values['topcountry'] = list()
             for value in query_data:
                 labels['topcountry'].append(value.country)
                 values['topcountry'].append(value.num)
             
         return jsonify({'success':True, 'values':values, 'labels':labels})
     elif chart.lower() == 'machine':
-        query_data = db.session.execute("SELECT count(DISTINCT name) as num, \
-                                        strftime('%Y-%m-%d', tblA.dd) as date \
-                                        FROM  (SELECT date('now', 'localtime') as dd \
-                                        UNION SELECT date('now', 'localtime', '-1 day') \
-                                        UNION SELECT date('now', 'localtime', '-2 day') \
-                                        UNION SELECT date('now', 'localtime', '-3 day') \
-                                        UNION SELECT date('now', 'localtime', '-4 day') \
-                                        UNION SELECT date('now', 'localtime', '-5 day') \
-                                        UNION SELECT date('now', 'localtime', '-6 day')) as tblA \
-                                        LEFT JOIN player_server_instance as tblB \
-                                        ON strftime('%d-%m-%Y',tblB.date) = strftime('%d-%m-%Y',tblA.dd) \
-                                        GROUP BY strftime('%d-%m-%Y', tblA.dd)")
-        if query_data:
-            labels['players7d'] = []
-            values['players7d'] = []
-            for value in query_data:
-                labels['players7d'].append(value.date)
-                values['players7d'].append(value.num)
+        labels['players7d'] = list()
+        values['players7d'] = list()
+        players = db.session.query(PlayerServerInstance)
+        if not players:
+            return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
+        chart_data = ConfigDict()
+        for dbplayer in players:
+            strdate = dbplayer.date.strftime("%Y-%m-%d")
+            if not strdate in allowed_dates:
+                continue
+            if not strdate in chart_data.keys() or not dbplayer.name in chart_data[strdate]:
+                chart_data.merge({strdate:[dbplayer.name]})
+        for secc in allowed_dates:
+            labels['players7d'].append(secc)
+            values['players7d'].append(len(chart_data[secc]) if secc in chart_data else 0)
         return jsonify({'success':True, 'values':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':_('Undefined Chart!')})
 
