@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
                   flash, jsonify, send_from_directory, send_file
-from sqlalchemy import or_, func, desc, asc
+from sqlalchemy import or_, func, desc
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
@@ -262,7 +262,7 @@ def generate_server_banner(id):
 def players():
     session['prev_url'] = request.path;
     
-    players = db.session.query(Players).order_by(asc(Player.last_seen_date))
+    players = db.session.query(Player).order_by(desc(Player.last_seen_date))
     return render_template('players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
