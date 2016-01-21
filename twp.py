@@ -58,7 +58,7 @@ class Issue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
     date = db.Column(db.DateTime)
-    message = db.Column(db.String(255))
+    message = db.Column(db.String(512))
     
 class PlayerServerInstance(db.Model):
     __tablename__ = 'player_server_instance'
@@ -985,7 +985,7 @@ def analyze_all_server_instances():
                 os.makedirs(logs_folder)
             # Move current log to logs folder
             if os.path.isfile(log_file):
-                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, server.logfile))
+                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, dbserver.logfile))
             nissue = Issue(server_id=dbserver.id,
                            date=datetime.now(),
                            message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), dbserver.id, current_time_hex, dbserver.logfile)
