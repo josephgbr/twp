@@ -8,7 +8,7 @@
 <ol class="breadcrumb">
 	<li><a href="/servers">{{_('Servers')}}</a></li>
 	<li>{{server.base_folder}}</li>
-	<li><a href="/server/{{server['rowid']}}">{% if is_online %}{{netinfo.name}}{% else %}{{server.name}}{% endif %}</a></li>
+	<li><a href="/server/{{server.id}}">{% if is_online %}{{netinfo.name}}{% else %}{{server.name}}{% endif %}</a></li>
 	<li>logs</li>
 </ol>
 

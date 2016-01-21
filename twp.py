@@ -326,7 +326,7 @@ def search():
 
 @app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
 def log(id, code, name):
-    srv = db.session.query(Server).get(id)
+    srv = db.session.query(ServerInstance).get(id)
     netinfo = None
     logdate = None
     if srv:
