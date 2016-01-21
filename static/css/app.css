@@ -54,6 +54,10 @@ body {
   max-height: 200px;
 }
 
+#server-time:hover {
+	cursor: help;
+}
+
 .pill-server {
 	height: 70px;
 	min-height: 70px;

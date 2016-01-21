@@ -13,6 +13,9 @@
 	
 	   		<!-- Collect the nav links, forms, and other content for toggling -->
 	   		<div id="slidemenu">
+	   			<p id="server-time" class="navbar-text navbar-right text-muted text-center" title="{{_('Server Local Time')}}">
+	   				<i class="fa fa-clock-o"></i> <b><span id="localtime">00:00</span></b>
+	   			</p>
 	   			<form action="/search" method="get" class="navbar-form navbar-right" role="search">      			
 	              	<div class="input-group">
 	                    <input type="search" class="form-control"
@@ -29,9 +32,6 @@
 	     			<li class="{% if request.path.startswith('/players') %} active {% endif %}"><a href="/players">{{ _('Players') }}</a></li>
 					<!-- li class="{% if request.path.startswith('/maps') %} active {% endif %}"><a href="/maps">{{ _('Maps') }}</a></li -->
 	   			</ul>
-	   			<p class="navbar-text navbar-center text-muted">
-	   				<i class="fa fa-clock-o"></i> <b><span id="localtime">00:00</span> {{_('(Server Local Time)')}}</b>
-	   			</p>
 	   			<ul class="nav navbar-nav navbar-right">
 	   			{% if session.logged_in %}
 		      		<li class="dropdown">
