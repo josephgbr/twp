@@ -11,7 +11,7 @@ CFG=babel.cfg
 L10NDIR="./translations/"
 
 # Get pybabel path in different distros
-PYBABEL_LIST="/usr/bin/pybabel2 /usr/bin/babel-python2 /usr/bin/pybabel"
+PYBABEL_LIST="/usr/bin/pybabel2 /usr/bin/babel-python2 /usr/bin/pybabel /usr/local/bin/pybabel"
 unset PYBABEL
 for BIN in $PYBABEL_LIST; do
     if [ -x $BIN ]; then
