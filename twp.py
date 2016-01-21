@@ -946,24 +946,23 @@ def analyze_all_server_instances():
                 srv.status = 1
                 netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
                 for ntplayer in netinfo.playerlist:
-                    nplayer = Player(server_id = srv.id,
+                    nplayer = PlayerServerInstance(server_id = srv.id,
                                      name = ntplayer.name,
                                      clan = ntplayer.clan,
                                      country = ntplayer.country,
-                                     date = datetime.now(),
-                                     status = 1
-                                     )
+                                     date = datetime.now())
                     db.session.add(nplayer)
                     
-                    playerMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
-                    if playerMatch.count() < 1:
+                    playersMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
+                    if playersMatch.count() < 1:
                         nplayer = Player(name=ntplayer.name,
                                          create_date=datetime.now(),
-                                         last_seen=datetime.now(),
+                                         last_seen_date=datetime.now(),
                                          status=1)
                         db.session.add(nplayer)
                     else:
-                        playerMatch.last_seen = datetime.now()
+                        playerMatch = playersMatch.one()
+                        playerMatch.last_seen_date = datetime.now()
                         playerMatch.status = 1
                         db.session.add(playerMatch)
                     
