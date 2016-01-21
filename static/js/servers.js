@@ -116,7 +116,7 @@ $(function(){
 	    	{
 	    		$('#modal_new_server #cfgfile').val(data['configs'][0]);
 	    		for (i in data['configs'])
-	    			$cfglist.append("<option value='"+data['configs'][i]+"'>"+data['configs'][i]+"</option>")
+	    			$cfglist.append("<option value='"+data['configs'][i]+"'>"+data['configs'][i]+"</option>");
 	    	}
 	    });
 	});
@@ -412,10 +412,10 @@ function refresh_server_maps_list(srvid)
     var maps_str = get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation");
     if (maps_str)
     	maps = maps_str.split(" ");
+
+    maps.push(get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_map"));
     
-    	maps.push(get_config_value_textarea($("#modal_instance_configuration #srvcfg"), "sv_map"));
-    
-	    $.post($SCRIPT_ROOT + '/_get_server_maps/'+srvid, '', function(data) {
+	$.post($SCRIPT_ROOT + '/_get_server_maps/'+srvid, '', function(data) {
     	 check_server_data(data);
     	 
     	 if (data['success'])
@@ -470,7 +470,7 @@ function generate_wizard($wizard, srvid)
 						html += "<select id='"+key+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
 						for (var i in val.values)
 							html += "<option value='"+val.values[i]+"' "+(val.values[i]==rval?'selected':'')+">"+val.values[i]+"</option>";
-						html += "</select>"
+						html += "</select>";
 					}
 					else if ("checkbox" === val.type)
 					{
@@ -497,6 +497,6 @@ function update_advance_config_maps()
 	var maps = new Array();
 	$("input[name=map_used]:checked").each(function(){ maps.push($(this).data('map')); });
 	
-	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length > 0)?maps[0]:undefined);
+	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length == 1)?maps[0]:undefined);
 	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);	
 }

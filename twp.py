@@ -261,7 +261,7 @@ def generate_server_banner(id):
 def players():
     session['prev_url'] = request.path;
     
-    players = db.session.query(Player).order_by(desc(Player.last_seen_date))
+    players = db.session.query(Player).order_by(desc(Player.last_seen_date)).order_by(desc(Player.name))
     return render_template('players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
