@@ -31,7 +31,7 @@
   	<div class="tab-pane active" id="general">
   		{% if session.logged_in %}
    		<div class="col-md-12">
-  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><a data-toggle="modal" data-target="#modal_instance_issues" href="#">{{issues_count}}</a></ins>
+  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><a data-toggle="modal" id="issues_count" data-target="#modal_instance_issues" href="#">0</a></ins>
   		</div>
   		{% endif %}
   	

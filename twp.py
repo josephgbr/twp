@@ -42,13 +42,17 @@ app = Flask(__name__)
 app.config.from_object(TWPConfig())
 babel = Babel(app)
 db = SQLAlchemy(app)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
 # Global
 BANLIST = BannedList()
 PUBLIC_IP = twpl.get_public_ip()
 
 # Check Servers path
-app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
+app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, 
+                                             app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
 if not os.path.isdir(app.config['SERVERS_BASEPATH']):
     os.makedirs(app.config['SERVERS_BASEPATH'])
     
@@ -56,49 +60,56 @@ if not os.path.isdir(app.config['SERVERS_BASEPATH']):
 class Issue(db.Model):
     __tablename__ = 'issue'
     id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
-    date = db.Column(db.DateTime)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=func.now())
     message = db.Column(db.String(512))
     
 class PlayerServerInstance(db.Model):
     __tablename__ = 'player_server_instance'
     id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"))
-    name = db.Column(db.String(25))
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
+    name = db.Column(db.String(25), nullable=False)
     clan = db.Column(db.String(25))
     country = db.Column(db.Integer)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime, nullable=False, default=func.now())
     
 class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25))
-    create_date = db.Column(db.DateTime)
-    last_seen_date = db.Column(db.DateTime)
-    status = db.Column(db.Integer)
+    name = db.Column(db.String(25), nullable=False)
+    create_date = db.Column(db.DateTime, nullable=False, default=func.now())
+    last_seen_date = db.Column(db.DateTime, nullable=False, default=func.now())
+    status = db.Column(db.Integer, nullable=False)
     
 class ServerInstance(db.Model):
     __tablename__ = 'server_instance'
     id = db.Column(db.Integer, primary_key=True)
-    fileconfig = db.Column(db.String(512))
-    base_folder = db.Column(db.String(128))
+    fileconfig = db.Column(db.String(128), nullable=False)
+    base_folder = db.Column(db.String(512), nullable=False)
     bin = db.Column(db.String(128))
-    alaunch = db.Column(db.Boolean)
-    port = db.Column(db.String(4))
-    name = db.Column(db.String(128))
-    status = db.Column(db.Integer)
-    gametype = db.Column(db.String(16))
-    visible = db.Column(db.Boolean)
-    public = db.Column(db.Boolean)
+    alaunch = db.Column(db.Boolean, default=False)
+    port = db.Column(db.String(4), default='8303')
+    name = db.Column(db.String(128), default="Unnamed Server")
+    status = db.Column(db.Integer, default=0)
+    gametype = db.Column(db.String(16), default='DM')
+    visible = db.Column(db.Boolean, default=True)
+    public = db.Column(db.Boolean, default=True)
     logfile = db.Column(db.String(128))
-    econ_port = db.Column(db.Integer)
+    econ_port = db.Column(db.String(4))
     econ_password = db.Column(db.String(32))
     
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(128), unique=True)
-    password = db.Column(db.String(128))
+    username = db.Column(db.String(12), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    
+class ServerJob(db.Model):
+    __tablename__ = 'server_job'
+    id = db.Column(db.String(191), primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable = False)
+    job_type = db.Column(db.Integer, nullable = False)
+    job_exec = db.Column(db.String(4092))
 
 db.create_all()
 
@@ -177,7 +188,8 @@ def login():
 
         session['login_try'] = get_login_tries()+1
         session['last_login_try'] = int(time.time())
-        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),app.config['LOGIN_MAX_TRIES']), 'danger')
+        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),
+                                                                  app.config['LOGIN_MAX_TRIES']), 'danger')
     return render_template('login.html')
 
 @app.route('/logout', methods=['GET'])
@@ -212,7 +224,9 @@ def servers():
         if not conn[2]:
             continue
         (rest,base_folder,bin) = conn[2].rsplit('/', 2)
-        srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0], ServerInstance.base_folder==base_folder, ServerInstance.bin==bin)
+        srv = db.session.query(ServerInstance).filter(ServerInstance.port==conn[0], 
+                                                      ServerInstance.base_folder==base_folder, 
+                                                      ServerInstance.bin==bin)
         if srv.count() > 0:
             srv = srv.one()
             net_server_info = twpl.get_server_net_info("127.0.0.1", [srv])[0]
@@ -228,14 +242,13 @@ def servers():
 def server(id):
     session['prev_url'] = request.path;
     srv = db.session.query(ServerInstance).get(id)
-    issues = db.session.query(Issue).filter(Issue.server_id==srv.id).order_by(desc(Issue.date))
 
     netinfo = None
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo, issues=issues, issues_count=issues.count())
+    return render_template('server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo)
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
@@ -320,7 +333,8 @@ def search():
     searchword = request.args.get('r', '')
 
     sk = "%%%s%%" % searchword
-    servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), ServerInstance.base_folder.like(sk)))
+    servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), 
+                                                          ServerInstance.base_folder.like(sk)))
     players = db.session.query(Player).filter(Player.name.like(sk))
     return render_template('search.html', search=searchword, servers=servers, players=players)
 
@@ -459,31 +473,37 @@ def create_server_instance(mod_folder):
             bin = srv_bins[0]
         
         # Check if other server are using the same configuration file
-        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.fileconfig==fileconfig, ServerInstance.base_folder==mod_folder)
+        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.fileconfig==fileconfig, 
+                                                           ServerInstance.base_folder==mod_folder)
         if srvMatch.count() > 0:
             return jsonify({'error':True, 
-                            'errormsg':_("Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again.")})
+                            'errormsg':_("Can't exists two servers with the same configuration file.<br/>\
+                            Please change configuration file name and try again.")})
                     
         cfgbasic = twpl.get_data_config_basics(fullpath_fileconfig)
         
         # Check if the logfile are be using by other server with the same base_folder
         if cfgbasic['logfile']:
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile==cfgbasic['logfile'], ServerInstance.base_folder==mod_folder)
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile==cfgbasic['logfile'], 
+                                                               ServerInstance.base_folder==mod_folder)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
+                                'errormsg':_("Can't exits two servers with the same log file.<br/>\
+                                Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
         if cfgbasic['econ_port']:
             srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>Please check configuration and try again.")})
+                                'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>\
+                                Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
         while True:
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.port==str(fport), ServerInstance.base_folder==mod_folder)
+            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.port==str(fport), 
+                                                               ServerInstance.base_folder==mod_folder)
             if srvMatch.count() < 1:
                 break
             fport += 1
@@ -557,7 +577,8 @@ def save_server_config():
                                                                ServerInstance.id!=srvid)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, \
-                                'errormsg':_("Can't exits two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again.")})
+                                'errormsg':_("Can't exits two servers with the same 'sv_port' in the same MOD.<br/>\
+                                Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
             srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder==srv.base_folder, 
@@ -565,7 +586,8 @@ def save_server_config():
                                                                ServerInstance.id!=srvid)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same log file.<br/>Please check configuration and try again.")})
+                                'errormsg':_("Can't exits two servers with the same log file.<br/>\
+                                Please check configuration and try again.")})
             
             srv.alaunch = alaunch
             srv.port = cfgbasic['port']
@@ -611,6 +633,23 @@ def get_server_config(id):
             return jsonify({'success':True, 'alsrv':srv.alaunch, 'srvcfg':srvcfg, 'fileconfig':filename})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
+
+@app.route('/_get_server_issues/<int:id>', methods=['POST'])
+def get_server_issues(id):
+    if 'logged_in' in session and session['logged_in']:
+        dbissues = db.session.query(Issue).filter(Issue.server_id==id).order_by(desc(Issue.date))
+        issues = list()
+        for dbissue in dbissues:
+            issues.append((dbissue.date, dbissue.message))
+        return jsonify({'success':True, 'issues':issues})
+    return jsonify({'notauth':True})
+
+@app.route('/_get_server_issues_count/<int:id>', methods=['POST'])
+def get_server_issues_count(id):
+    if 'logged_in' in session and session['logged_in']:
+        issues_count = db.session.query(Issue).filter(Issue.server_id==id).count()
+        return jsonify({'success':True, 'issues_count':issues_count})
+    return jsonify({})
 
 @app.route('/_get_server_maps/<int:id>', methods=['POST'])
 def get_server_maps(id):
@@ -734,7 +773,10 @@ def get_current_server_instance_log(id, seek):
                         type = 'warning'
                     elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                         type = 'success'
-                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),'section':section,'message':message,'type':type})
+                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
+                                       'section':section,
+                                       'message':message,
+                                       'type':type})
             
             return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -770,7 +812,10 @@ def get_selected_server_instance_log(id, code, name):
                         type = 'warning'
                     elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                         type = 'success'
-                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),'section':section,'message':message,'type':type})
+                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
+                                       'section':section,
+                                       'message':message,
+                                       'type':type})
             
             return jsonify({'success':True, 'content':logcontent})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -846,8 +891,8 @@ def get_chart_values(chart, id=None):
         
         query_data = db.session.execute("SELECT count(clan) as num, clan FROM \
                                         (SELECT DISTINCT name,clan,server_id FROM player_server_instance \
-                                        WHERE clan IS NOT NULL) as tbl WHERE tbl.server_id=:id GROUP BY clan ORDER BY num \
-                                        DESC LIMIT 5", {"id":id})
+                                        WHERE clan IS NOT NULL) as tbl WHERE tbl.server_id=:id GROUP BY clan \
+                                        ORDER BY num DESC LIMIT 5", {"id":id})
         if query_data:
             labels['topclan'] = list()
             values['topclan'] = list()
@@ -890,12 +935,14 @@ def get_chart_values(chart, id=None):
 def set_user_password(id):
     if 'logged_in' in session and session['logged_in']:
         if 'pass_new' in request.form and 'pass_old' in request.form:
-            dbuser = db.session.query(User).filter(User.id==id, User.password==str_sha512_hex_encode(str(request.form['pass_old']))).one()
+            dbuser = db.session.query(User).filter(User.id==id, 
+                                                   User.password==str_sha512_hex_encode(str(request.form['pass_old']))).one()
             if dbuser:
                 dbuser.password = str(request.form['pass_new'])
                 db_add_and_commit(dbuser)
                 return jsonify({'success':True})
-            return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. Check settings and try again.')})
+            return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. \
+                                                        Check settings and try again.')})
         else:
             return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     return jsonify({'notauth':True})
@@ -950,19 +997,17 @@ def analyze_all_server_instances():
                                      name = ntplayer.name,
                                      clan = ntplayer.clan,
                                      country = ntplayer.country,
-                                     date = datetime.now())
+                                     date = func.now())
                     db.session.add(nplayer)
                     
                     playersMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower())
                     if playersMatch.count() < 1:
                         nplayer = Player(name=ntplayer.name,
-                                         create_date=datetime.now(),
-                                         last_seen_date=datetime.now(),
                                          status=1)
                         db.session.add(nplayer)
                     else:
                         playerMatch = playersMatch.one()
-                        playerMatch.last_seen_date = datetime.now()
+                        playerMatch.last_seen_date = func.now()
                         playerMatch.status = 1
                         db.session.add(playerMatch)
                     
@@ -971,7 +1016,6 @@ def analyze_all_server_instances():
     for dbserver in servers:            
         if not os.path.isfile(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.bin)):
             nissue = Issue(server_id=dbserver.id,
-                           date=datetime.now(),
                            message=_('Server binary not found'))
             db.session.add(nissue)
             continue
@@ -987,19 +1031,20 @@ def analyze_all_server_instances():
             if os.path.isfile(log_file):
                 shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, dbserver.logfile))
             nissue = Issue(server_id=dbserver.id,
-                           date=datetime.now(),
-                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), dbserver.id, current_time_hex, dbserver.logfile)
-                           )
+                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), 
+                                                                                                                          dbserver.id, 
+                                                                                                                          current_time_hex, 
+                                                                                                                          dbserver.logfile))
         else:
             nissue = Issue(server_id=dbserver.id,
-                           date=datetime.now(),
-                           message=_('Server Offline')
-                           )
+                           message=_('Server Offline'))
         db.session.add(nissue)
         # Open server
         start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
     
     db.session.commit()
+scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, 
+                  trigger={'second':30, 'type':'cron'}, replace_existing=True)
         
 
 # Tools
@@ -1035,13 +1080,6 @@ def get_login_tries():
     return int(session.get('login_try')) if 'login_try' in session else 0
 
 
-# Init APScheduler
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
-scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, trigger={'second':30, 'type':'cron'})
-
-
 # Init Module
 if __name__ == "__main__":
     db_init()
@@ -1054,7 +1092,8 @@ if __name__ == "__main__":
         context = SSL.Context(SSL.SSLv23_METHOD)
         context.use_privatekey_file(app.config['PKEY'])
         context.use_certificate_file(app.config['CERT'])
-        app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'], ssl_context=context)
+        app.run(host=app.config['HOST'], port=app.config['PORT'], 
+                threaded=app.config['THREADED'], ssl_context=context)
     else:
         app.run(host=app.config['HOST'], port=app.config['PORT'], threaded=app.config['THREADED'])
         

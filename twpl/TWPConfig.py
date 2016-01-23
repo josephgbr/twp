@@ -75,6 +75,9 @@ class TWPConfig(object):
             'coalesce': True,
             'max_instances': 1,
         }
+        SCHEDULER_JOBSTORES = {
+            'default': SQLAlchemyJobStore(url=self.SQLALCHEMY_DATABASE_URI)
+        }
         
         self.BABEL_DEFAULT_LOCALE = 'en'
         self.SUPPORT_LANGUAGES = twpl.get_support_languages()

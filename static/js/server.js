@@ -166,8 +166,38 @@ $(function(){
 		$('#share-url').val($banner.prop('src'));
 	});
 	
+	// Issues
+	$(document).on('shown.bs.modal', '#modal_instance_issues', function(ev){
+		$.post($SCRIPT_ROOT + '/_get_server_issues/'+$SRVID, '', function(data){
+			check_server_data(data);
+			
+			if (data['success'])
+			{
+				$('#modal_instance_issues #issues-list').html('');
+				for (var i in data['issues'])
+				{
+					var row = data['issues'][i];
+					var html = "<tr>";
+					html += "<td class='col-md-4'>"+moment(new Date(row[0])).format("DD-MM-YYYY HH:mm")+"</td>";
+					html += "<td class='col-md-8'>"+row[1]+"</td>";
+					html += "</tr>";
+					$('#modal_instance_issues #issues-list').append(html);
+				}
+			}
+		});
+	});
+	
+	window.setInterval('refresh_issues()', $REFRESH_TIME);
+	refresh_issues();
+	
 });
 
+function refresh_issues()
+{
+	$.post($SCRIPT_ROOT + '/_get_server_issues_count/'+$SRVID, '', function(data){
+		$('#issues_count').text(data['success']?data['issues_count']:'0');
+	});
+}
 
 function get_server_instance_log()
 {

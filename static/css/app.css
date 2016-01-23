@@ -220,3 +220,14 @@ body.slide-active {
 	    left: 0!important
 	}
 }
+
+/* SERVER INSTANCE CONFG MODAL */
+#jobslist {
+	width: 100%;
+	max-height: 270px;
+}
+#jobconfig {
+	overflow: auto;
+	max-height: 270px;
+	padding: 0 5px;
+}
