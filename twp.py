@@ -73,16 +73,6 @@ SCHEDULER_VIEWS_ENABLED = False
 SCHEDULER_EXECUTORS = {
     'default': {'type': 'threadpool', 'max_workers': 5}
 }
-JOBS = [
-    {
-        'id': 'analyze_all_server_instances',
-        'func': 'twp:analyze_all_server_instances',
-        'trigger': {
-            'type': 'cron',
-            'second': 30 # minimal time lapse: 1 min
-        }
-    }
-]
 BABEL_DEFAULT_LOCALE = 'en'
 SUPPORT_LANGUAGES = twpl.get_support_languages()
 
@@ -1050,6 +1040,8 @@ def get_login_tries():
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
+scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, 
+                  trigger={'second':30, 'type':'cron'}, replace_existing=True)
 
 
 # Init Module
