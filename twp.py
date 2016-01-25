@@ -635,13 +635,15 @@ def get_server_config(id):
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_issues/<int:id>', methods=['POST'])
-def get_server_issues(id):
+@app.route('/_get_server_issues/<int:id>/<int:page>', methods=['POST'])
+def get_server_issues(id, page=0):
     if 'logged_in' in session and session['logged_in']:
+        RPP = 10
         dbissues = db.session.query(Issue).filter(Issue.server_id==id).order_by(desc(Issue.date))
-        issues = list()
-        for dbissue in dbissues:
-            issues.append((dbissue.date, dbissue.message))
-        return jsonify({'success':True, 'issues':issues})
+        numpages = int(dbissues.count()/RPP)
+        dbissues_page = dbissues.offset(RPP*page).limit(RPP)
+        issues = [(dbissue.date, dbissue.message) for dbissue in dbissues_page]
+        return jsonify({'success':True, 'issues':issues, 'pages':numpages})
     return jsonify({'notauth':True})
 
 @app.route('/_get_server_issues_count/<int:id>', methods=['POST'])

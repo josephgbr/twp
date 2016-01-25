@@ -21,6 +21,7 @@
 var $LOG_SEEK = 0;
 var $LOG_FILTER_TYPE = 0; // All
 var $LOG_FILTER_ORDER = 0; // Desc
+var $ISSUES_PAGINATION = [0, 0] // cur. page, num. pages
 
 $(function(){
 	
@@ -168,31 +169,66 @@ $(function(){
 	
 	// Issues
 	$(document).on('shown.bs.modal', '#modal_instance_issues', function(ev){
-		$.post($SCRIPT_ROOT + '/_get_server_issues/'+$SRVID, '', function(data){
-			check_server_data(data);
-			
-			if (data['success'])
-			{
-				$('#modal_instance_issues #issues-list').html('');
-				for (var i in data['issues'])
-				{
-					var row = data['issues'][i];
-					var html = "<tr>";
-					html += "<td class='col-md-4'>"+moment(new Date(row[0])).format("DD-MM-YYYY HH:mm")+"</td>";
-					html += "<td class='col-md-8'>"+row[1]+"</td>";
-					html += "</tr>";
-					$('#modal_instance_issues #issues-list').append(html);
-				}
-			}
-		});
+		refresh_issues();
+	});
+	$(document).on('click', '#modal_instance_issues .pagination li>a', function(ev){
+		var $this = $(this);
+		var page = $this.data('page');
+		
+		if ('prev' == page)
+		{
+			if ($ISSUES_PAGINATION[0] > 0)
+				--$ISSUES_PAGINATION[0];
+		} else if ('next' == page)
+		{
+			if ($ISSUES_PAGINATION[0] < $ISSUES_PAGINATION[1])
+				++$ISSUES_PAGINATION[0];
+		}
+		else
+			$ISSUES_PAGINATION[0] = page;
+		
+		refresh_issues();
+		ev.preventDefault();
 	});
 	
-	window.setInterval('refresh_issues()', $REFRESH_TIME);
-	refresh_issues();
+	window.setInterval('refresh_issues_count()', $REFRESH_TIME);
+	refresh_issues_count();
 	
 });
 
 function refresh_issues()
+{
+	$.post($SCRIPT_ROOT + '/_get_server_issues/'+$SRVID+'/'+$ISSUES_PAGINATION[0], '', function(data){
+		check_server_data(data);
+		
+		if (data['success'])
+		{
+			$ISSUES_PAGINATION[1] = +data['pages'];
+			$('#modal_instance_issues #issues-list').html('');
+			for (var i in data['issues'])
+			{
+				var row = data['issues'][i];
+				var html = "<tr>";
+				html += "<td class='col-md-4'>"+moment(new Date(row[0])).format("DD-MM-YYYY HH:mm")+"</td>";
+				html += "<td class='col-md-8'>"+row[1]+"</td>";
+				html += "</tr>";
+				$('#modal_instance_issues #issues-list').append(html);
+			}
+			
+			var html = "<li class='"+(0==$ISSUES_PAGINATION[0]?'disabled':'')+"'><a href='#' data-page='prev' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a></li>";
+			var start_page = Math.max(0, $ISSUES_PAGINATION[0]-3);
+			var end_page = Math.min($ISSUES_PAGINATION[0]+3, $ISSUES_PAGINATION[1]);
+			if (end_page < 7 && $ISSUES_PAGINATION[1] >= 7)
+				end_page = 6;
+			for (var i=start_page;i<=end_page;i++)
+				html += "<li class='"+(i==$ISSUES_PAGINATION[0]?'active':'')+"'><a data-page='"+i+"' href='#'>"+i+"</a></li>";
+			html += "<li class='"+($ISSUES_PAGINATION[1]==$ISSUES_PAGINATION[0]?'disabled':'')+"'><a href='#' data-page='next' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>";
+			$('#modal_instance_issues .pagination').html(html);
+		}
+	});
+}
+
+function refresh_issues_count()
 {
 	$.post($SCRIPT_ROOT + '/_get_server_issues_count/'+$SRVID, '', function(data){
 		$('#issues_count').text(data['success']?data['issues_count']:'0');
