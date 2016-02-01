@@ -21,7 +21,7 @@ import twpl
 import subprocess, time, re, hashlib, os, sys, json, logging, time, \
         signal, shutil
 from mergedict import ConfigDict
-from io import BytesIO
+from io import BytesIO, open
 from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
@@ -509,12 +509,12 @@ def create_server_instance(mod_folder):
             fport += 1
 
         try:
-            if cfgbasic['name'] == 'unnamed server':
-                cfgbasic['name'] = "Server created with Teeworlds Web Panel"
-                twpl.write_config_param(fullpath_fileconfig, "sv_name", cfgbasic['name'])
+            if cfgbasic['name'] == u'unnamed server':
+                cfgbasic['name'] = u'Server created with Teeworlds Web Panel'
+                twpl.write_config_param(fullpath_fileconfig, u'sv_name', cfgbasic['name'])
             if not fport == int(cfgbasic['port']):
-                cfgbasic['port'] = str(fport)
-                twpl.write_config_param(fullpath_fileconfig, "sv_port", cfgbasic['port'])
+                cfgbasic['port'] = unicode(str(fport))
+                twpl.write_config_param(fullpath_fileconfig, u'sv_port', cfgbasic['port'])
         except Exception, e:
              return jsonify({'error':True, 'errormsg':str(e)})
             
@@ -581,13 +581,14 @@ def save_server_config():
                                 Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder==srv.base_folder, 
-                                                               ServerInstance.logfile==cfgbasic['logfile'], 
-                                                               ServerInstance.id!=srvid)
-            if srvMatch.count() > 0:
-                return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same log file.<br/>\
-                                Please check configuration and try again.")})
+            if cfgbasic['logfile']:
+                srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder==srv.base_folder, 
+                                                                   ServerInstance.logfile==cfgbasic['logfile'], 
+                                                                   ServerInstance.id!=srvid)
+                if srvMatch.count() > 0:
+                    return jsonify({'error':True, 
+                                    'errormsg':_("Can't exits two servers with the same log file.<br/>\
+                                    Please check configuration and try again.")})
             
             srv.alaunch = alaunch
             srv.port = cfgbasic['port']

@@ -18,7 +18,7 @@
 #########################################################################################
 from __future__ import division
 from StringIO import StringIO
-import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, random
+import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, random, io
 from zipfile import ZipFile
 from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
@@ -239,7 +239,7 @@ def parse_data_config_basics(data):
 
 def get_data_config_basics(fileconfig):
     try:
-        cfgfile = open(fileconfig, "r")
+        cfgfile = io.open(fileconfig, "r")
         srvcfg = cfgfile.read()
         cfgfile.close()
     except Exception:
@@ -319,7 +319,7 @@ def install_mod_from_url(url, dest):
     
     matchObj = re.search(".*/([^/#]*)(#.*|$)", url)
     if not url or not _allowed_file(url) or not matchObj:
-        raise Exception(u'Invalid URL')
+        raise Exception('Invalid URL')
     
     filename = '%s/%s' % (dest, matchObj.group(1))
     
@@ -342,11 +342,11 @@ def write_config_param(filename, param, new_value):
     
     try:
         if os.path.isfile(filename):
-            cfgfile = open(filename, "r")
+            cfgfile = io.open(filename, "r")
             content = cfgfile.readlines()
             cfgfile.close()
         
-        cfgfile = open(filename, "w")
+        cfgfile = io.open(filename, "w")
         for line in content:
             objMatch = re.match("^([^#\s]+)\s([^#\r\n]+)", line)
             if objMatch and param.lower() == objMatch.group(1).lower():
