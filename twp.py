@@ -873,7 +873,8 @@ def kick_ban_player(id):
 @app.route('/_get_chart_values/<string:chart>/<int:id>', methods=['POST'])
 def get_chart_values(chart, id=None):
     today = datetime.now()
-    allowed_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(0, 7)]
+    startday = today - timedelta(days=7)
+    allowed_dates = [(startday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(0, 7)]
     labels = dict()
     values = dict()
     
@@ -881,7 +882,8 @@ def get_chart_values(chart, id=None):
         labels['players7d'] = list()
         values['players7d'] = list()
         # TODO: Filter only from today-7 to today...
-        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.server_id==id)
+        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.server_id==id,
+                                                                PlayerServerInstance.date >= startday)
         if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
@@ -921,7 +923,7 @@ def get_chart_values(chart, id=None):
     elif chart.lower() == 'machine':
         labels['players7d'] = list()
         values['players7d'] = list()
-        players = db.session.query(PlayerServerInstance)
+        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.date >= startday)
         if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
