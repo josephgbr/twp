@@ -873,7 +873,7 @@ def kick_ban_player(id):
 @app.route('/_get_chart_values/<string:chart>/<int:id>', methods=['POST'])
 def get_chart_values(chart, id=None):
     today = datetime.now()
-    startday = today - timedelta(days=7)
+    startday = today - timedelta(days=6)
     allowed_dates = [(startday + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(0, 7)]
     labels = dict()
     values = dict()
