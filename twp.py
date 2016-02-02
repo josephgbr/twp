@@ -364,7 +364,7 @@ def upload_maps(id):
         if srv:
             download_folder = r'%s/%s/data/maps' % (app.config['SERVERS_BASEPATH'], srv.base_folder)
             if not os.path.isdir(download_folder):
-                os.makedirs(download_folder, mode)
+                os.makedirs(download_folder)
 
             if 'file' in request.files:
                 file = request.files['file']
@@ -372,11 +372,7 @@ def upload_maps(id):
                     filename = secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                     fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
-                    if tarfile.is_tarfile(fullpath):
-                        twpl.extract_targz(fullpath, download_folder, True)
-                    elif zipfile.is_zipfile(fullpath):
-                        twpl.extract_zip(fullpath, download_folder, True)
-                    elif filename.lower().endswith(".map"):
+                    if filename.lower().endswith(".map"):
                         try:
                             fullpath_download = r'%s/%s' % (download_folder, filename)
                             if os.path.exists(fullpath_download):
@@ -384,6 +380,8 @@ def upload_maps(id):
                             shutil.move(fullpath, fullpath_download)
                         except Exception as e:
                             return jsonify({'error':True, 'errormsg':str(e)})
+                    elif not twpl.extract_maps_package(fullpath, download_folder, True):
+                        return jsonify({'error':True, 'errormsg':_('Invalid map package')})
                     return jsonify({'success':True})
                 else:
                     return jsonify({'error':True, 'errormsg':_('Error: Can\'t upload selected maps')})

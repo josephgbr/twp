@@ -69,7 +69,7 @@ $(function(){
 						var $line = $("tr#row-"+file.name.substr(0, file.name.length-4));
 						var $list = $("#maplist-container");
 						$list.animate({
-						    scrollTop: $line.offset().top - $list.offset().top + $list.scrollTop()
+						    scrollTop: $line.offset.top - $list.offset.top + $list.scrollTop()
 						});
 					}
 				}

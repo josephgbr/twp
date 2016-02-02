@@ -18,7 +18,8 @@
 #########################################################################################
 from __future__ import division
 from StringIO import StringIO
-import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io
+import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io, \
+    copy
 from zipfile import ZipFile, is_zipfile
 from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
@@ -308,6 +309,47 @@ def extract_zip(path, scratch_dir, delete=False):
             os.unlink(path)
 
     return target_path
+
+def extract_maps_package(filepath, dest, delete=False):
+    counter = 0
+    if tarfile.is_tarfile(filepath):
+        try:
+            tar_file = tarfile.open(filepath)
+        except tarfile.ReadError, err:
+            return False
+    
+        try:
+            members = tar_file.getmembers()
+            for tarinfo in members:
+                tarinfo = copy.copy(tarinfo)
+                tarinfo.mode = 0700
+                if '/' not in tarinfo.name and tarinfo.name.lower().endswith('.map'):
+                    tar_file.extract(tarinfo, dest)
+                    counter+=1
+        finally:
+            tar_file.close()
+            if delete:
+                os.unlink(filepath)
+    elif zipfile.is_zipfile(filepath):
+        try:
+            zip_file = ZipFile(filepath)
+        except zipfile.BadZipfile, err:
+            return False
+    
+        try:
+            members = zip_file.namelist()
+            for zipinfo in members:
+                if '/' not in zipinfo and zipinfo.lower().endswith('.map'):
+                    zip_file.extract(zipinfo, dest)
+                    counter+=1
+        finally:
+            zip_file.close()
+            if delete:
+                os.unlink(filepath)
+    else:
+        return False
+    
+    return counter>0
 
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])    
 def download_mod_from_url(url, dest):
