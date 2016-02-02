@@ -349,15 +349,11 @@ def check_mod_package(filepath):
             return False
     
         try:
-            tarfiles = tar_file.list()
+            tarfiles = tar_file.getnames()
             if tarfiles and len(tarfiles) > 0:
-                matchObj = re.search("^(.+)/", tarfiles[0])
-                mod_folder = matchObj.group(1)
                 for file in tarfiles:
-                    if not mod_folder or not file.startswith(mod_folder):
-                        return False
                     for chkFld in checkFolders.keys():
-                        if file.startswith(r'%s/%s' % (mod_folder, chkFld)):
+                        if re.search('^.+/%s' % chkFld, file):
                             checkFolders[chkFld] = True
             else:
                 return False
@@ -372,13 +368,9 @@ def check_mod_package(filepath):
         try:
             zipfiles = zip_file.namelist()
             if zipfiles and len(zipfiles) > 0:
-                matchObj = re.search("^(.+)/", zipfiles[0])
-                mod_folder = matchObj.group(1)
                 for file in zipfiles:
-                    if not mod_folder or not file.startswith(mod_folder):
-                        return False
                     for chkFld in checkFolders.keys():
-                        if file.startswith(r'%s/%s' % (mod_folder, chkFld)):
+                        if re.search('^.+/%s' % chkFld, file):
                             checkFolders[chkFld] = True
             else:
                 return False
