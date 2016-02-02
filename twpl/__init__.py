@@ -18,8 +18,8 @@
 #########################################################################################
 from __future__ import division
 from StringIO import StringIO
-import platform, subprocess, time, os, string, re, fnmatch, tarfile, telnetlib, random, io
-from zipfile import ZipFile
+import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io
+from zipfile import ZipFile, is_zipfile
 from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
 from banner_generator import BannerGenerator
@@ -180,7 +180,7 @@ def get_mod_maps(dir, mod_folder):
     maplist = list()
     for r in os.listdir('%s/%s/data/maps' % (dir, mod_folder)):
         fullpath = '%s/%s/data/maps/%s' % (dir, mod_folder, r)
-        if os.path.isfile(fullpath) and not is_text_file(fullpath) and r.endswith('.map'):
+        if os.path.isfile(fullpath) and not is_text_file(fullpath) and r.lower().endswith('.map'):
             maplist.append({'name':r[:-4], 'size': '%.2f' % (os.path.getsize(fullpath)/1024)})
     return sorted(maplist, key=lambda k: k['name']) if len(maplist) > 0 else None
 
@@ -188,7 +188,7 @@ def get_mod_configs(dir, mod_folder):
     cfglist = list()
     for r in os.listdir('%s/%s' % (dir, mod_folder)):
         fullpath = '%s/%s/%s' % (dir, mod_folder, r)
-        if os.path.isfile(fullpath) and is_text_file(fullpath) and r.endswith('.conf'):
+        if os.path.isfile(fullpath) and is_text_file(fullpath) and r.lower().endswith('.conf'):
             cfglist.append(r)
     return cfglist
 
@@ -266,7 +266,6 @@ def search_server_pid(binpath, fileconfig):
     return None
 
 def extract_targz(path, scratch_dir, delete=False):
-    target_basename = os.path.basename(path[:-len(".tar.gz")])
     target_path = os.path.join(scratch_dir)
 
     try:
@@ -289,7 +288,6 @@ def extract_targz(path, scratch_dir, delete=False):
     return target_path
 
 def extract_zip(path, scratch_dir, delete=False):
-    target_basename = os.path.basename(path[:-len(".zip")])
     target_path = os.path.join(scratch_dir)
 
     try:
@@ -312,7 +310,7 @@ def extract_zip(path, scratch_dir, delete=False):
     return target_path
 
 ALLOWED_EXTENSIONS = set(['zip', 'gz'])    
-def install_mod_from_url(url, dest):
+def download_mod_from_url(url, dest):
     def _allowed_file(filename):
         return '.' in filename and \
                filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -329,13 +327,70 @@ def install_mod_from_url(url, dest):
     except Exception, e:
         raise Exception(e)
     
-    if url.endswith(".tar.gz"):
-        extract_targz(filename, dest, True)
-    elif url.endswith(".zip"):
-        extract_zip(filename, dest, True)
+    return matchObj.group(1)
+
+def install_server_mod(filepath, dest):    
+    if not check_mod_package(filepath):
+        return False
     
+    if tarfile.is_tarfile(filepath):
+        extract_targz(filepath, dest, True)
+    elif zipfile.is_zipfile(filepath):
+        extract_zip(filepath, dest, True)
     return True
 
+def check_mod_package(filepath):
+    checkFolders = {'data/':False, 'data/maps/': False, 'data/mapres/': False}
+    
+    if tarfile.is_tarfile(filepath):
+        try:
+            tar_file = tarfile.open(filepath)
+        except tarfile.ReadError, err:
+            return False
+    
+        try:
+            tarfiles = tar_file.list()
+            if tarfiles and len(tarfiles) > 0:
+                matchObj = re.search("^(.+)/", tarfiles[0])
+                mod_folder = matchObj.group(1)
+                for file in tarfiles:
+                    if not mod_folder or not file.startswith(mod_folder):
+                        return False
+                    for chkFld in checkFolders.keys():
+                        if file.startswith(r'%s/%s' % (mod_folder, chkFld)):
+                            checkFolders[chkFld] = True
+            else:
+                return False
+        finally:
+            tar_file.close()
+    elif zipfile.is_zipfile(filepath):
+        try:
+            zip_file = ZipFile(filepath)
+        except zipfile.BadZipfile, err:
+            return False
+    
+        try:
+            zipfiles = zip_file.namelist()
+            if zipfiles and len(zipfiles) > 0:
+                matchObj = re.search("^(.+)/", zipfiles[0])
+                mod_folder = matchObj.group(1)
+                for file in zipfiles:
+                    if not mod_folder or not file.startswith(mod_folder):
+                        return False
+                    for chkFld in checkFolders.keys():
+                        if file.startswith(r'%s/%s' % (mod_folder, chkFld)):
+                            checkFolders[chkFld] = True
+            else:
+                return False
+        finally:
+            zip_file.close()
+    
+    for chkFld in checkFolders.values():
+        if not chkFld:
+            return False
+        
+    return True
+        
 def write_config_param(filename, param, new_value):
     replaced = False
     content = list()

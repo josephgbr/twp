@@ -103,6 +103,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(12), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    level = db.Column(db.Integer, nullable=False, default=1)
     
 class ServerJob(db.Model):
     __tablename__ = 'server_job'
@@ -126,7 +127,7 @@ def db_delete_and_commit(reg):
 def db_init():
     users_count = User.query.count()
     if users_count == 0:
-        user = User(username='admin', password=str_sha512_hex_encode('admin'))
+        user = User(username='admin', password=str_sha512_hex_encode('admin'), level=0)
         db_add_and_commit(user)
 
 
@@ -298,9 +299,10 @@ def settings():
 def install_mod():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('servers')
     if 'logged_in' in session and session['logged_in']:
+        filename = None
         if 'url' in request.form and not request.form['url'] == '':
             try:
-                twpl.install_mod_from_url(request.form['url'], app.config['SERVERS_BASEPATH'])
+                filename = secure_filename(twpl.download_mod_from_url(request.form['url'], app.config['UPLOAD_FOLDER']))
             except Exception as e:
                 flash(_("Error: %s") % str(e), 'danger')
             else:
@@ -311,17 +313,16 @@ def install_mod():
                 if file and allowed_file(file.filename):
                     filename = secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
-                    if filename.endswith(".tar.gz"):
-                        twpl.extract_targz(fullpath, app.config['SERVERS_BASEPATH'], True)
-                    elif filename.endswith(".zip"):
-                        twpl.extract_zip(fullpath, app.config['SERVERS_BASEPATH'], True)
-                    flash(_('Mod installed successfully'), 'info')
-                    return redirect(current_url)
                 else:
                     flash(_('Error: Can\'t install selected mod package'), 'danger')
             else:
                 flash(_('Error: No file detected!'), 'danger')
+                
+        if filename:
+            if twpl.install_server_mod(r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename), app.config['SERVERS_BASEPATH']):
+                flash(_('Mod installed successfully'), 'info')
+            else:
+                flash(_('Error: Can\'t install selected mod package'), 'danger')
     else:
         flash(_('Error: You haven\'t permissions for install new mods!'), 'danger')
     return redirect(current_url)
@@ -362,18 +363,20 @@ def upload_maps(id):
         srv = db.session.query(ServerInstance).get(id)
         if srv:
             download_folder = r'%s/%s/data/maps' % (app.config['SERVERS_BASEPATH'], srv.base_folder)
-            app.logger.info(len(request.files))
+            if not os.path.isdir(download_folder):
+                os.makedirs(download_folder, mode)
+
             if 'file' in request.files:
                 file = request.files['file']
                 if file and allowed_file(file.filename):
                     filename = secure_filename(file.filename)
                     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                     fullpath = r'%s/%s' % (app.config['UPLOAD_FOLDER'], filename)
-                    if filename.endswith(".tar.gz"):
+                    if tarfile.is_tarfile(fullpath):
                         twpl.extract_targz(fullpath, download_folder, True)
-                    elif filename.endswith(".zip"):
+                    elif zipfile.is_zipfile(fullpath):
                         twpl.extract_zip(fullpath, download_folder, True)
-                    elif filename.endswith(".map"):
+                    elif filename.lower().endswith(".map"):
                         try:
                             fullpath_download = r'%s/%s' % (download_folder, filename)
                             if os.path.exists(fullpath_download):
@@ -1016,8 +1019,12 @@ def analyze_all_server_instances():
                     
     # Reopen Offline Servers
     servers = db.session.query(ServerInstance).filter(ServerInstance.status==0, ServerInstance.alaunch==True)
-    for dbserver in servers:            
-        if not os.path.isfile(r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.bin)):
+    for dbserver in servers:
+        modfolder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
+        if not os.path.isdir(modfolder):
+            continue
+                
+        if not os.path.isfile(r'%s/%s' % (modfolder, dbserver.bin)):
             nissue = Issue(server_id=dbserver.id,
                            message=_('Server binary not found'))
             db.session.add(nissue)
