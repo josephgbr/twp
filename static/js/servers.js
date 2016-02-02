@@ -496,7 +496,6 @@ function update_advance_config_maps()
 {
 	var maps = new Array();
 	$("input[name=map_used]:checked").each(function(){ maps.push($(this).data('map')); });
-	
-	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length == 1)?maps[0]:undefined);
+	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_map", (maps.length > 0)?maps[0]:undefined);
 	update_config_textarea($("#modal_instance_configuration #srvcfg"), "sv_maprotation", (maps.length > 1)?maps.join(" "):undefined);	
 }
