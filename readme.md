@@ -66,6 +66,10 @@ mod_folder
 ```
 _(*) Not required but recommended_
 
+### .zip/.tar.gz map packages
+_TWP allows you to upload maps in packages instead of using an standalone .map file_
+The package only can contain .map files (whitout folders)
+
 ### Enable Basic Admin Tools
 If like kick, ban and 'econ admin' you need define 'ec_port' and 'ec_password' variables in the instance server config.
 
