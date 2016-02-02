@@ -1006,7 +1006,7 @@ def analyze_all_server_instances():
                                      date = func.now())
                     db.session.add(nplayer)
                     
-                    playersMatch = db.session.query(Player).filter(func.lower(Player.name)==ntplayer.name.lower().decode('utf8'))
+                    playersMatch = db.session.query(Player).filter(Player.name==ntplayer.name)
                     if playersMatch.count() < 1:
                         nplayer = Player(name=ntplayer.name,
                                          status=1)
