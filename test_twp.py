@@ -108,7 +108,15 @@ class TWPTestCase(unittest.TestCase):
         rv = self.app.post('/_save_server_config', data=dict(
             srvid=1,
             alsrv=0,
-            srvcfg="sv_name test\nsv_port 8305"
+            srvcfg=u'sv_name test\nsv_port 8305'
+        ), follow_redirects=True)
+        assert 'success' in rv.data
+        #- Special Characters
+        self.login('admin', 'admin')
+        rv = self.app.post('/_save_server_config', data=dict(
+            srvid=1,
+            alsrv=0,
+            srvcfg=u'sv_name test\nsv_port 8305\nsv_motd éáçñèö'
         ), follow_redirects=True)
         assert 'success' in rv.data
         self.logout()
