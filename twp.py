@@ -703,7 +703,8 @@ def start_server(id):
                 return jsonify({'error':True, 'errormsg':_('Undefined server binary file!!')})
             
             srvMatch = db.session.query(ServerInstance).filter(ServerInstance.status==1,
-                                                    ServerInstance.port==srv.port)
+                                                    ServerInstance.port==srv.port,
+                                                    ServerInstance.id!=srv.id)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 'errormsg':_('Can\'t run two servers in the same port!')})
             
@@ -737,8 +738,8 @@ def get_server_instances_online():
     servers = db.session.query(ServerInstance).filter(ServerInstance.status==1)
     return jsonify({'success':True, 'num':servers.count()})
 
-@app.route('/_get_server_instance_log/<int:id>/<int:seek>', methods=['POST'])
-def get_current_server_instance_log(id, seek):
+@app.route('/_get_server_instance_log/<int:id>/<string:pdate>', methods=['POST'])
+def get_current_server_instance_log(id, pdate=None):
     if 'logged_in' in session and session['logged_in']:
         srv = db.session.query(ServerInstance).get(id)
         if srv:
@@ -750,19 +751,14 @@ def get_current_server_instance_log(id, seek):
                     fullpath = srv.logfile
                 else:
                     fullpath = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.logfile)
-                
-                file_size = os.path.getsize(fullpath)
-                if seek >= file_size:
-                    return jsonify({'success':True, 'content':None, 'seek':file_size})
-                
+                                
                 cfgfile = open(fullpath, "r")
-                cfgfile.seek(seek)
                 logcontent = cfgfile.read()
-                logseek = cfgfile.tell()
                 cfgfile.close()
             except Exception as e:
-                return jsonify({'success':True, 'content':None, 'seek':0})
+                return jsonify({'success':True, 'content':None, 'pages':None})
             
+            datepages = dict()
             lines = logcontent.splitlines()
             logcontent = list()
             for line in lines:
@@ -770,19 +766,26 @@ def get_current_server_instance_log(id, seek):
                 if objMatch:
                     (date,section,message) = [int(objMatch.group(1), 16),objMatch.group(2),objMatch.group(3)]
                     dt = datetime.fromtimestamp(time.mktime(time.localtime(date)))
-                    type = None
-                    if re.match("^(?:client dropped|(?:.+\s)?failed)", message, re.IGNORECASE):
-                        type = 'danger'
-                    elif re.match("^No such command", message, re.IGNORECASE):
-                        type = 'warning'
-                    elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
-                        type = 'success'
-                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
-                                       'section':section,
-                                       'message':message,
-                                       'type':type})
+                    strDate = dt.strftime("%d-%m-%Y")
+                    if not strDate in datepages:
+                        datepages.update({strDate:1})
+                    else:
+                        datepages[strDate]+=1
+                    
+                    if strDate == pdate:
+                        type = None
+                        if re.match("^(?:client dropped|(?:.+\s)?failed)", message, re.IGNORECASE):
+                            type = 'danger'
+                        elif re.match("^No such command", message, re.IGNORECASE):
+                            type = 'warning'
+                        elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
+                            type = 'success'
+                        logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
+                                           'section':section,
+                                           'message':message,
+                                           'type':type})
             
-            return jsonify({'success':True, 'content':logcontent, 'seek':logseek})
+            return jsonify({'success':True, 'content':logcontent, 'pages':datepages})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
     return jsonify({'notauth':True})
 

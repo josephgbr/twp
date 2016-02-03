@@ -480,7 +480,7 @@ def send_econ_user_action(port, password, nick, action):
     content = netrcv.splitlines()
     for line in content:
         objMatch = re.match("^.+\sid=(\d)\s.+\sname='(.+)'\s.+$", line)
-        if objMatch and nick.lower() == objMatch.group(2).lower():
+        if objMatch and nick == objMatch.group(2):
             cid = int(objMatch.group(1))
             break
             

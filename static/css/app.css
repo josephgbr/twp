@@ -16,6 +16,9 @@ body {
   background-color: #f5f5f5;
 }
 
+.table-vertical-aligned td {
+  vertical-align: middle !important;
+}
 
 .credit {
   text-align: center;

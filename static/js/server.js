@@ -22,6 +22,7 @@ var $LOG_SEEK = 0;
 var $LOG_FILTER_TYPE = 0; // All
 var $LOG_FILTER_ORDER = 0; // Desc
 var $ISSUES_PAGINATION = [0, 0] // cur. page, num. pages
+var $LOG_PAGINATION = [moment(new Date()).format("DD-MM-YYYY"),0] // cur. page
 
 $(function(){
 	
@@ -38,6 +39,26 @@ $(function(){
 		get_server_instance_log();
 		window.setInterval('get_server_instance_log()', 2000);
 	}
+	
+	$(document).on('click', '#log .pagination li>a', function(ev){
+		var $this = $(this);
+		var page = $this.data('page');
+		
+		if ('prev' == page)
+		{
+			if ($LOG_PAGINATION[0] > 0)
+				--$LOG_PAGINATION[0];
+		} else if ('next' == page)
+		{
+			if ($LOG_PAGINATION[0] < $LOG_PAGINATION[1])
+				++$LOG_PAGINATION[0];
+		}
+		else
+			$LOG_PAGINATION[0] = page;
+		
+		get_server_instance_log();
+		ev.preventDefault();
+	});
 	
 	// Kick Player
 	$(document).on("click", ".kick-player", function() {
@@ -237,7 +258,7 @@ function refresh_issues_count()
 
 function get_server_instance_log()
 {
-	$.post($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOG_SEEK, '', function(data) {
+	$.post($SCRIPT_ROOT + '/_get_server_instance_log/'+$SRVID+'/'+$LOG_PAGINATION[0], '', function(data) {
 		check_server_data(data);
 
 		if (data['success'] && data['content'])
@@ -257,8 +278,24 @@ function get_server_instance_log()
 							$('#server-log').append(table_row);
 					}
 			}
-			$LOG_SEEK = data['seek'];
-			$('#server-log').prop('scrollTop', $('#server-log').prop('scrollHeight'));
+			
+			if (data['pages'])
+			{
+				var datepages = Object.keys(data['pages']);
+				var curIndex = datepages.indexOf($LOG_PAGINATION[0]);
+				$LOG_PAGINATION[1] = datepages.length-1;
+				$('#server-log').prop('scrollTop', $('#server-log').prop('scrollHeight'));
+				
+				var html = "<li class='"+(0==curIndex?'disabled':'')+"'><a href='#' data-page='prev' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a></li>";
+				var start_page = Math.max(0, curIndex-3);
+				var end_page = Math.min(curIndex+3, $LOG_PAGINATION[1]);
+				if (end_page < 7 && $LOG_PAGINATION[1] >= 7)
+					end_page = 6;
+				for (var i=start_page;i<=end_page;i++)
+					html += "<li class='"+(i==curIndex?'active':'')+"'><a data-page='"+datepages[i]+"' href='#'>"+datepages[i]+"</a></li>";
+				html += "<li class='"+(curIndex==$LOG_PAGINATION[1]?'disabled':'')+"'><a href='#' data-page='next' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>";
+				$('#log .pagination').html(html);
+			}
 		}
 	});
 }

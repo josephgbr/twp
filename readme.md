@@ -35,7 +35,7 @@ $ wget http://cytral.github.io/twp/tools/install.sh && sudo bash install.sh
 
 **Manual (Basic)**
 ```bash
-$ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev
+$ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev libfreetype6-dev
 $ git clone https://github.com/CytraL/twp.git "twp"
 $ cd twp
 $ sudo pip install -r requirements.txt
