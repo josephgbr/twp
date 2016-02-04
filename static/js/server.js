@@ -37,7 +37,7 @@ $(function(){
 	{
 		// Refresh log
 		get_server_instance_log();
-		window.setInterval('get_server_instance_log()', 2000);
+		//window.setInterval('get_server_instance_log()', 2000);
 	}
 	
 	$(document).on('click', '#log .pagination li>a', function(ev){
@@ -263,7 +263,7 @@ function get_server_instance_log()
 
 		if (data['success'] && data['content'])
 		{
-			var curtext = $('#server-log').val();
+			$('#server-log').html("");
 			
 			for (var i in data['content']) {
 				var table_row = "<tr class='"+data['content'][i]['type']+"'><td>"+data['content'][i]['date']+"</td><td>"+data['content'][i]['section']+"</td><td>"+data['content'][i]['message']+"</td></tr>";
@@ -281,7 +281,7 @@ function get_server_instance_log()
 			
 			if (data['pages'])
 			{
-				var datepages = Object.keys(data['pages']);
+				var datepages = Object.keys(data['pages']).reverse();
 				var curIndex = datepages.indexOf($LOG_PAGINATION[0]);
 				$LOG_PAGINATION[1] = datepages.length-1;
 				$('#server-log').prop('scrollTop', $('#server-log').prop('scrollHeight'));
