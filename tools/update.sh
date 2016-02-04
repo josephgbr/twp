@@ -42,6 +42,9 @@ apt-get install -y libjpeg-dev 1> /dev/null
 echo '+ Installing zlib1g'
 apt-get install -y zlib1g-dev 1> /dev/null
 
+echo '+ Installing libfreetype6-dev'
+apt-get install -y libfreetype6-dev 1> /dev/null
+
 echo '+ Installing Python-dev'
 apt-get install -y python-dev 1> /dev/null
 

@@ -54,6 +54,9 @@ apt-get install -y libjpeg-dev 1> /dev/null
 echo '+ Installing zlib1g'
 apt-get install -y zlib1g-dev 1> /dev/null
 
+echo '+ Installing libfreetype6-dev'
+apt-get install -y libfreetype6-dev 1> /dev/null
+
 echo '+ Installing Python-dev'
 apt-get install -y python-dev 1> /dev/null
 
@@ -77,6 +80,7 @@ git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 chown -R "$INSTALL_USER":"$INSTALL_USER" "$INSTALL_DIR"
 
 echo 'Installing dependencies...'
+pip uninstall pillow
 pip install -r "$INSTALL_DIR/requirements.txt"
 
 echo -e '\nInstallation complete!\n\n'
