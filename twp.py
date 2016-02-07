@@ -489,7 +489,7 @@ def create_server_instance(mod_folder):
                                                                ServerInstance.base_folder==mod_folder)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same log file.<br/>\
+                                'errormsg':_("Can't exist two servers with the same log file.<br/>\
                                 Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
@@ -497,7 +497,7 @@ def create_server_instance(mod_folder):
             srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exits two servers with the same 'ec_port'.<br/>\
+                                'errormsg':_("Can't exist two servers with the same 'ec_port'.<br/>\
                                 Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
@@ -578,7 +578,7 @@ def save_server_config():
                                                                ServerInstance.id!=srvid)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, \
-                                'errormsg':_("Can't exits two servers with the same 'sv_port' in the same MOD.<br/>\
+                                'errormsg':_("Can't exist two servers with the same 'sv_port' in the same MOD.<br/>\
                                 Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
@@ -588,7 +588,7 @@ def save_server_config():
                                                                    ServerInstance.id!=srvid)
                 if srvMatch.count() > 0:
                     return jsonify({'error':True, 
-                                    'errormsg':_("Can't exits two servers with the same log file.<br/>\
+                                    'errormsg':_("Can't exist two servers with the same log file.<br/>\
                                     Please check configuration and try again.")})
             
             srv.alaunch = alaunch
