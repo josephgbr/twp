@@ -267,10 +267,10 @@ class Server(Handler):
 		self.latency = time.time() - self.request_time
 		data = iter(data.split(b'\x00'))
 		try:
-			self.version = data.next().decode('utf8')
-			self.name = data.next().decode('utf8')
-			self.map = data.next().decode('utf8')
-			self.gametype = data.next().decode('utf8')
+			self.version = data.next()
+			self.name = data.next()
+			self.map = data.next()
+			self.gametype = data.next()
 			self.password = (data.next()=='1')
 			self.players = int(data.next())
 			self.max_players = int(data.next())
@@ -278,8 +278,8 @@ class Server(Handler):
 			self.max_clients = int(data.next())
 			for _ in range(self.clients):
 				player = Player()
-				player.name=data.next().decode('utf8')
-				player.clan=data.next().decode('utf8')
+				player.name=data.next()
+				player.clan=data.next()
 				# TWP Changes
 				try:
 					player.country = int(data.next())
@@ -308,7 +308,7 @@ class Server(Handler):
 	
 	def __repr__(self):
 		return "<Server name='{0}' address='{1}'>" \
-			.format(self.name.encode('utf-8'), self.address)
+			.format(self.name, self.address)
 
 
 class Player(object):

@@ -478,8 +478,8 @@ def create_server_instance(mod_folder):
                                                            ServerInstance.base_folder==mod_folder)
         if srvMatch.count() > 0:
             return jsonify({'error':True, 
-                            'errormsg':_("Can't exists two servers with the same configuration file.<br/>\
-                            Please change configuration file name and try again.")})
+                            'errormsg':_("Can't exists two servers with the same configuration file.<br/>"+\
+                                         "Please change configuration file name and try again.")})
                     
         cfgbasic = twpl.get_data_config_basics(fullpath_fileconfig)
         
@@ -489,16 +489,16 @@ def create_server_instance(mod_folder):
                                                                ServerInstance.base_folder==mod_folder)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exist two servers with the same log file.<br/>\
-                                Please check configuration and try again.")})
+                                'errormsg':_("Can't exist two servers with the same log file.<br/>"+\
+                                             "Please check configuration and try again.")})
             
         # Check if the econ_port are be using by other server
         if cfgbasic['econ_port']:
             srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
-                                'errormsg':_("Can't exist two servers with the same 'ec_port'.<br/>\
-                                Please check configuration and try again.")})
+                                'errormsg':_("Can't exist two servers with the same 'ec_port'.<br/>"+\
+                                             "Please check configuration and try again.")})
         
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
@@ -578,8 +578,8 @@ def save_server_config():
                                                                ServerInstance.id!=srvid)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, \
-                                'errormsg':_("Can't exist two servers with the same 'sv_port' in the same MOD.<br/>\
-                                Please check configuration and try again.")})
+                                'errormsg':_("Can't exist two servers with the same 'sv_port' in the same MOD.<br/>"+\
+                                             "Please check configuration and try again.")})
                 
             # Check if the logfile are be using by other server with the same base_folder
             if cfgbasic['logfile']:
@@ -588,8 +588,8 @@ def save_server_config():
                                                                    ServerInstance.id!=srvid)
                 if srvMatch.count() > 0:
                     return jsonify({'error':True, 
-                                    'errormsg':_("Can't exist two servers with the same log file.<br/>\
-                                    Please check configuration and try again.")})
+                                    'errormsg':_("Can't exist two servers with the same log file.<br/>"+\
+                                                 "Please check configuration and try again.")})
             
             srv.alaunch = alaunch
             srv.port = cfgbasic['port']
@@ -950,8 +950,8 @@ def set_user_password(id):
                 dbuser.password = str(request.form['pass_new'])
                 db_add_and_commit(dbuser)
                 return jsonify({'success':True})
-            return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. \
-                                                        Check settings and try again.')})
+            return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. '+\
+                                                       'Check settings and try again.')})
         else:
             return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     return jsonify({'notauth':True})
@@ -1084,8 +1084,7 @@ def start_server_instance(base_folder, bin, fileconfig):
         os.kill(proc, signal.SIGKILL)
     
     subprocess.Popen([binpath, '-f', fileconfig],
-                    shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    cwd=r'%s/%s' % (app.config['SERVERS_BASEPATH'], base_folder),
+                    cwd=r'%s/%s/' % (app.config['SERVERS_BASEPATH'], base_folder),
                     close_fds=True,
                     preexec_fn=os.setsid)
 
