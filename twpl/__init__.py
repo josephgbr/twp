@@ -248,13 +248,14 @@ def get_data_config_basics(fileconfig):
     return parse_data_config_basics(srvcfg)
 
 def get_server_net_info(ip, servers):
-    twreq = TWServerRequest(timeout=0.001)
+    twreq = TWServerRequest(timeout=0.01)
     
     servers_info = list()
     for server in servers:
         twreq.query_port(ip, int(server.port))
         twreq.run_loop()
-        servers_info.append({'netinfo':twreq.server, 'srvid':server.id, 'fileconfig':server.fileconfig, 
+
+        servers_info.append({'netinfo':twreq.server64.version and twreq.server64 or twreq.server, 'srvid':server.id, 'fileconfig':server.fileconfig, 
                              'base_folder':server.base_folder})
     return servers_info
 

@@ -29,6 +29,7 @@ from struct import unpack
 import select
 import Queue as queue
 import re
+import binascii
 
 def log(level, str):
 	if level is 'debug': return
@@ -188,7 +189,6 @@ class MasterServer(Handler):
 				serverAddress = (socket.inet_ntop(socket.AF_INET6, data[i:i+16]), unpack("!H", data[i+16:i+18])[0])
 			server = Server(self._parent, serverAddress, master=self)
 			server.request()
-			#server.request64()
 			self._parent.serverlist.add(server)
 			self.serverlist.add(server)
 	
@@ -217,13 +217,15 @@ class Server(Handler):
 	_packet_request64 = 10*b'\xff' + b'fstd'
 	_packet_response64 = 10*b'\xff' + b'dtsf'
 	
-	def __init__(self, parent, address, master=None):
+	def __init__(self, parent, address, mode64=False, master=None):
 		self._address = address
 		self.address = ("[{host}]:{port}" if is_ipv6(address) else "{host}:{port}") \
 					.format(host=address[0], port=address[1])
 		self._parent = parent
 		self.master = master
 		self.data = None
+		self.data64 = None
+		self.mode64 = mode64
 		self.reset()
 	
 	def reset(self):
@@ -238,21 +240,18 @@ class Server(Handler):
 		self.max_players = -1
 		self.clients = -1
 		self.max_clients = -1
+		self.is64 = False
 	
 	def request(self):
 		#log('debug', "Server-ping to " + self.address)
 		self.token = chr(randint(1,255))
-		self.data = self._packet_response + str(ord(self.token)) + b'\x00'
 		self.request_time = time.time()
-		self._parent.socket.sendto_q(self._packet_request + self.token, self._address, self.request_callback)
-		self._parent.add_handler(self)
-	
-	def request64(self):
-		#log('debug', "Server-ping to " + self.address)
-		self.token = chr(randint(1,255))
-		self.data = self._packet_response64 + str(ord(self.token)) + b'\x00'
-		self.request_time = time.time()
-		self._parent.socket.sendto_q(self._packet_request64 + self.token, self._address, self.request_callback)
+		if not self.mode64:
+			self.data = self._packet_response + str(ord(self.token)) + b'\x00'
+			self._parent.socket.sendto_q(self._packet_request + self.token, self._address, self.request_callback)
+		else:
+			self.data = self._packet_response64 + str(ord(self.token)) + b'\x00'
+			self._parent.socket.sendto_q(self._packet_request64 + self.token, self._address, self.request_callback)
 		self._parent.add_handler(self)
 		
 	def request_callback(self, request_time):
@@ -268,9 +267,9 @@ class Server(Handler):
 		data = iter(data.split(b'\x00'))
 		try:
 			self.version = data.next()
-			self.name = data.next()
-			self.map = data.next()
-			self.gametype = data.next()
+			self.name = data.next().decode('utf-8')
+			self.map = data.next().decode('utf-8')
+			self.gametype = data.next().decode('utf-8')
 			self.password = (data.next()=='1')
 			self.players = int(data.next())
 			self.max_players = int(data.next())
@@ -278,8 +277,8 @@ class Server(Handler):
 			self.max_clients = int(data.next())
 			for _ in range(self.clients):
 				player = Player()
-				player.name=data.next()
-				player.clan=data.next()
+				player.name=data.next().decode('utf-8')
+				player.clan=data.next().decode('utf-8')
 				# TWP Changes
 				try:
 					player.country = int(data.next())
@@ -296,13 +295,18 @@ class Server(Handler):
 		except StopIteration:
 			self.reset()
 			log('warning', 'unexpected end of data for server ' + str(self))
+		except UnicodeDecodeError:
+			self.reset()
+			log('warning', 'codification error for server ' + str(self))
 		for player in self.playerlist:
 			self._parent.playerlist.add(player)
 	
 	def match(self, **kwargs):
 		if not kwargs.has_key("address") or kwargs["address"] != self._address:
 			return False
-		if not kwargs.has_key("data") or kwargs["data"][0:len(self.data)] != self.data:
+		if not kwargs.has_key("data") or \
+			(self.data and kwargs["data"][0:len(self.data)] != self.data) or \
+			(self.data64 and kwargs["data"][0:len(self.data64)] != self.data64):
 			return False
 		return True
 	
@@ -477,6 +481,7 @@ class TWServerRequest(object):
         self.handlers = HandlerStorage()
         self.playerlist = PlayerList()
         self.server = None
+        self.server64 = None
         self.socket = MultiSocket(timeout=timeout)
     
     def query_port(self, ip, port):
@@ -484,7 +489,9 @@ class TWServerRequest(object):
         self.playerlist.clear()
 
         self.server = Server(self, (ip, port), master=self)
+        self.server64 = Server(self, (ip, port), mode64=True, master=self)
         self.server.request()
+        self.server64.request()
     
     def run_loop(self):
         last_recv = time.time()
