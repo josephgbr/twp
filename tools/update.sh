@@ -25,7 +25,12 @@ if [[ ! -d "$INSTALL_DIR" ]];then
 	exit 1
 fi
 
-/etc/init.d/twp stop
+if hash systemctl &> /dev/null;
+then
+	service twp stop
+else
+	/etc/init.d/twp stop
+fi
 
 echo 'Installing requirements. Please, wait...'
 
@@ -60,6 +65,8 @@ hash pip &> /dev/null || {
 
 tmp=$(mktemp -d)
 
+[[ -f "$INSTALL_DIR/twp.service" ]] && cp "$INSTALL_DIR/twp.service" "$tmp"
+
 echo 'Backuping database...'
 [[ -f "$INSTALL_DIR/twp.db" ]] && cp "$INSTALL_DIR/twp.db" "$tmp" || echo "Can't backup the database!"
 
@@ -72,8 +79,10 @@ rm -r $INSTALL_DIR 1> /dev/null
 echo 'Installing Teeworlds Web Panel...'
 git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 
+[[ -f "$tmp/twp.service" ]] && cp "$tmp/twp.service" "$INSTALL_DIR"
+
 echo 'Restore database...'
-cp "$tmp/twp.db" "$INSTALL_DIR/twp.db"
+[[ -f "$tmp/twp.db" ]] && cp "$tmp/twp.db" "$INSTALL_DIR"
 
 echo 'Restore servers...'
 [[ -d "$tmp/servers" ]] && cp -r "$tmp/servers" "$INSTALL_DIR"
@@ -85,6 +94,11 @@ chown -R $INSTALL_USER:$INSTALL_USER $INSTALL_DIR
 echo 'Installing dependencies...'
 pip install -r "$INSTALL_DIR/requirements.txt"
 
-/etc/init.d/twp start
+if hash systemctl &> /dev/null;
+then
+	service twp start
+else
+	/etc/init.d/twp start
+fi
 
 echo -e '\nUpdate complete!\n\n'

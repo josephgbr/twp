@@ -8,32 +8,36 @@ echo '   ╚═╝      ╚══╝╚══╝   ╚═╝     '
 echo '               Teeworlds Web Panel Automatic installer'
 echo -e "\n"
 
+INSTALL_DIR='/srv/twp'
 
-if [[ -z $SUDO_USER ]]; then
+if [[ -n $SUDO_USER ]]; then
+	INSTALL_USER=$SUDO_USER
+elif [[ -n $1 ]]; then
+	INSTALL_USER=$1
+fi
+
+if [[ -z $INSTALL_USER ]]; then
 	echo -e "Error, can't read user installation!"
 	exit 1
 fi
 
-if [[ "$UID" -ne "0" ]];then
+if [[ "$UID" -ne 0 ]]; then
 	echo 'You must be root to install Teeworlds Web Panel!'
 	exit 1
 fi
 
-if [ "$SUDO_USER" == "root" ]; then
+if [[ "$INSTALL_USER" == "root" ]]; then
 	echo "Error, install for 'root' user it's a security issue... change user and try again."
 	exit 1
 fi
 
-read -r -p "Do you want install TWP using '$SUDO_USER' user? [Y/n]: " response
+read -r -p "Do you want install TWP using '$INSTALL_USER' user? [Y/n]: " response
 if [[ $response =~ [nN] ]]; then
 	exit 0
 fi
 
 
 ### INSTALL TWP
-INSTALL_USER=$SUDO_USER
-INSTALL_DIR='/srv/twp'
-
 if [[ -d "$INSTALL_DIR" ]];then
 	echo "You already have Teeworlds Web Panel installed. You'll need to remove $INSTALL_DIR if you want to install"
 	exit 1
@@ -80,16 +84,38 @@ git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
 chown -R "$INSTALL_USER":"$INSTALL_USER" "$INSTALL_DIR"
 
 echo 'Installing dependencies...'
-pip uninstall pillow
+pip uninstall -y pillow &> /dev/null
 pip install -r "$INSTALL_DIR/requirements.txt"
 
 echo -e '\nInstallation complete!\n\n'
 
-
 ### DAEMON
-echo 'Adding /etc/init.d/twp...'
+if hash systemctl &> /dev/null;
+then
+	echo -e 'Writing twp.service... '
+	
+	cat > "$INSTALL_DIR/twp.service" <<EOF
+[Unit]
+Description=Teeworlds Web Panel
+After=network.target
 
-cat > '/etc/init.d/twp' <<EOF
+[Service]
+User=$INSTALL_USER
+Type=simple
+ExecStart=/usr/bin/python2 "$INSTALL_DIR/twp.py"
+WorkingDirectory=$INSTALL_DIR
+
+[Install]
+WantedBy=multi-user.target
+EOF
+	
+	systemctl enable "$INSTALL_DIR/twp.service"
+	echo -e 'Done\n'
+	service twp start
+else
+	echo -e 'Writing /etc/init.d/twp... '
+	
+	cat > '/etc/init.d/twp' <<EOF
 #!/bin/bash
 # Copyright (c) 2013 LXC Web Panel
 # All rights reserved.
@@ -124,7 +150,7 @@ function start () {
 		--chdir \$WORK_DIR \\
 		--exec \$DAEMON
 	echo 'done.'
-	}
+}
 
 function stop () {
 	echo -n 'Stopping server...'
@@ -152,11 +178,13 @@ esac
 
 exit 0
 EOF
+	
+	chmod +x '/etc/init.d/twp'
+	update-rc.d twp defaults 1> /dev/null
+	echo -e 'Done\n'
+	/etc/init.d/twp start
+fi
 
-chmod +x '/etc/init.d/twp'
-update-rc.d twp defaults 1> /dev/null
-echo -e 'Done\n'
-/etc/init.d/twp start
 
 ### END
 echo 'Connect you on http://your-ip-address:8000/ (Example: http://localhost:8000)'

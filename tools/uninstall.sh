@@ -10,9 +10,16 @@ if [[ $response =~ [nN] ]]; then
 	exit 0
 fi
 
-/etc/init.d/twp stop
+if hash systemctl &> /dev/null;
+then
+	service twp stop
+	systemctl disable twp
+else
+	/etc/init.d/twp stop
+	update-rc.d -f twp remove
+	rm /etc/init.d/twp
+fi
 rm -R /srv/twp
-update-rc.d -f twp remove
 
 echo 'Teeworlds Web Panel uninstalled successfully!'
 echo -e "Report bugs: https://github.com/CytraL/twp/issues\n\n"
