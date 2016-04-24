@@ -224,7 +224,6 @@ class Server(Handler):
 		self._parent = parent
 		self.master = master
 		self.data = None
-		self.data64 = None
 		self.mode64 = mode64
 		self.reset()
 	
@@ -304,9 +303,7 @@ class Server(Handler):
 	def match(self, **kwargs):
 		if not kwargs.has_key("address") or kwargs["address"] != self._address:
 			return False
-		if not kwargs.has_key("data") or \
-			(self.data and kwargs["data"][0:len(self.data)] != self.data) or \
-			(self.data64 and kwargs["data"][0:len(self.data64)] != self.data64):
+		if not kwargs.has_key("data") or kwargs["data"][0:len(self.data)] != self.data:
 			return False
 		return True
 	
