@@ -1,4 +1,4 @@
-# Teeworlds Web Panel [![Circle CI](https://circleci.com/gh/CytraL/twp/tree/0.2.0.svg?style=svg)](https://circleci.com/gh/CytraL/twp/tree/0.2.0)
+# Teeworlds Web Panel [![Circle CI](https://circleci.com/gh/CytraL/twp/tree/0.2.1.svg?style=svg)](https://circleci.com/gh/CytraL/twp/tree/0.2.1)
 TWP is an app-web for manage your local teeworlds linux servers. Inspired by the work of '[LXC Web Panel](https://github.com/lxc-webpanel/LXC-Web-Panel)'.
 
 
@@ -7,23 +7,23 @@ Project Requirements:
 **Server Side**
 - [SQLite](https://www.sqlite.org/) for default database
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
- - [Flask APScheduler v1.3.3](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
+ - [Flask APScheduler v1.3.7](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support 
  - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
-- [Pillow v3.0.0](https://pypi.python.org/pypi/Pillow/3.0.0) for generate png images
+- [Pillow v3.2.0](https://pypi.python.org/pypi/Pillow/3.2.0) for generate png images
 - [MergeDict v0.2.0](https://pypi.python.org/pypi/mergedict/0.2.0) for make the life easier with python dictionaries
 - *tarfile, zipfile, urllib, subprocess, telnetlib, ... and many other python packages are used too!*
 
 **Client Side**
-- [Font Awesome v4.5.0](http://fontawesome.io/) for awesome icons
+- [Font Awesome v4.6.1](http://fontawesome.io/) for awesome icons
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
-- [MomentJS v2.11.1](http://momentjs.com/) for easy date manage
+- [MomentJS v2.13.0](http://momentjs.com/) for easy date manage
 - [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes
 - [JQuery v1.12.0](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
- - [Bootstrap Colorpicker v2.3](http://mjolnic.com/bootstrap-colorpicker/)
+ - [Bootstrap Colorpicker v2.3.2](http://mjolnic.com/bootstrap-colorpicker/)
 
 ### Installation (Debian based distributions)
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._

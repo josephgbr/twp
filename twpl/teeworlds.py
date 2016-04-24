@@ -239,7 +239,6 @@ class Server(Handler):
 		self.max_players = -1
 		self.clients = -1
 		self.max_clients = -1
-		self.is64 = False
 	
 	def request(self):
 		#log('debug', "Server-ping to " + self.address)
