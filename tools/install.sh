@@ -31,6 +31,11 @@ if [[ "$INSTALL_USER" == "root" ]]; then
 	exit 1
 fi
 
+if [[ -d "$INSTALL_DIR" ]];then
+	echo "You already have Teeworlds Web Panel installed. You'll need to remove $INSTALL_DIR if you want to install"
+	exit 1
+fi
+
 read -r -p "Do you want install TWP using '$INSTALL_USER' user? [Y/n]: " response
 if [[ $response =~ [nN] ]]; then
 	exit 0
@@ -38,11 +43,6 @@ fi
 
 
 ### INSTALL TWP
-if [[ -d "$INSTALL_DIR" ]];then
-	echo "You already have Teeworlds Web Panel installed. You'll need to remove $INSTALL_DIR if you want to install"
-	exit 1
-fi
-
 echo 'Installing requirements. Please, wait...'
 
 apt-get update 1> /dev/null
