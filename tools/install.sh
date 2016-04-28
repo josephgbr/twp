@@ -41,6 +41,20 @@ if [[ $response =~ [nN] ]]; then
 	exit 0
 fi
 
+### CHECK PACKAGE MANAGER
+hash apt-get &> /dev/null || {
+	PKG_MANGER = "apt-get"
+}
+hash yum &> /dev/null || {
+	PKG_MANGER = "yum"
+}
+hash pacman &> /dev/null || {
+	PKG_MANGER = "pacman"
+}
+hash emerge &> /dev/null || {
+	PKG_MANGER = "emerge"
+}
+
 
 ### INSTALL TWP
 echo 'Installing requirements. Please, wait...'
