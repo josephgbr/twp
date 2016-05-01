@@ -303,10 +303,9 @@ def install_mod():
         if 'url' in request.form and not request.form['url'] == '':
             try:
                 filename = secure_filename(twpl.download_mod_from_url(request.form['url'], app.config['UPLOAD_FOLDER']))
+                flash(_('Mod installed successfully'), 'info')
             except Exception as e:
                 flash(_("Error: %s") % str(e), 'danger')
-            else:
-                flash(_('Mod installed successfully'), 'info')
         else:  
             if 'file' in request.files:
                 file = request.files['file']
