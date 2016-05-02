@@ -74,14 +74,14 @@
   			<div class="pill-server panel panel-default" style="background-color:#9775AA;">
   				<i class="fa fa-eye fa-3x"></i>
   				<span>{{_('Visible')}}</span>
-	  			<b>{% if server.register %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
+	  			<b>{% if server.visible %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
 	  		</div>
   		</div>
   		<div class="col-md-1" id="server-visible">
   			<div class="pill-server panel panel-default" style="background-color:#764B8E;">
   				<i class="fa fa-lock fa-3x"></i>
   				<span>{{_('Public')}}</span>
-	  			<b>{% if server.password %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
+	  			<b>{% if server.public %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
 	  		</div>
   		</div>
   		
