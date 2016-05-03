@@ -1,9 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}{{ _('Server Info') }}{% endblock %}
 {% block content %}
+{{ super() }}
+
 {% set is_online = True if netinfo.gametype else False %}
 
-{{ super() }}
 {% if server %}
 
 <ol class="breadcrumb">
@@ -120,10 +121,12 @@
   	{% if is_online %}
 		<table class="table table-condensed table-hover table-striped">
 			<thead>
-				<th>{{ _('Score') }}</th>
-				<th>{{ _('Name') }}</th>
-				<th>{{ _('Clan') }}</th>
-				<th>&nbsp;</th>
+				<tr>
+					<th>{{ _('Score') }}</th>
+					<th>{{ _('Name') }}</th>
+					<th>{{ _('Clan') }}</th>
+					<th>&nbsp;</th>
+				</tr>
 			</thead>
 			<tbody>
 	  		{% for player in netinfo.playerlist %}

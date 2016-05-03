@@ -8,7 +8,7 @@
 						<span class="icon-bar"></span>
 	 				<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="{{ config['BRAND_URL'] }}"><i class="fa fa-server"></i> {{ config['BRAND_NAME'] }}</a>
+				<a class="navbar-brand" href="{{ get_app_config().brand_url or '#' }}"><i class="fa fa-server"></i> {{ get_app_config().brand }}</a>
 			</div>
 	
 	   		<!-- Collect the nav links, forms, and other content for toggling -->

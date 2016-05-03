@@ -1,68 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>{% block title %}{% endblock %} - Teeworlds Web Panel</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="description" content="">
-		<meta name="author" content="Alexandre Díaz">
+{% extends "minimal_layout.html" %}
+{% block base_content %}
+{{ super() }}
 
-		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap-theme.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/font-awesome-4.6.1/font-awesome.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/morrisjs-0.5.1/morris.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/colorpicker-2.3/bootstrap-colorpicker.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
-		
-		<link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
-	</head>
-
-	<body>
-		{% include "includes/nav.html" %}
-
-		<div id="page-content">
-			<div class="container">
-				{% block content %}
-					{% with messages = get_flashed_messages(with_categories=true) %}
-						{% if messages %}
-							{% for category, message in messages %}
-								<div class="alert alert-{{ category }}">
-									<button type="button" class="close" data-dismiss="alert">&times;</button>
-									{{ message }}
-								</div>
-							{% endfor %}
-						{% endif %}
-					{% endwith %}
-				{% endblock %}
-			</div>
+	{% include "includes/nav.html" %}
+	
+	<div id="page-content">
+		<div class="container">
+			{% block content %}
+				{% with messages = get_flashed_messages(with_categories=true) %}
+					{% if messages %}
+						{% for category, message in messages %}
+							<div class="alert alert-{{ category }}">
+								<button type="button" class="close" data-dismiss="alert">&times;</button>
+								{{ message }}
+							</div>
+						{% endfor %}
+					{% endif %}
+				{% endwith %}
+			{% endblock %}
 		</div>
-		<footer class="footer">
-			<div class="container">
-				<p class="text-muted credit"><small>Teeworlds Web Panel &copy; <a target='_blank' href="https://github.com/CytraL/twp/graphs/contributors">Contributors</a> - 2016 - <a target="_blank" href="https://www.gnu.org/licenses/agpl.html">GNU AGPL</a> - {{_('Proudly hosted on')}} <a href="https://github.com/CytraL/twp"><i class="fa fa-github"></i> GitHub</a><small></p>
-			</div>
-		</footer>
-
-		<!-- Javascript
-		================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script type="text/javascript">
-			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-			var $REFRESH_TIME = {{ config['REFRESH_TIME']|tojson|safe }} * 1000;
-			
-			var $BABEL_STR_SESSION_EXPIRED = {{_("The session has expired")|tojson|safe}};
-			var $BABEL_STR_TITLE_SESSION_EXPIRED = {{_("Session Expired!")|tojson|safe}};
-			var $BABEL_STR_INTERNAL_ERROR = {{_("Interal error has ocurred!")|tojson|safe}};
-			var $BABEL_STR_ERROR_OOOPS = {{_("Error - Ooops!")|tojson|safe}};
-			var $BABEL_STR_DAMN = {{_("Damn")|tojson|safe}};
-		</script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/moment-2.11.1/moment.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/jquery-1.12.3/jquery.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/bootbox-4.4.0/bootbox.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/morrisjs-0.5.1/raphael.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/morrisjs-0.5.1/morris.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-		{% block script %}{% endblock %}
-	</body>
-</html>
+	</div>
+	<footer class="footer">
+		<div class="container">
+			<p class="text-muted credit"><small>Teeworlds Web Panel &copy; <a target='_blank' href="https://github.com/CytraL/twp/graphs/contributors">Contributors</a> - 2016 - <a target="_blank" href="https://www.gnu.org/licenses/agpl.html">GNU AGPL</a> - {{_('Proudly hosted on')}} <a href="https://github.com/CytraL/twp"><i class="fa fa-github"></i> GitHub</a></small></p>
+		</div>
+	</footer>
+	
+{% endblock %}

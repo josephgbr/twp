@@ -38,8 +38,6 @@ class TWPConfig(object):
         self.UPLOAD_FOLDER = tempfile.mkdtemp()
         
         self.SERVERS_BASEPATH = config.get('overview', 'servers')
-        self.BRAND_NAME = config.get('overview', 'brand_name')
-        self.BRAND_URL = config.get('overview', 'brand_url')
         self.MAX_CONTENT_LENGTH = config.getint('overview', 'max_upload_size') * 1024 * 1024
         
         self.REFRESH_TIME = config.getint('global', 'refresh_time')

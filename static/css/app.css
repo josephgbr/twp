@@ -1,20 +1,19 @@
-html {
-  position: relative;
-  min-height: 100%;
-}
 body {
   /* Margin bottom by footer height */
   margin-top: 5em;
   margin-bottom: 30px;
+  background-color: #EFEFEF;
 }
 .footer {
-  position: absolute;
-  bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer here */
-  height: 30px;
+  height: 22px;
   background-color: #f5f5f5;
+  position: fixed;
+  bottom: 0;
+  z-index: 1000;
 }
+
 
 .table-vertical-aligned td {
   vertical-align: middle !important;
@@ -27,6 +26,10 @@ body {
 .remove-server-instance {
   color: #800000;
   margin-left: 1.5em;
+}
+
+.text-upper {
+	text-transform: uppercase;
 }
 
 .space-bottom {
@@ -59,6 +62,11 @@ body {
 
 #server-time:hover {
 	cursor: help;
+}
+
+.vertical-centered {
+	display: table-cell; 
+	vertical-align: middle;
 }
 
 .pill-server {
@@ -110,6 +118,9 @@ body.slide-active {
 
 
 /* put toggle bars on the left :: not using button */
+#slide-nav {
+	box-shadow: 0 2px 5px #888;
+}
 #slide-nav .navbar-toggle {
     cursor: pointer;
     position: relative;
@@ -152,14 +163,14 @@ body.slide-active {
 	}
 	#slide-nav .navbar.slide-active {
 	    position: absolute;
-	    width: 30%;
+	    width: 80%;
 	    top: -1px;
 	    z-index: 1000;
 	}
 	#slide-nav #slidemenu {
 	    background: #f7f7f7;
 	    left: -100%;
-	    width: 30%;
+	    width: 80%;
 	    min-width: 0;
 	    position: absolute;
 	    padding-left: 0;
@@ -174,7 +185,7 @@ body.slide-active {
 	}
 	#slide-nav #slidemenu .navbar-nav .dropdown-menu li a {
 	    min-width: 0;
-	    width: 30%;
+	    width: 80%;
 	    white-space: normal;
 	}
 	#slide-nav {
@@ -189,8 +200,8 @@ body.slide-active {
 	    top: 0;
 	    height: 100%;
       	bottom:0;
-	    width: 30%;
-	    left: -30%;
+	    width: 80%;
+	    left: -80%;
 	    background: #f7f7f7;
 	}
 	#navbar-height-col.inverse {

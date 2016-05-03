@@ -1,0 +1,61 @@
+{% extends "minimal_layout.html" %}
+{% block title %}{{ _('Installation') }}{% endblock %}
+{% block base_content %}
+{{ super() }}
+
+<div class="row">
+	<form id="form-installation">
+		<div class="col-md-6 col-md-offset-3 carrousel-fade" style="padding-top:2em;">
+			<div class="row carrousel-fade-list">
+				<div class="item text-center text-upper">
+					<i class="fa fa-sliders fa-5x"></i>
+					<h1>{{_('TWP Installation')}}</h1>
+					<p>
+						Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, take a moment for complete the installation.
+					</p>
+					<div class="row" style="margin-top:1em;">
+						<a href="#" class="btn btn-primary next">{{_('Next')}} <i class="fa fa-arrow-right"></i></a>
+					</div>
+				</div>
+				<div class="item">
+					<label for="adminpass">Admin Password:</label>
+					<input type="password" id="adminpass" name="adminpass" class="form-control" placeholder="Admin Password" required/>
+					<label for="radminpass">Repeat Admin Password:</label>
+					<input type="password" id="radminpass" name="radminpass" class="form-control" placeholder="Repeat Admin Password" required/>
+					<label for="brand">Brand:</label>
+					<input type="text" id="brand" name="brand" class="form-control" value="{{appconfig.brand}}" placeholder="Brand" />
+					<label for="brand-url">Brand URL:</label>
+					<input type="text" id="brand-url" name="brand-url" class="form-control" value="{{appconfig.brand_url}}" placeholder="Brand URL" />
+					<div class="row text-center" style="margin-top:1em;">
+						<input type="submit" class="btn btn-success" id="finish-install" value="{{_('Finish')}}" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+	"use strict";
+	$(function(){
+		$('#form-installation').submit(function(ev){
+			console.log($('#form-installation').serialize());
+			$.post('/_finish_installation', $('#form-installation').serialize(), function(data){
+				window.location.href = '/';
+			});
+			ev.preventDefault();
+		});
+		
+		// Admin Password Check
+		$(document).on('input', '#radminpass,#adminpass', function() {
+			var $pass = $('#adminpass');
+			var $rpass = $('#radminpass');
+			if ($pass.val() !== $rpass.val())
+				$rpass[0].setCustomValidity("Password doesn't match!");
+			else
+				$rpass[0].setCustomValidity('');
+		})
+	});
+</script>
+{% endblock %}

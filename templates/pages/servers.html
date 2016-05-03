@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block title %}{{ _('Servers') }}{% endblock %}
 {% block content %}
-
 {{ super() }}
+
 {% if session.logged_in %}
 <div class="space-bottom">
 	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
@@ -21,12 +21,12 @@
 
 
 {% for srv in servers %}
-<div class="panel panel-info">
+<div class="panel panel-primary">
 	<div class="panel-heading">
 		{{srv}}
 		{% if session.logged_in %}
 		<span class="pull-right">
-			<a class="btn btn-xs btn-primary" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
+			<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
 			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
 		</span>
 		{% endif %}
@@ -37,12 +37,14 @@
 		{% set server_bins = get_mod_binaries(srv) %}
 		<table class="table table-condensed table-hover table-striped table-vertical-aligned">
 			<thead>
-				<th>&nbsp;</th>
-				<th>{{ _('Status') }}</th>
-				<th>{{ _('Port') }}</th>
-				<th>{{ _('Game Type') }}</th>
-				<th>{{ _('Server Name') }}</th>
-				<th>&nbsp;</th>
+				<tr>
+					<th>&nbsp;</th>
+					<th>{{ _('Status') }}</th>
+					<th>{{ _('Port') }}</th>
+					<th>{{ _('Game Type') }}</th>
+					<th>{{ _('Server Name') }}</th>
+					<th>&nbsp;</th>
+				</tr>
 			</thead>
 			<tbody>
 				{% for mod_inst in mod_instances %}

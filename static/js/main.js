@@ -67,6 +67,7 @@ $(function(){
     });*/
     /** END: MAIN MENU **/
 	
+    /** GENERAL **/
 	$(document).on("keypress", ".deny-enter :input:not(textarea)", function(event) {
 	    if (event.keyCode == 13) {
 	        event.preventDefault();
@@ -78,25 +79,13 @@ $(function(){
 	
 	// Initialize colorpickers
 	$('.colorpicker-input').colorpicker();
+	/** END: GENERAL **/
 	
+	/** CSS INITIALIZATIONS **/
+	$('.carrousel-fade').each(function(){ $(this).carrouselanim(); });
 });
 
-$.fn.extend({
-	
-	splitlines: function() {
-		var lines = this.val().split(/\n/);
-		var texts = [];
-		for (var i=0; i < lines.length; i++)
-		{
-			if (/\S/.test(lines[i]))
-				texts.push($.trim(lines[i]));
-		}
-		
-		return texts;
-	}
-	
-});
-
+/** REST CALLS **/
 function refresh_main()
 {
 	get_server_instances_online();
@@ -163,7 +152,10 @@ function get_host_localtime()
 		$("#localtime").text(data['localtime']);
 	});
 }
+/** END: REST CALLS **/
 
+
+/** CONFIG TOOLS **/
 function get_config_value_textarea($ta, param)
 {
 	var lines = $ta.splitlines();
@@ -201,3 +193,88 @@ function update_config_textarea($ta, param, new_value)
     
     $ta.val(nvalue);
 }
+/** END: CONFIG TOOLS **/
+
+
+/** JQUERY EXTENSIONS **/
+// Minimal Animated Carrousel
+$.fn.extend({
+	carrouselanim: function(option) {
+		var $this = $(this);
+		
+		function selItem(index)
+		{
+			var $items = $this.data('carrousel-items');
+			var selected = +$this.data('carrousel-sel');
+			$items[selected].animate({ opacity:'0' }, function(){
+				$items[selected].css('display', 'none');
+			});
+			$items[index].css({ display:'initial', opacity:0 });
+			$items[index].animate({ opacity:1 });
+			$this.data('carrousel-sel', index);
+		};
+		
+		if (typeof(option) === "string")
+		{
+			switch(option)
+			{
+			case "next":
+				var $items = $this.data('carrousel-items');
+				var selected = +$this.data('carrousel-sel');
+				if (selected < $items.length-1)
+					selItem(selected+1);
+				break;
+			case "prev":
+				var selected = +$this.data('carrousel-sel');
+				if (selected > 0)
+					selItem(selected-1);
+				break;
+			}
+		}
+		else if (typeof(option) === "integer")
+		{
+			selItem(option);
+		}
+		else
+		{
+			var $items = [];
+			$this.children('.carrousel-fade-list').children('.item').each(function(){
+				var $_this = $(this);
+				$_this.css({ display:'none', position:'absolute', width: '100%', left: 0 });
+				$items.push($_this);
+			});
+			$this.css({ position:'relative' });
+			$this.data('carrousel-items', $items);
+			$this.data('carrousel-sel', 0);
+			$items[0].css('display', 'initial');
+			
+			$this.find('.next').each(function(){
+				$(this).click(function(){
+					$this.carrouselanim('next');
+					return false;
+				})
+			});
+			$this.find('.prev').each(function(){
+				$(this).click(function(){
+					$this.carrouselanim('prev');
+					return false;
+				})
+			});
+		}
+	}
+});
+
+// Split TextArea/Input form controls
+$.fn.extend({
+	splitlines: function() {
+		var lines = this.val().split(/\n/);
+		var texts = [];
+		for (var i=0; i < lines.length; i++)
+		{
+			if (/\S/.test(lines[i]))
+				texts.push($.trim(lines[i]));
+		}
+		
+		return texts;
+	}
+});

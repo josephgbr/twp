@@ -57,6 +57,33 @@ if not os.path.isdir(app.config['SERVERS_BASEPATH']):
     os.makedirs(app.config['SERVERS_BASEPATH'])
     
 # Create Tables
+class AppWebConfig(db.Model):
+    __tablename__ = 'app_web_config'
+    id = db.Column(db.Integer, primary_key=True)
+    brand = db.Column(db.String(16))
+    brand_url = db.Column(db.String(512))
+    installed = db.Column(db.Boolean, default=False)
+    
+class UserServerInstancePermission(db.Model):
+    __tablename__ = 'user_server_instance_permission'
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    perm_id = db.Column(db.Integer, db.ForeignKey("permission.id"), nullable=False)
+    
+class Permission(db.Model):
+    __tablename__ = 'permission'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25), nullable=False)
+    create = db.Column(db.Boolean, default=False)
+    delete = db.Column(db.Boolean, default=False)
+    start = db.Column(db.Boolean, default=False)
+    stop = db.Column(db.Boolean, default=False)
+    log = db.Column(db.Boolean, default=False)
+    econ = db.Column(db.Boolean, default=False)
+    config = db.Column(db.Boolean, default=False)
+    issues = db.Column(db.Boolean, default=False)
+    
 class Issue(db.Model):
     __tablename__ = 'issue'
     id = db.Column(db.Integer, primary_key=True)
@@ -103,7 +130,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(12), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    level = db.Column(db.Integer, nullable=False, default=1)
     
 class ServerJob(db.Model):
     __tablename__ = 'server_job'
@@ -125,24 +151,34 @@ def db_delete_and_commit(reg):
     db.session.commit()
 
 def db_init():
-    users_count = User.query.count()
-    if users_count == 0:
-        user = User(username='admin', password=str_sha512_hex_encode('admin'), level=0)
-        db_add_and_commit(user)
+    app_config = AppWebConfig.query.count()
+    if app_config == 0:
+        db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
 
 
 # App Callbacks
 @app.before_request
 def before_request():
+    # Session Banned?
     BANLIST.refresh()
     if not request.path.startswith('/banned') and BANLIST.find(request.remote_addr):
-        return redirect(url_for('banned'))
+        abort(403)
     
+    # Session Expired?
+    check_session()
+    
+    # Set page language
     if request.view_args and 'lang_code' in request.view_args:
         g.current_lang = request.view_args['lang_code']
         request.view_args.pop('lang_code')
         
-    check_session()
+    # Need Installation?
+    app_config = db.session.query(AppWebConfig).get(1)
+    if not app_config.installed \
+        and not request.path.startswith('/install') \
+        and not request.path.startswith('/static') \
+        and not request.path.startswith('/_finish_installation'):
+        return redirect(url_for('installation'))
 
 #@app.teardown_request
 #def teardown_request(exception):
@@ -156,18 +192,24 @@ def get_locale():
 
 
 # Routing
+@app.route("/install", methods=['GET'])
+def installation():
+    app_config = db.session.query(AppWebConfig).get(1)
+    if app_config.installed:
+        abort(404)
+    return render_template('pages/install.html', appconfig = app_config)
+
 @app.route("/", methods=['GET'])
-@app.route("/overview", methods=['GET'])
 def overview():
     session['prev_url'] = request.path;
-    return render_template('index.html', dist=twpl.get_linux_distribution(), ip=PUBLIC_IP)
+    return render_template('pages/index.html', dist=twpl.get_linux_distribution(), ip=PUBLIC_IP)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if not BANLIST.find(request.remote_addr) and get_login_tries() >= app.config['LOGIN_MAX_TRIES']:
         BANLIST.add(request.remote_addr, app.config['LOGIN_BAN_TIME']);
         session['login_try'] = 0;
-        return redirect(url_for("banned")) 
+        abort(403)
     
     if request.method == 'POST':
         request_username = request.form['username']
@@ -191,7 +233,7 @@ def login():
         session['last_login_try'] = int(time.time())
         flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),
                                                                   app.config['LOGIN_MAX_TRIES']), 'danger')
-    return render_template('login.html')
+    return render_template('pages/login.html')
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -208,10 +250,6 @@ def logout():
     if current_url == url_for('logout'):
         return redirect(url_for('overview'))
     return redirect(current_url)
-
-@app.route('/banned', methods=['GET'])
-def banned():
-    return render_template('banned.html'), 403
 
 @app.route('/servers', methods=['GET'])
 def servers():
@@ -237,7 +275,7 @@ def servers():
                 srv.name = net_server_info['netinfo'].name
                 srv.gametype = net_server_info['netinfo'].gametype
                 db_add_and_commit(srv)
-    return render_template('servers.html', servers=twpl.get_local_servers(app.config['SERVERS_BASEPATH']))
+    return render_template('pages/servers.html', servers=twpl.get_local_servers(app.config['SERVERS_BASEPATH']))
     
 @app.route('/server/<int:id>', methods=['GET'])
 def server(id):
@@ -249,7 +287,7 @@ def server(id):
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo)
+    return render_template('pages/server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo)
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
@@ -276,7 +314,7 @@ def players():
     session['prev_url'] = request.path;
     
     players = db.session.query(Player).order_by(desc(Player.last_seen_date)).order_by(desc(Player.name))
-    return render_template('players.html', players=players)
+    return render_template('pages/players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
 def maps():
@@ -290,7 +328,7 @@ def settings():
             flash(_('Settings updates successfully'), 'info')
         else:
             session['prev_url'] = request.path;
-        return render_template('settings.html')
+        return render_template('pages/settings.html')
     else:
         flash(_('Can\'t access to settings page'), 'danger')
         return redirect(url_for('overview'))
@@ -336,7 +374,7 @@ def search():
     servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), 
                                                           ServerInstance.base_folder.like(sk)))
     players = db.session.query(Player).filter(Player.name.like(sk))
-    return render_template('search.html', search=searchword, servers=servers, players=players)
+    return render_template('pages/search.html', search=searchword, servers=servers, players=players)
 
 @app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
 def log(id, code, name):
@@ -353,9 +391,25 @@ def log(id, code, name):
             netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
-    return render_template('log.html', ip=PUBLIC_IP, server=srv, logcode=code, logname=name, logdate=logdate)
+    return render_template('pages/log.html', ip=PUBLIC_IP, server=srv, logcode=code, logname=name, logdate=logdate)
     
 
+@app.route('/_finish_installation', methods=['POST'])
+def finish_installation():
+    app_config = db.session.query(AppWebConfig).get(1)
+    if app_config.installed:
+        abort(404)
+    if not 'adminpass' in request.form.keys() or User.query.count() != 0:
+        return jsonify({ 'check':False })
+    
+    app_config.brand = request.form['brand'] if 'brand' in request.form else ''
+    if 'brand-url' in request.form.keys():
+        app_config.brand_url = request.form['brand-url']
+    app_config.installed = True
+    db_add_and_commit(app_config)
+    db_add_and_commit(User(username='admin', password=str_sha512_hex_encode(request.form['adminpass'])))
+    return jsonify({ 'check':True })
+    
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
 def upload_maps(id):
     if 'logged_in' in session and session['logged_in']:
@@ -976,8 +1030,12 @@ def utility_processor():
         return servers
     def get_mod_binaries(mod_folder):
         return twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], mod_folder)
+    def get_app_config():
+        return db.session.query(AppWebConfig).get(1)
+    
     return dict(get_mod_instances=get_mod_instances, 
-                get_mod_binaries=get_mod_binaries)
+                get_mod_binaries=get_mod_binaries,
+                get_app_config=get_app_config)
 
 
 # Jobs

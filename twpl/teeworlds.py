@@ -307,8 +307,7 @@ class Server(Handler):
 		return True
 	
 	def __repr__(self):
-		return "<Server name='{0}' address='{1}'>" \
-			.format(self.name, self.address)
+		return "<Server name='{0}' address='{1}'>".format(self.name, self.address)
 
 
 class Player(object):

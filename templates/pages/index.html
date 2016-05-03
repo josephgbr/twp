@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block title %}{{ _('Overview') }}{% endblock %}
 {% block content %}
+{{ super() }}
+
 <div class="row">
-	{{ super() }}
 	{% if session.logged_in %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -49,16 +50,18 @@
 	<div class="panel panel-default">
 		<table id="twmslist" class="table table-condensed table-hover table-striped table-vertical-aligned" style="display:none;">
 			<thead>
-				<th>#</th>
-				<th>{{ _('Server Name') }}</th>
-				<th>{{ _('Game Type') }}</th>
-				<th>{{ _('Players') }}</th>
-				<th>{{ _('Map') }}</th>
-				<th>{{ _('Latency') }}</th>
+				<tr>
+					<th>#</th>
+					<th>{{ _('Server Name') }}</th>
+					<th>{{ _('Game Type') }}</th>
+					<th>{{ _('Players') }}</th>
+					<th>{{ _('Map') }}</th>
+					<th>{{ _('Latency') }}</th>
+				</tr>
 			</thead>
 			<tbody></tbody>
 		</table>
-		<div id="twmslist-empty" style="padding:10px;" class="text-center text-muted" style="display:none;"><i class="fa fa-warning"></i> {{ _('No local servers can be found on the master-server') }} <i class="fa fa-warning"></i></div>
+		<div id="twmslist-empty" style="padding:10px; display:none;" class="text-center text-muted"><i class="fa fa-warning"></i> {{ _('No local servers can be found on the master-server') }} <i class="fa fa-warning"></i></div>
 		<div id="twmslist-load" style="padding:10px;" class="text-center"><b><i class="fa fa-refresh fa-spin"></i> {{ _('Searching for local servers in master list...') }}</b></div>
 	</div>
 

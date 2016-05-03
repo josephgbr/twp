@@ -44,6 +44,10 @@ class TWPTestCase(unittest.TestCase):
         self.app = twp.app.test_client()
         twp.db.create_all()
         twp.db_init()
+        self.app.post('/_finish_installation', data=dict(
+            adminpass='admin',
+            brand='Testing',
+        ), follow_redirects=True)
 
     def tearDown(self):
         os.close(self.db_fd)
@@ -179,6 +183,10 @@ class LoginSecurityTestCase(unittest.TestCase):
         self.app = twp.app.test_client()
         twp.db.create_all()
         twp.db_init()
+        self.app.post('/_finish_installation', data=dict(
+            adminpass='admin',
+            brand='Testing',
+        ), follow_redirects=True)
 
     def tearDown(self):
         os.close(self.db_fd)
@@ -191,7 +199,7 @@ class LoginSecurityTestCase(unittest.TestCase):
         rv = self.login('123456', '123456')
         assert 'Invalid username or password!' in rv.data
         rv = self.login('1234567', '1234567')
-        assert 'Banned' in rv.data
+        assert rv.status_code == 403
         
         
 def suite():
