@@ -1,4 +1,4 @@
-# Teeworlds Web Panel [![Circle CI](https://circleci.com/gh/CytraL/twp/tree/0.2.1.svg?style=svg)](https://circleci.com/gh/CytraL/twp/tree/0.2.1)
+# Teeworlds Web Panel [![Circle CI](https://circleci.com/gh/CytraL/twp/tree/0.3.0.svg?style=svg)](https://circleci.com/gh/CytraL/twp/tree/0.3.0)
 TWP is an app-web for manage your local teeworlds linux servers. Inspired by the work of '[LXC Web Panel](https://github.com/lxc-webpanel/LXC-Web-Panel)'.
 
 
