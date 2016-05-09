@@ -108,4 +108,4 @@ $ pybabel compile -d translations
 
 ### Limits
 - The default maximum size of upload is 16MB per mod
-- The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years
+- The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years (with sqlite)

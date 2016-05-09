@@ -11,21 +11,23 @@
 					<i class="fa fa-sliders fa-5x"></i>
 					<h1>{{_('TWP Installation')}}</h1>
 					<p>
-						Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, take a moment for complete the installation.
+						{{_('Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, take a moment for complete the installation.')}}
 					</p>
 					<div class="row" style="margin-top:1em;">
 						<a href="#" class="btn btn-primary next">{{_('Next')}} <i class="fa fa-arrow-right"></i></a>
 					</div>
 				</div>
 				<div class="item">
-					<label for="adminpass">Admin Password:</label>
-					<input type="password" id="adminpass" name="adminpass" class="form-control" placeholder="Admin Password" required/>
-					<label for="radminpass">Repeat Admin Password:</label>
-					<input type="password" id="radminpass" name="radminpass" class="form-control" placeholder="Repeat Admin Password" required/>
-					<label for="brand">Brand:</label>
-					<input type="text" id="brand" name="brand" class="form-control" value="{{appconfig.brand}}" placeholder="Brand" />
-					<label for="brand-url">Brand URL:</label>
-					<input type="text" id="brand-url" name="brand-url" class="form-control" value="{{appconfig.brand_url}}" placeholder="Brand URL" />
+					<label for="adminuser">{{_('Admin Username')}}:</label>
+					<input type="text" id="adminuser" name="adminuser" class="form-control" placeholder="{{_('Admin Username')}}" required/>
+					<label for="adminpass">{{_('Admin Password')}}:</label>
+					<input type="password" id="adminpass" name="adminpass" class="form-control" placeholder="{{_('Admin Password')}}" required/>
+					<label for="radminpass">{{_('Repeat Admin Password')}}:</label>
+					<input type="password" id="radminpass" name="radminpass" class="form-control" placeholder="{{_('Repeat Admin Password')}}" required/>
+					<label for="brand">{{_('Brand')}}:</label>
+					<input type="text" id="brand" name="brand" class="form-control" value="{{appconfig.brand}}" placeholder="{{_('Brand')}}" />
+					<label for="brand-url">{{_('Brand URL')}}:</label>
+					<input type="text" id="brand-url" name="brand-url" class="form-control" value="{{appconfig.brand_url}}" placeholder="{{_('Brand URL')}}" />
 					<div class="row text-center" style="margin-top:1em;">
 						<input type="submit" class="btn btn-success" id="finish-install" value="{{_('Finish')}}" />
 					</div>
@@ -40,9 +42,11 @@
 	"use strict";
 	$(function(){
 		$('#form-installation').submit(function(ev){
-			console.log($('#form-installation').serialize());
 			$.post('/_finish_installation', $('#form-installation').serialize(), function(data){
-				window.location.href = '/';
+				check_server_data(data);
+				
+				if (data['success'])
+					window.location.href = '/';
 			});
 			ev.preventDefault();
 		});
@@ -52,7 +56,7 @@
 			var $pass = $('#adminpass');
 			var $rpass = $('#radminpass');
 			if ($pass.val() !== $rpass.val())
-				$rpass[0].setCustomValidity("Password doesn't match!");
+				$rpass[0].setCustomValidity("{{_("Password doesn't match!")}}");
 			else
 				$rpass[0].setCustomValidity('');
 		})

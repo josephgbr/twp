@@ -6,6 +6,7 @@
 {% set is_online = True if netinfo.gametype else False %}
 
 {% if server %}
+{% set uidperms = get_uid_permission_level(server.id) %}
 
 <ol class="breadcrumb">
   <li><a href="/servers">{{_('Servers')}}</a></li>
@@ -23,14 +24,14 @@
 <ul class="nav nav-pills nav-justified" role="tablist">
 	<li class="active"><a href="#general" role="tab" data-toggle="tab">{{ _('General') }}</a></li>
 	<li><a href="#players" data-toggle="tab">{{ _('Players') }}</a></li>
-{% if session.logged_in %}
+{% if session.logged_in and uidperms.log %}
   	<li><a href="#log" role="tab" data-toggle="tab">{{ _('Log') }}</a></li>
 {% endif %}
 </ul>
 
 <div class="tab-content" style="margin-top:1.5em;">
   	<div class="tab-pane active" id="general">
-  		{% if session.logged_in %}
+  		{% if session.logged_in and uidperms.issues %}
    		<div class="col-md-12">
   			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><a data-toggle="modal" id="issues_count" data-target="#modal_instance_issues" href="#">0</a></ins>
   		</div>
@@ -162,7 +163,7 @@
 		</h1>
   	{% endif %}
   	</div>
-{% if session.logged_in %}
+{% if session.logged_in and uidperms.log %}
   	<div class="tab-pane" id="log">
   	{% if not server.logfile %}
   		<h1 class="text-center tex-muted" style="margin-top:3.5em;">
@@ -176,7 +177,7 @@
 			  <i class="fa fa-ban fa-stack-2x text-danger"></i>
 			</span>
 		</h1>
-	{% else %}
+	{% elif uidperms.log %}
 		{% include "includes/server_log.html" %}
   	{% endif %}
   	</div>
@@ -187,7 +188,7 @@
 {% endif %}
 
 
-{% if session.logged_in %}
+{% if session.logged_in and uidperms.issues %}
 	{% include "includes/modal_instance_issues.html" %}
 {% endif %}
 

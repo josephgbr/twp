@@ -3,7 +3,7 @@
 {% block content %}
 {{ super() }}
 
-{% if session.logged_in %}
+{% if session.uid == UID_ADMIN %}
 <div class="space-bottom">
 	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
 		<div class="dropdown">
@@ -21,13 +21,18 @@
 
 
 {% for srv in servers %}
+{% set uidperms = get_uid_permission_level(srv.id) %}
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		{{srv}}
 		{% if session.logged_in %}
 		<span class="pull-right">
+			{% if uidperms.create %}
 			<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
+			{% endif %}
+			{% if session.uid == UID_ADMIN %}
 			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
+			{% endif %}
 		</span>
 		{% endif %}
 	</div>
@@ -61,7 +66,10 @@
 						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.id}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
 						{% if session.logged_in %}
 							{% if not mod_inst.status %}
+							{% if uidperms.config %}
 							<a class="btn btn-xs btn-default" data-id="{{mod_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> {{ _('Config') }}</a>
+							{% endif %}
+							{% if uidperms.start %}
 							<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.id}}">
 							    <a data-id="{{mod_inst.id}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
 							        <i class="fa fa-play"></i> {{ _('Start') }}
@@ -80,16 +88,21 @@
 							    	{% endif %}
 							    </ul>
 							</div>
+							{% endif %}
+							{% if uidperms.delete %}
 							<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.id}}" href="#" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></a>
+							{% endif %}
 							{% elif mod_inst.status %}
-								{% if mod_inst.econ_port and mod_inst.econ_password %}
+								{% if uidperms.econ and mod_inst.econ_port and mod_inst.econ_password %}
 								<a data-id="{{mod_inst.id}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
 							        <i class="fa fa-tty"></i> {{ _('ECon Admin') }}
 							    </a>
 							    {% endif %}
+							    {% if uidperms.stop %}
 								<a data-id="{{mod_inst.id}}" class="stop-instance btn btn-xs btn-danger">
 							        <i class="fa fa-stop"></i> {{ _('Stop') }}
 							    </a>
+							    {% endif %}
 							{% endif %}
 						{% endif %}
 					</td>
@@ -112,9 +125,15 @@
 {% endif %}
 
 {% if session.logged_in %}
-	{% include "includes/modal_new_server.html" %}
-	{% include "includes/modal_instance_configuration.html" %}
-	{% include "includes/modal_external_console.html" %}
+	{% if uidperms.create %}
+		{% include "includes/modal_new_server.html" %}
+	{% endif %}
+	{% if uidperms.config %}
+		{% include "includes/modal_instance_configuration.html" %}
+	{% endif %}
+	{% if uidperms.econ %}
+		{% include "includes/modal_external_console.html" %}
+	{% endif %}
 {% endif %}
 
 {% endblock %}
@@ -126,9 +145,7 @@
 		var $BABEL_STR_PLEASE_WAIT = {{_("PLEASE WAIT...")|tojson|safe}};
 		var $BABEL_STR_URL_TO_PACKAGE = {{_("URL to .zip or .tar.gz Teeworlds Package:")|tojson|safe}};
 		var $BABEL_STR_INSTALLING = {{_("Installing...")|tojson|safe}};
-		var $BABEL_STR_ARE_YOU_SURE = {{_("Are you sure?")|tojson|safe}};
 		var $BABEL_STR_DELETE_CONF = {{_("Delete configuration file from disk.")|tojson|safe}};
-		var $BABEL_STR_DELETE = {{_("Delete")|tojson|safe}};
 		var $BABEL_STR_SERVER_INSTANCE = {{_("Server Instance")|tojson|safe}};
 		var $BABEL_STR_URL_SENDING = {{_("Sending...")|tojson|safe}};
 		var $BABEL_STR_INSTANCE_CONF = {{_("Instance Configuration")|tojson|safe}};

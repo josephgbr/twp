@@ -10,9 +10,55 @@
 </div>
 <div class="row">
 	<div class="panel panel-default">
-		<div class="panel-heading">{{ _('Users') }}</div>
+		<div class="panel-heading">
+			{{ _('Users') }}
+		</div>
 		<div class="panel-body">
 		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			{{ _('Permission Levels') }}
+			<span class="pull-right">
+				<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_create_permission_level"><i class="fa fa-plus-circle"></i> {{ _('Create') }}</a>
+			</span>
+		</div>
+
+		<table class="table table-condensed table-hover table-striped table-vertical-aligned">
+			<thead>
+				<tr>
+					<th>{{ _('Name') }}</th>
+					<th class='text-center'>{{ _('Create') }}</th>
+					<th class='text-center'>{{ _('Delete') }}</th>
+					<th class='text-center'>{{ _('Start') }}</th>
+					<th class='text-center'>{{ _('Stop') }}</th>
+					<th class='text-center'>{{ _('Config') }}</th>
+					<th class='text-center'>{{ _('ECon') }}</th>
+					<th class='text-center'>{{ _('Issues') }}</th>
+					<th class='text-center'>{{ _('Log') }}</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody id="tbody-permission-levels">
+				{% for perm in permission_levels %}
+				<tr id="permission-{{perm.id}}">
+					<td>{{perm.name}}</td>
+					<td class='text-center'><i class="fa {{perm.create and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.delete and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.econ and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.issues and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><i class="fa {{perm.log and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-right'>
+						<a class="remove-permission-level btn btn-xs" data-id="{{perm.id}}" href="#" title="{{ _('Remove Permission Level') }}"><i class="fa fa-remove"></i></a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 
 	<div class="panel panel-danger" style="background-color: #F9FFCC;">
@@ -56,8 +102,19 @@
 	</div>
 </div>
 
+{% include "includes/modal_create_permission_level.html" %}
+
 {% endblock %}
 {% block script %}
+	<script type="text/javascript">
+		var $BABEL_STR_CANT_BE_EMPTY = {{_("Can't be empty")|tojson|safe}};
+		var $BABEL_STR_PASSWORD_DOESNT_MATCH = {{_("Passwords doesn't match!")|tojson|safe}};
+		var $BABEL_STR_PASSWORD_CHANGED_SUCCESSFULLY = {{_("Password changed successfully :)")|tojson|safe}};
+		var $BABEL_STR_OK = {{_("Ok")|tojson|safe}};
+		var $BABEL_STR_CONFIGURATION_CHANGED = {{_("Configuration Changed")|tojson|safe}};
+		var $BABEL_STR_PERMISSION_LEVEL = {{_("Permission Level")|tojson|safe}};
+		var $BABEL_STR_REMOVE_PERMISSION_LEVEL = {{_("Remove Permission Level")|tojson|safe}};
+	</script>
 	<script type="text/javascript" src="{{ url_for('static', filename='lib/jssha-2.0.2/sha.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>
 {% endblock %}

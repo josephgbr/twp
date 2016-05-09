@@ -1,0 +1,51 @@
+<div id="modal_create_permission_level" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">{{ _('Create Permission Level') }}</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+                    <div class="col-md-12">
+						<form id='form-create-permission-level' class="deny-enter form-vertical">
+							<div class="col-md-12" style="margin-bottom:0.5em">
+								<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}"/>
+							</div>
+							<div class="col-md-6"> 
+								<label for="create">{{_('Can create instances?')}}</label>
+								<input type="checkbox" name="create" id="create" />
+								<br/>
+								<label for="delete">{{_('Can delete instances?')}}</label>
+								<input type="checkbox" name="delete" id="delete" />
+								<br/>
+								<label for="start">{{_('Can start instances?')}}</label>
+								<input type="checkbox" name="start" id="start" />
+								<br/>
+								<label for="stop">{{_('Can stop instances?')}}</label>
+								<input type="checkbox" name="stop" id="stop" />
+							</div>
+							<div class="col-md-6">
+								<label for="log">{{_('Can view logs?')}}</label>
+								<input type="checkbox" name="log" id="log" />
+								<br/>
+								<label for="econ">{{_("Can use 'econ'?")}}</label>
+								<input type="checkbox" name="econ" id="econ" />
+								<br/>
+								<label for="create">{{_('Can change configuration?')}}</label>
+								<input type="checkbox" name="create" id="create" />
+								<br/>
+								<label for="issues">{{_('Can view issues?')}}</label>
+								<input type="checkbox" name="issues" id="issues" />
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Cancel') }}</button>
+				<button type="button" class="btn btn-success">{{ _('Create') }}</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
