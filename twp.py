@@ -39,8 +39,7 @@ logging.basicConfig()
 # Global
 BANLIST = BannedList()
 PUBLIC_IP = twpl.get_public_ip()
-ADMIN_PERMISSION_LEVEL = None # Looks ugly :/
-UID_ADMIN = None # Looks ugly :/
+SUPERUSER_ID = 1 # The hard-coded super-user id (a.k.a. administrator, or root user).
 
 # Start Flask App
 app = Flask(__name__)
@@ -163,15 +162,7 @@ def db_delete_and_commit(reg):
     db.session.delete(reg)
     db.session.commit()
 
-def db_init():
-    ADMIN_PERMISSION_LEVEL = PermissionLevel(name=_('Admin Permission'), create=True, 
-                                             delete=True, start=True, stop=True, config=True, 
-                                             econ=True, issues=True, log=True)
-    try:
-        UID_ADMIN = db.session.query(User).order_by(desc(User.id)).one().id
-    except Exception, e:
-        UID_ADMIN = -1
-    
+def db_init():    
     app_config = db.session.query(AppWebConfig).count()
     if app_config == 0:
         db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
@@ -487,7 +478,6 @@ def finish_installation():
     db_add_and_commit(app_config)
     admin_user = User(username=request.form['adminuser'], password=str_sha512_hex_encode(request.form['adminpass']))
     db_add_and_commit(admin_user)
-    UID_ADMIN = admin_user.id
     return jsonify({ 'success':True })
     
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
@@ -1108,23 +1098,24 @@ def check_session():
         
 def check_session_admin():
     check_session()
-    if not 'uid' in session or not session['uid'] == UID_ADMIN:
+    if not 'uid' in session or not session['uid'] == SUPERUSER_ID:
         abort(403)
             
 def get_session_server_permission_level(srvid):
     if not 'logged_in' in session or not session['logged_in']:
-        return PermissionLevel(create=False, delete=False, start=False, stop=False, config=False, 
-                               econ=False, issues=False, log=False)
-    if session['uid'] == UID_ADMIN:
-        return ADMIN_PERMISSION_LEVEL
+        return PermissionLevel()
+    
+    if session['uid'] == SUPERUSER_ID:
+        return PermissionLevel(name=_('Sudo Permission'), create=True, 
+                                delete=True, start=True, stop=True, config=True, 
+                                econ=True, issues=True, log=True)
     
     usip = None
     if db.session.query(UserServerInstancePermission).count() > 0:
         usip = db.session.query(UserServerInstancePermission).filter(UserServerInstancePermission.user_id.id == session['uid'],
                                                                     UserServerInstancePermission.server_id.id == servid)
     if not usip or (usip and usip.count() == 0):
-        return PermissionLevel(create=False, delete=False, start=False, stop=False, config=False, 
-                               econ=False, issues=False, log=False)
+        return PermissionLevel()
     usip = usip.one()
     return usip.perm_id
 
@@ -1143,7 +1134,7 @@ def utility_processor():
                 get_mod_binaries=get_mod_binaries,
                 get_app_config=get_app_config,
                 get_uid_permission_level=get_session_server_permission_level,
-                UID_ADMIN=UID_ADMIN)
+                SUPERUSER_ID=SUPERUSER_ID)
 
 
 # Jobs

@@ -3,7 +3,7 @@
 {% block content %}
 {{ super() }}
 
-{% if session.logged_in and session.uid == UID_ADMIN %}
+{% if session.logged_in and session.uid == SUPERUSER_ID %}
 <div class="space-bottom">
 	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
 		<div class="dropdown">
@@ -30,7 +30,7 @@
 			{% if uidperms.create %}
 			<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
 			{% endif %}
-			{% if session.uid == UID_ADMIN %}
+			{% if session.uid == SUPERUSER_ID %}
 			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
 			{% endif %}
 		</span>
