@@ -34,7 +34,13 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _
 from twpl import BannedList, BannerGenerator, TWPConfig
 import logging
-logging.basicConfig() 
+logging.basicConfig()
+
+# Global
+BANLIST = BannedList()
+PUBLIC_IP = twpl.get_public_ip()
+ADMIN_PERMISSION_LEVEL = None # Looks ugly :/
+UID_ADMIN = None # Looks ugly :/
 
 # Start Flask App
 app = Flask(__name__)
@@ -158,21 +164,18 @@ def db_delete_and_commit(reg):
     db.session.commit()
 
 def db_init():
+    ADMIN_PERMISSION_LEVEL = PermissionLevel(name=_('Admin Permission'), create=True, 
+                                             delete=True, start=True, stop=True, config=True, 
+                                             econ=True, issues=True, log=True)
+    try:
+        UID_ADMIN = db.session.query(User).order_by(desc(User.id)).one().id
+    except Exception, e:
+        UID_ADMIN = -1
+    
     app_config = db.session.query(AppWebConfig).count()
     if app_config == 0:
         db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
 
-
-# Global
-BANLIST = BannedList()
-PUBLIC_IP = twpl.get_public_ip()
-ADMIN_PERMISSION_LEVEL = PermissionLevel(name=_('Admin Permission'), create=True, 
-                                         delete=True, start=True, stop=True, config=True, 
-                                         econ=True, issues=True, log=True)
-try:
-    UID_ADMIN = db.session.query(User).order_by(desc(User.id)).one().id
-except Exception, e:
-    UID_ADMIN = -1
 
 # App Callbacks
 @app.before_request
@@ -470,7 +473,6 @@ def remove_permission_level(id):
     
 @app.route('/_finish_installation', methods=['POST'])
 def finish_installation():
-    app.logger.info("Psa por aki!s")
     app_config = db.session.query(AppWebConfig).get(1)
     if app_config.installed:
         abort(404)
@@ -486,7 +488,6 @@ def finish_installation():
     admin_user = User(username=request.form['adminuser'], password=str_sha512_hex_encode(request.form['adminpass']))
     db_add_and_commit(admin_user)
     UID_ADMIN = admin_user.id
-    app.logger.info("FIN REG USER")
     return jsonify({ 'success':True })
     
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
@@ -1117,9 +1118,11 @@ def get_session_server_permission_level(srvid):
     if session['uid'] == UID_ADMIN:
         return ADMIN_PERMISSION_LEVEL
     
-    usip = db.session.query(UserServerInstancePermission).filter(UserServerInstancePermission.user_id.id == session['uid'],
+    usip = None
+    if db.session.query(UserServerInstancePermission).count() > 0:
+        usip = db.session.query(UserServerInstancePermission).filter(UserServerInstancePermission.user_id.id == session['uid'],
                                                                     UserServerInstancePermission.server_id.id == servid)
-    if usip.count() == 0:
+    if not usip or (usip and usip.count() == 0):
         return PermissionLevel(create=False, delete=False, start=False, stop=False, config=False, 
                                econ=False, issues=False, log=False)
     usip = usip.one()

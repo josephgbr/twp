@@ -207,7 +207,7 @@ class LoginSecurityTestCase(unittest.TestCase):
         
 def suite():
     suite = unittest.TestSuite()
-    #suite.addTest(unittest.makeSuite(TWPTestCase))
+    suite.addTest(unittest.makeSuite(TWPTestCase))
     suite.addTest(unittest.makeSuite(LoginSecurityTestCase))
     return suite
 
