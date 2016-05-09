@@ -64,7 +64,7 @@ class UserServerInstancePermission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    perm_id = db.Column(db.Integer, db.ForeignKey("permission.id"), nullable=False)
+    perm_id = db.Column(db.Integer, db.ForeignKey("permission_level.id"), nullable=False)
     
 class PermissionLevel(db.Model):
     __tablename__ = 'permission_level'
@@ -158,7 +158,7 @@ def db_delete_and_commit(reg):
     db.session.commit()
 
 def db_init():
-    app_config = AppWebConfig.query.count()
+    app_config = db.session.query(AppWebConfig).count()
     if app_config == 0:
         db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
 
@@ -191,7 +191,7 @@ def before_request():
         request.view_args.pop('lang_code')
         
     # Need Installation?
-    app_config = db.session.query(AppWebConfig).get(1)
+    app_config = db.session.query(AppWebConfig).order_by(desc(AppWebConfig.id)).one()
     if not app_config.installed \
         and not request.path.startswith('/install') \
         and not request.path.startswith('/static') \
@@ -470,6 +470,7 @@ def remove_permission_level(id):
     
 @app.route('/_finish_installation', methods=['POST'])
 def finish_installation():
+    app.logger.info("Psa por aki!s")
     app_config = db.session.query(AppWebConfig).get(1)
     if app_config.installed:
         abort(404)
@@ -482,7 +483,10 @@ def finish_installation():
         app_config.brand_url = request.form['brand-url']
     app_config.installed = True
     db_add_and_commit(app_config)
-    db_add_and_commit(User(username=request.form['adminuser'], password=str_sha512_hex_encode(request.form['adminpass'])))
+    admin_user = User(username=request.form['adminuser'], password=str_sha512_hex_encode(request.form['adminpass']))
+    db_add_and_commit(admin_user)
+    UID_ADMIN = admin_user.id
+    app.logger.info("FIN REG USER")
     return jsonify({ 'success':True })
     
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
@@ -1107,7 +1111,9 @@ def check_session_admin():
         abort(403)
             
 def get_session_server_permission_level(srvid):
-    check_session()
+    if not 'logged_in' in session or not session['logged_in']:
+        return PermissionLevel(create=False, delete=False, start=False, stop=False, config=False, 
+                               econ=False, issues=False, log=False)
     if session['uid'] == UID_ADMIN:
         return ADMIN_PERMISSION_LEVEL
     

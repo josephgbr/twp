@@ -3,7 +3,7 @@
 {% block content %}
 {{ super() }}
 
-{% if session.uid == UID_ADMIN %}
+{% if session.logged_in and session.uid == UID_ADMIN %}
 <div class="space-bottom">
 	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
 		<div class="dropdown">
@@ -125,15 +125,9 @@
 {% endif %}
 
 {% if session.logged_in %}
-	{% if uidperms.create %}
-		{% include "includes/modal_new_server.html" %}
-	{% endif %}
-	{% if uidperms.config %}
-		{% include "includes/modal_instance_configuration.html" %}
-	{% endif %}
-	{% if uidperms.econ %}
-		{% include "includes/modal_external_console.html" %}
-	{% endif %}
+	{% include "includes/modal_new_server.html" %}
+	{% include "includes/modal_instance_configuration.html" %}
+	{% include "includes/modal_external_console.html" %}
 {% endif %}
 
 {% endblock %}
