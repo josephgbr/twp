@@ -70,6 +70,7 @@ def db_delete_and_commit(reg):
 
 def db_init():
     with app.app_context():
+        db.create_all()
         app_config = AppWebConfig.query.count()
         if app_config == 0:
             db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
