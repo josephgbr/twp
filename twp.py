@@ -27,13 +27,14 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
                   flash, jsonify, send_from_directory, send_file
 from sqlalchemy import or_, func, desc
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _
 from flask_wtf.csrf import CsrfProtect
-from twpl import BannedList, BannerGenerator, TWPConfig, forms
+from twpl import BannedList, BannerGenerator, forms
+from twpl.models import *
+from twpl.configs import TWPConfig
 import logging
 logging.basicConfig()
 
@@ -47,7 +48,8 @@ app = Flask(__name__)
 app.config.from_object(TWPConfig())
 babel = Babel(app)
 csrf = CsrfProtect(app)
-db = SQLAlchemy(app)
+db.app = app
+db.init_app(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
@@ -57,99 +59,6 @@ app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path,
                                              app.config['SERVERS_BASEPATH']) if not app.config['SERVERS_BASEPATH'][0] == '/' else app.config['SERVERS_BASEPATH']
 if not os.path.isdir(app.config['SERVERS_BASEPATH']):
     os.makedirs(app.config['SERVERS_BASEPATH'])
-    
-# Create Tables
-class AppWebConfig(db.Model):
-    __tablename__ = 'app_web_config'
-    id = db.Column(db.Integer, primary_key=True)
-    brand = db.Column(db.String(16))
-    brand_url = db.Column(db.String(512))
-    installed = db.Column(db.Boolean, default=False)
-    
-class UserServerInstancePermission(db.Model):
-    __tablename__ = 'user_server_instance_permission'
-    id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    perm_id = db.Column(db.Integer, db.ForeignKey("permission_level.id"), nullable=False)
-    
-class PermissionLevel(db.Model):
-    __tablename__ = 'permission_level'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), nullable=False, unique=True)
-    start = db.Column(db.Boolean, default=False)
-    stop = db.Column(db.Boolean, default=False)
-    log = db.Column(db.Boolean, default=False)
-    econ = db.Column(db.Boolean, default=False)
-    config = db.Column(db.Boolean, default=False)
-    issues = db.Column(db.Boolean, default=False)
-    
-    def todict(self):
-        return {'id': self.id,
-                'name': self.name,
-                'create': self.create,
-                'delete': self.delete,
-                'start': self.start,
-                'stop': self.stop,
-                'log': self.log,
-                'econ': self.econ,
-                'config': self.config,
-                'isues': self.issues}
-    
-class Issue(db.Model):
-    __tablename__ = 'issue'
-    id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=func.now())
-    message = db.Column(db.String(512))
-    
-class PlayerServerInstance(db.Model):
-    __tablename__ = 'player_server_instance'
-    id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
-    name = db.Column(db.String(25), nullable=False)
-    clan = db.Column(db.String(25))
-    country = db.Column(db.Integer)
-    date = db.Column(db.DateTime, nullable=False, default=func.now())
-    
-class Player(db.Model):
-    __tablename__ = 'player'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25), nullable=False)
-    create_date = db.Column(db.DateTime, nullable=False, default=func.now())
-    last_seen_date = db.Column(db.DateTime, nullable=False, default=func.now())
-    status = db.Column(db.Integer, nullable=False)
-    
-class ServerInstance(db.Model):
-    __tablename__ = 'server_instance'
-    id = db.Column(db.Integer, primary_key=True)
-    fileconfig = db.Column(db.String(128), nullable=False)
-    base_folder = db.Column(db.String(512), nullable=False)
-    bin = db.Column(db.String(128))
-    alaunch = db.Column(db.Boolean, default=False)
-    port = db.Column(db.String(4), default='8303')
-    name = db.Column(db.String(128), default="Unnamed Server")
-    status = db.Column(db.Integer, default=0)
-    gametype = db.Column(db.String(16), default='DM')
-    visible = db.Column(db.Boolean, default=True)
-    public = db.Column(db.Boolean, default=True)
-    logfile = db.Column(db.String(128))
-    econ_port = db.Column(db.String(4))
-    econ_password = db.Column(db.String(32))
-    
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(12), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    
-class ServerJob(db.Model):
-    __tablename__ = 'server_job'
-    id = db.Column(db.String(191), primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable = False)
-    job_type = db.Column(db.Integer, nullable = False)
-    job_exec = db.Column(db.String(4092))
-
 
 # DB Methods
 def db_add_and_commit(reg):

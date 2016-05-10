@@ -21,7 +21,7 @@
 import os
 import shutil
 import twp
-from twp import AppWebConfig, User
+from twpl.models import AppWebConfig, User
 import unittest
 import tempfile
 
@@ -40,6 +40,8 @@ class TWPTestCase(unittest.TestCase):
         self.db_fd, dbfile = tempfile.mkstemp()
         twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
         twp.app.config['TESTING'] = True
+        twp.app.config['WTF_CSRF_ENABLED'] = False
+        twp.app.config['WTF_CSRF_CHECK_DEFAULT'] = False
         twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
         self.test_server_folder = r'%s/twsrv' % twp.app.config['SERVERS_BASEPATH']
         self.app = twp.app.test_client()
@@ -52,6 +54,7 @@ class TWPTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
+        os.unlink(twp.app.config['SQLALCHEMY_DATABASE_URI'])
         
     def test_login_logout(self):
         rv = self.login('admin', 'admin')
@@ -180,6 +183,8 @@ class LoginSecurityTestCase(unittest.TestCase):
         self.db_fd, dbfile = tempfile.mkstemp()
         twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
         twp.app.config['TESTING'] = True
+        twp.app.config['WTF_CSRF_ENABLED'] = False
+        twp.app.config['WTF_CSRF_CHECK_DEFAULT'] = False
         twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
         self.app = twp.app.test_client()
         twp.db_init()
@@ -191,6 +196,7 @@ class LoginSecurityTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
+        os.unlink(twp.app.config['SQLALCHEMY_DATABASE_URI'])
         
     def test_login_security(self):
         rv = self.login('1234', '1234')

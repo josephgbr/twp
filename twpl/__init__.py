@@ -21,14 +21,13 @@ from StringIO import StringIO
 import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io, \
     copy
 from zipfile import ZipFile, is_zipfile
-from teeworlds import Teeworlds, TWServerRequest
 from banned_list import BannedList
 from banner_generator import BannerGenerator
-from TWPConfig import TWPConfig
 from netstat import netstat
 from urllib import urlretrieve
 from urllib2 import urlopen, URLError
-from . import forms
+from tools.teeworlds import Teeworlds, TWServerRequest
+from . import forms, models, TWPConfig
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
 def is_text_file(filename):
