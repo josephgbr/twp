@@ -107,6 +107,9 @@ $(function() {
 	window.setInterval('refresh()', $REFRESH_TIME);
 	
 	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
+		if (!data['labels'] || !data['values'])
+			return;
+		
 		// Players last 7days
 		var chartData = [];
 		for (var i in data['labels']['players7d'])

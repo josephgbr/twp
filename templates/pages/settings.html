@@ -29,8 +29,6 @@
 			<thead>
 				<tr>
 					<th>{{ _('Name') }}</th>
-					<th class='text-center'>{{ _('Create') }}</th>
-					<th class='text-center'>{{ _('Delete') }}</th>
 					<th class='text-center'>{{ _('Start') }}</th>
 					<th class='text-center'>{{ _('Stop') }}</th>
 					<th class='text-center'>{{ _('Config') }}</th>
@@ -44,8 +42,6 @@
 				{% for perm in permission_levels %}
 				<tr id="permission-{{perm.id}}">
 					<td>{{perm.name}}</td>
-					<td class='text-center'><i class="fa {{perm.create and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.delete and 'fa-check' or 'fa-minus'}}"></i></td>
 					<td class='text-center'><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></td>
 					<td class='text-center'><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></td>
 					<td class='text-center'><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></td>

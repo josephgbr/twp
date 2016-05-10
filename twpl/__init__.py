@@ -28,6 +28,7 @@ from TWPConfig import TWPConfig
 from netstat import netstat
 from urllib import urlretrieve
 from urllib2 import urlopen, URLError
+from . import forms
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python
 def is_text_file(filename):

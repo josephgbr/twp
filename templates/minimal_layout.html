@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="description" content="">
 		<meta name="author" content="Alexandre Díaz">
+		<meta name="csrf-token" content="{{ csrf_token() }}">
 
 		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap-theme.min.css') }}" rel="stylesheet">

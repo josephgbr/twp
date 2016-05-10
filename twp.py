@@ -32,7 +32,8 @@ from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _
-from twpl import BannedList, BannerGenerator, TWPConfig
+from flask_wtf.csrf import CsrfProtect
+from twpl import BannedList, BannerGenerator, TWPConfig, forms
 import logging
 logging.basicConfig()
 
@@ -45,6 +46,7 @@ SUPERUSER_ID = 1 # The hard-coded super-user id (a.k.a. administrator, or root u
 app = Flask(__name__)
 app.config.from_object(TWPConfig())
 babel = Babel(app)
+csrf = CsrfProtect(app)
 db = SQLAlchemy(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
@@ -75,8 +77,6 @@ class PermissionLevel(db.Model):
     __tablename__ = 'permission_level'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False, unique=True)
-    create = db.Column(db.Boolean, default=False)
-    delete = db.Column(db.Boolean, default=False)
     start = db.Column(db.Boolean, default=False)
     stop = db.Column(db.Boolean, default=False)
     log = db.Column(db.Boolean, default=False)
@@ -150,8 +150,6 @@ class ServerJob(db.Model):
     job_type = db.Column(db.Integer, nullable = False)
     job_exec = db.Column(db.String(4092))
 
-db.create_all()
-
 
 # DB Methods
 def db_add_and_commit(reg):
@@ -162,8 +160,9 @@ def db_delete_and_commit(reg):
     db.session.delete(reg)
     db.session.commit()
 
-def db_init():    
-    app_config = db.session.query(AppWebConfig).count()
+def db_init():
+    db.create_all()
+    app_config = AppWebConfig.query.count()
     if app_config == 0:
         db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
 
@@ -185,7 +184,7 @@ def before_request():
         request.view_args.pop('lang_code')
         
     # Need Installation?
-    app_config = db.session.query(AppWebConfig).order_by(desc(AppWebConfig.id)).one()
+    app_config = AppWebConfig.query.order_by(desc(AppWebConfig.id)).one()
     if not app_config.installed \
         and not request.path.startswith('/install') \
         and not request.path.startswith('/static') \
@@ -206,7 +205,7 @@ def get_locale():
 # Routing
 @app.route("/install", methods=['GET'])
 def installation():
-    app_config = db.session.query(AppWebConfig).get(1)
+    app_config = AppWebConfig.query.get(1)
     if app_config.installed:
         abort(404)
     return render_template('pages/install.html', appconfig = app_config)
@@ -222,32 +221,35 @@ def login():
         BANLIST.add(request.remote_addr, app.config['LOGIN_BAN_TIME']);
         session['login_try'] = 0;
         abort(403)
+        
+    login_form = forms.LoginForm()
     
     if request.method == 'POST':
-        request_username = request.form['username']
-        request_passwd = str_sha512_hex_encode(request.form['password'])
-
-        current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
-
-        dbuser = db.session.query(User).filter(User.username.like(request_username), 
-                                               User.password.like(request_passwd))
-        if dbuser.count() > 0:
-            dbuser = dbuser.one()
-            session['logged_in'] = True
-            session['uid'] = dbuser.id
-            session['last_activity'] = int(time.time())
-            session['username'] = dbuser.username
-            flash(_('You are logged in!'), 'success')
-
-            if current_url == url_for('login'):
-                return redirect(url_for('overview'))
-            return redirect(current_url)
-
-        session['login_try'] = get_login_tries()+1
-        session['last_login_try'] = int(time.time())
-        flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),
-                                                                  app.config['LOGIN_MAX_TRIES']), 'danger')
-    return render_template('pages/login.html')
+        if login_form.validate_on_submit():
+            request_username = request.form['username']
+            request_passwd = str_sha512_hex_encode(request.form['password'])
+    
+            current_url = session['prev_url'] if 'prev_url' in session else url_for('overview')
+    
+            dbuser = User.query.filter(User.username.like(request_username), 
+                                                   User.password.like(request_passwd))
+            if dbuser.count() > 0:
+                dbuser = dbuser.one()
+                session['logged_in'] = True
+                session['uid'] = dbuser.id
+                session['last_activity'] = int(time.time())
+                session['username'] = dbuser.username
+                flash(_('You are logged in!'), 'success')
+    
+                if current_url == url_for('login'):
+                    return redirect(url_for('overview'))
+                return redirect(current_url)
+    
+            session['login_try'] = get_login_tries()+1
+            session['last_login_try'] = int(time.time())
+            flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),
+                                                                      app.config['LOGIN_MAX_TRIES']), 'danger')
+    return render_template('pages/login.html', login_form=login_form)
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -270,7 +272,7 @@ def logout():
 def servers():
     session['prev_url'] = request.path;
 
-    db.session.query(ServerInstance).update({ServerInstance.status:0})
+    ServerInstance.query.update({ServerInstance.status:0})
     db.session.commit()
 
     netstat = twpl.netstat()
@@ -278,7 +280,7 @@ def servers():
         if not conn[2]:
             continue
         (rest,base_folder,bin) = conn[2].rsplit('/', 2)
-        srv = db.session.query(ServerInstance).filter(ServerInstance.port.ilike(conn[0]), 
+        srv = ServerInstance.query.filter(ServerInstance.port.ilike(conn[0]), 
                                                       ServerInstance.base_folder.ilike(base_folder), 
                                                       ServerInstance.bin.ilike(bin))
         if srv.count() > 0:
@@ -295,7 +297,7 @@ def servers():
 @app.route('/server/<int:id>', methods=['GET'])
 def server(id):
     session['prev_url'] = request.path;
-    srv = db.session.query(ServerInstance).get(id)
+    srv = ServerInstance.query.get(id)
 
     netinfo = None
     if srv:
@@ -307,7 +309,7 @@ def server(id):
 
 @app.route('/server/<int:id>/banner', methods=['GET'])
 def generate_server_banner(id):
-    srv = db.session.query(ServerInstance).get(id)
+    srv = ServerInstance.query.get(id)
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
         banner_image = BannerGenerator((600, 40), srv, netinfo)
@@ -329,7 +331,7 @@ def generate_server_banner(id):
 def players():
     session['prev_url'] = request.path;
     
-    players = db.session.query(Player).order_by(desc(Player.last_seen_date)).order_by(desc(Player.name))
+    players = Player.query.order_by(desc(Player.last_seen_date)).order_by(desc(Player.name))
     return render_template('pages/players.html', players=players)
 
 @app.route('/maps', methods=['GET'])
@@ -342,7 +344,7 @@ def settings():
     check_session_admin()
     session['prev_url'] = request.path;
     
-    permission_levels = db.session.query(PermissionLevel).order_by(desc(PermissionLevel.name))
+    permission_levels = PermissionLevel.query.order_by(desc(PermissionLevel.name))
     return render_template('pages/settings.html', permission_levels=permission_levels)
 
 @app.route('/install_mod', methods=['POST'])
@@ -382,14 +384,14 @@ def search():
     searchword = request.args.get('r', '')
 
     sk = "%%%s%%" % searchword
-    servers = db.session.query(ServerInstance).filter(or_(ServerInstance.name.like(sk), 
+    servers = ServerInstance.query.filter(or_(ServerInstance.name.like(sk), 
                                                           ServerInstance.base_folder.like(sk)))
-    players = db.session.query(Player).filter(Player.name.like(sk))
+    players = Player.query.filter(Player.name.like(sk))
     return render_template('pages/search.html', search=searchword, servers=servers, players=players)
 
 @app.route('/log/<int:id>/<string:code>/<string:name>', methods=['GET'])
 def log(id, code, name):
-    srv = db.session.query(ServerInstance).get(id)
+    srv = ServerInstance.query.get(id)
     netinfo = None
     logdate = None
     if srv:
@@ -414,37 +416,31 @@ def create_permission_level():
         return jsonify({ 'error':True, 'errormsg':_('Permission need a name!') })
     
     # Check unique permission level name
-    perm_id = db.session.query(PermissionLevel).filter(PermissionLevel.name.ilike(request.form['name']))
+    perm_id = PermissionLevel.query.filter(PermissionLevel.name.ilike(request.form['name']))
     if perm_id.count() > 0:
         return jsonify({ 'error':True, 'errormsg':_("Permission Level name need be unique") })
     
     # Check unique permission level parameters
-    create_inst = True if request.form.has_key('create') and request.form['create'] else False
-    delete_inst = True if request.form.has_key('delete') and request.form['delete'] else False
-    start_inst = True if request.form.has_key('start') and request.form['start'] else False
-    stop_inst = True if request.form.has_key('stop') and request.form['stop'] else False
+    start_serv = True if request.form.has_key('start') and request.form['start'] else False
+    stop_serv = True if request.form.has_key('stop') and request.form['stop'] else False
     view_config = True if request.form.has_key('config') and request.form['config'] else False
     use_econ = True if request.form.has_key('econ') and request.form['econ'] else False
     view_issues = True if request.form.has_key('issues') and request.form['issues'] else False
     view_log = True if request.form.has_key('log') and request.form['log'] else False
     
-    perm_id = db.session.query(PermissionLevel).filter(PermissionLevel.create == create_inst,
-                                                       PermissionLevel.delete == delete_inst,
-                                                       PermissionLevel.start == start_inst,
-                                                       PermissionLevel.stop == stop_inst,
-                                                       PermissionLevel.config == view_config,
-                                                       PermissionLevel.econ == use_econ,
-                                                       PermissionLevel.issues == view_issues,
-                                                       PermissionLevel.log == view_log)
+    perm_id = PermissionLevel.query.filter(PermissionLevel.start == start_serv,
+                                            PermissionLevel.stop == stop_serv,
+                                            PermissionLevel.config == view_config,
+                                            PermissionLevel.econ == use_econ,
+                                            PermissionLevel.issues == view_issues,
+                                            PermissionLevel.log == view_log)
     if perm_id.count() > 0:
         return jsonify({ 'error':True, 'errormsg':_("Already have a permission with the same parameters!") })
     
     # Create permisson level
     perm_level = PermissionLevel(name=request.form['name'],
-                                 create=create_inst,
-                                 delete=delete_inst,
-                                 start=start_inst,
-                                 stop=stop_inst,
+                                 start=start_serv,
+                                 stop=stop_serv,
                                  config=view_config,
                                  econ=use_econ,
                                  issues=view_issues,
@@ -456,7 +452,7 @@ def create_permission_level():
 def remove_permission_level(id):
     check_session_admin()
     
-    perm_id = db.session.query(PermissionLevel).get(id)
+    perm_id = PermissionLevel.query.get(id)
     if not perm_id:
         return jsonify({'error':True, 'errormsg':_('Invalid Permission')})
     db_delete_and_commit(perm_id)
@@ -464,7 +460,7 @@ def remove_permission_level(id):
     
 @app.route('/_finish_installation', methods=['POST'])
 def finish_installation():
-    app_config = db.session.query(AppWebConfig).get(1)
+    app_config = AppWebConfig.query.get(1)
     if app_config.installed:
         abort(404)
     if not 'adminpass' in request.form.keys() or not 'adminuser' in request.form.keys() \
@@ -483,7 +479,7 @@ def finish_installation():
 @app.route('/_upload_maps/<int:id>', methods=['POST'])
 def upload_maps(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             download_folder = r'%s/%s/data/maps' % (app.config['SERVERS_BASEPATH'], srv.base_folder)
             if not os.path.isdir(download_folder):
@@ -519,7 +515,7 @@ def remove_map(id):
     if 'logged_in' in session and session['logged_in']:
         if 'map' in request.form:
             map = request.form['map']
-            srv = db.session.query(ServerInstance).get(id)
+            srv = ServerInstance.query.get(id)
             if srv:
                 fullpath = r'%s/%s/data/maps/%s.map' % (app.config['SERVERS_BASEPATH'],srv.base_folder,map)
                 if os.path.isfile(fullpath):
@@ -536,7 +532,7 @@ def remove_mod():
         if 'folder' in request.form:
             fullpath_folder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], request.form['folder'])
             if os.path.exists(fullpath_folder):
-                servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder.ilike(request.form['folder']))
+                servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(request.form['folder']))
                 for srv in servers:
                     stop_server(srv.id)
                     remove_server_instance(srv.id,1)
@@ -597,8 +593,8 @@ def create_server_instance(mod_folder):
             bin = srv_bins[0]
         
         # Check if other server are using the same configuration file
-        srvMatch = db.session.query(ServerInstance).filter(ServerInstance.fileconfig.ilike(fileconfig), 
-                                                           ServerInstance.base_folder.ilike(mod_folder))
+        srvMatch = ServerInstance.query.filter(ServerInstance.fileconfig.ilike(fileconfig), 
+                                                ServerInstance.base_folder.ilike(mod_folder))
         if srvMatch.count() > 0:
             return jsonify({'error':True, 
                             'errormsg':_("Can't exists two servers with the same configuration file.<br/>"+\
@@ -608,8 +604,8 @@ def create_server_instance(mod_folder):
         
         # Check if the logfile are be using by other server with the same base_folder
         if cfgbasic['logfile']:
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.logfile.ilike(cfgbasic['logfile']), 
-                                                               ServerInstance.base_folder.ilike(mod_folder))
+            srvMatch = ServerInstance.query.filter(ServerInstance.logfile.ilike(cfgbasic['logfile']), 
+                                                    ServerInstance.base_folder.ilike(mod_folder))
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
                                 'errormsg':_("Can't exist two servers with the same log file.<br/>"+\
@@ -617,7 +613,7 @@ def create_server_instance(mod_folder):
             
         # Check if the econ_port are be using by other server
         if cfgbasic['econ_port']:
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.econ_port==cfgbasic['econ_port'])
+            srvMatch = ServerInstance.query.filter(ServerInstance.econ_port==cfgbasic['econ_port'])
             if srvMatch.count() > 0:
                 return jsonify({'error':True, 
                                 'errormsg':_("Can't exist two servers with the same 'ec_port'.<br/>"+\
@@ -626,8 +622,8 @@ def create_server_instance(mod_folder):
         # Check if the port are be using by other server with the same base_folder
         fport = int(cfgbasic['port'])
         while True:
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.port.ilike(str(fport)), 
-                                                               ServerInstance.base_folder.ilike(mod_folder))
+            srvMatch = ServerInstance.query.filter(ServerInstance.port.ilike(str(fport)), 
+                                                    ServerInstance.base_folder.ilike(mod_folder))
             if srvMatch.count() < 1:
                 break
             fport += 1
@@ -662,7 +658,7 @@ def create_server_instance(mod_folder):
 @app.route('/_remove_server_instance/<int:id>/<int:delconfig>', methods=['POST'])
 def remove_server_instance(id, delconfig=0):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if not srv:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         
@@ -676,7 +672,7 @@ def remove_server_instance(id, delconfig=0):
 @app.route('/_set_server_binary/<int:id>/<string:binfile>', methods=['POST'])
 def set_server_binary(id, binfile):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         # Check that is a correct binary name (exists in mod folder)
         srv_bins = twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], srv.base_folder)
         if not srv_bins == None and binfile in srv_bins:
@@ -692,13 +688,13 @@ def save_server_config():
         srvid = int(request.form['srvid'])
         alaunch = 'alsrv' in request.form and request.form['alsrv'] == 'true'
         srvcfg = request.form['srvcfg'];
-        srv = db.session.query(ServerInstance).get(srvid)
+        srv = ServerInstance.query.get(srvid)
         if srv:
             cfgbasic = twpl.parse_data_config_basics(srvcfg)
             
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder.ilike(srv.base_folder), 
-                                                               ServerInstance.port.ilike(cfgbasic['port']), 
-                                                               ServerInstance.id!=srvid)
+            srvMatch = ServerInstance.query.filter(ServerInstance.base_folder.ilike(srv.base_folder), 
+                                                    ServerInstance.port.ilike(cfgbasic['port']), 
+                                                    ServerInstance.id!=srvid)
             if srvMatch.count() > 0:
                 return jsonify({'error':True, \
                                 'errormsg':_("Can't exist two servers with the same 'sv_port' in the same MOD.<br/>"+\
@@ -706,9 +702,9 @@ def save_server_config():
                 
             # Check if the logfile are be using by other server with the same base_folder
             if cfgbasic['logfile']:
-                srvMatch = db.session.query(ServerInstance).filter(ServerInstance.base_folder.ilike(srv.base_folder), 
-                                                                   ServerInstance.logfile.ilike(cfgbasic['logfile']), 
-                                                                   ServerInstance.id!=srvid)
+                srvMatch = ServerInstance.query.filter(ServerInstance.base_folder.ilike(srv.base_folder), 
+                                                        ServerInstance.logfile.ilike(cfgbasic['logfile']), 
+                                                        ServerInstance.id!=srvid)
                 if srvMatch.count() > 0:
                     return jsonify({'error':True, 
                                     'errormsg':_("Can't exist two servers with the same log file.<br/>"+\
@@ -740,7 +736,7 @@ def save_server_config():
 @app.route('/_get_server_config/<int:id>', methods=['POST'])
 def get_server_config(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             ## Config File Text
             fullpath_fileconfig = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'],srv.base_folder,srv.fileconfig)
@@ -764,7 +760,7 @@ def get_server_config(id):
 def get_server_issues(id, page=0):
     if 'logged_in' in session and session['logged_in']:
         RPP = 10
-        dbissues = db.session.query(Issue).filter(Issue.server_id==id).order_by(desc(Issue.date))
+        dbissues = Issue.query.filter(Issue.server_id==id).order_by(desc(Issue.date))
         numpages = int(dbissues.count()/RPP)
         dbissues_page = dbissues.offset(RPP*page).limit(RPP)
         issues = [(dbissue.date, dbissue.message) for dbissue in dbissues_page]
@@ -774,14 +770,14 @@ def get_server_issues(id, page=0):
 @app.route('/_get_server_issues_count/<int:id>', methods=['POST'])
 def get_server_issues_count(id):
     if 'logged_in' in session and session['logged_in']:
-        issues_count = db.session.query(Issue).filter(Issue.server_id==id).count()
+        issues_count = Issue.query.filter(Issue.server_id==id).count()
         return jsonify({'success':True, 'issues_count':issues_count})
     return jsonify({})
 
 @app.route('/_get_server_maps/<int:id>', methods=['POST'])
 def get_server_maps(id):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:            
             ## Maps
             maps = twpl.get_mod_maps(app.config['SERVERS_BASEPATH'], srv.base_folder)
@@ -795,8 +791,8 @@ def get_mod_configs(mod_folder):
         jsoncfgs = {'configs':[]}
         cfgs = twpl.get_mod_configs(app.config['SERVERS_BASEPATH'], mod_folder)
         for config in cfgs:
-            srv = db.session.query(ServerInstance).filter(ServerInstance.fileconfig.ilike(config),
-                                                          ServerInstance.base_folder.ilike(mod_folder))
+            srv = ServerInstance.query.filter(ServerInstance.fileconfig.ilike(config),
+                                                ServerInstance.base_folder.ilike(mod_folder))
             if srv.count() < 1:
                 jsoncfgs['configs'].append(os.path.splitext(config)[0])
         return jsonify(jsoncfgs)
@@ -805,7 +801,7 @@ def get_mod_configs(mod_folder):
 @app.route('/_get_mod_wizard_config/<int:id>', methods=['POST'])
 def get_mod_wizard_config(id):
     if 'logged_in' in session and session['logged_in']:        
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             fullpath = r'%s/%s/config.json' % (app.config['SERVERS_BASEPATH'],srv.base_folder)
             if os.path.isfile(fullpath):
@@ -820,12 +816,12 @@ def get_mod_wizard_config(id):
 @app.route('/_start_server_instance/<int:id>', methods=['POST'])
 def start_server(id):
     if 'logged_in' in session and session['logged_in']:        
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             if not srv.bin:
                 return jsonify({'error':True, 'errormsg':_('Undefined server binary file!!')})
             
-            srvMatch = db.session.query(ServerInstance).filter(ServerInstance.status==1,
+            srvMatch = ServerInstance.query.filter(ServerInstance.status==1,
                                                     ServerInstance.port.ilike(srv.port),
                                                     ServerInstance.id!=srv.id)
             if srvMatch.count() > 0:
@@ -844,7 +840,7 @@ def start_server(id):
 @app.route('/_stop_server_instance/<int:id>', methods=['POST'])
 def stop_server(id):
     if 'logged_in' in session and session['logged_in']:
-        dbserver = db.session.query(ServerInstance).get(id)
+        dbserver = ServerInstance.query.get(id)
         if dbserver:
             binpath = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.bin)
             proc = twpl.search_server_pid(binpath, dbserver.fileconfig)
@@ -858,13 +854,13 @@ def stop_server(id):
 
 @app.route('/_get_server_instances_online', methods=['POST'])
 def get_server_instances_online():
-    servers = db.session.query(ServerInstance).filter(ServerInstance.status==1)
+    servers = ServerInstance.query.filter(ServerInstance.status==1)
     return jsonify({'success':True, 'num':servers.count()})
 
 @app.route('/_get_server_instance_log/<int:id>/<string:pdate>', methods=['POST'])
 def get_current_server_instance_log(id, pdate=None):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             logcontent = ""
             if not srv.logfile:
@@ -915,7 +911,7 @@ def get_current_server_instance_log(id, pdate=None):
 @app.route('/_get_server_instance_log/<int:id>/<string:code>/<string:name>', methods=['POST'])
 def get_selected_server_instance_log(id, code, name):
     if 'logged_in' in session and session['logged_in']:
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv:
             logcontent = ""
             log_file = r'%s/%s/logs/%s-%s' % (app.config['SERVERS_BASEPATH'], srv.base_folder, code, name)
@@ -961,7 +957,7 @@ def send_econ_command():
             return jsonify({'error':True, 'errormsg':'ECon command not defined!'})
         
         srvid = request.form['srvid']
-        srv = db.session.query(ServerInstance).get(srvid)
+        srv = ServerInstance.query.get(srvid)
         if srv and srv.econ_port and srv.econ_password:
             econ_cmd = request.form['cmd']
             rcv = ''
@@ -980,7 +976,7 @@ def kick_ban_player(id):
         if not 'nick' in request.form or not request.form['nick']:
             return jsonify({'error':True, 'errormsg':_('Client player not defined!')})
         
-        srv = db.session.query(ServerInstance).get(id)
+        srv = ServerInstance.query.get(id)
         if srv and srv.econ_port and srv.econ_password:
             nick = request.form['nick']
             action = 'ban' if request.path.startswith('/_ban_player/') else 'kick' 
@@ -1006,8 +1002,8 @@ def get_chart_values(chart, id=None):
         labels['players7d'] = list()
         values['players7d'] = list()
         # TODO: Filter only from today-7 to today...
-        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.server_id==id,
-                                                                PlayerServerInstance.date >= startday)
+        players = PlayerServerInstance.query.filter(PlayerServerInstance.server_id==id,
+                                                    PlayerServerInstance.date >= startday)
         if players.count() == 0:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
@@ -1047,7 +1043,7 @@ def get_chart_values(chart, id=None):
     elif chart.lower() == 'machine':
         labels['players7d'] = list()
         values['players7d'] = list()
-        players = db.session.query(PlayerServerInstance).filter(PlayerServerInstance.date >= startday)
+        players = PlayerServerInstance.query.filter(PlayerServerInstance.date >= startday)
         if players.count() == 0:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
@@ -1067,8 +1063,8 @@ def get_chart_values(chart, id=None):
 def set_user_password(id):
     if 'logged_in' in session and session['logged_in']:
         if 'pass_new' in request.form and 'pass_old' in request.form:
-            dbuser = db.session.query(User).filter(User.id==id, 
-                                                   User.password==str_sha512_hex_encode(str(request.form['pass_old']))).one()
+            dbuser = User.query.filter(User.id==id, 
+                                        User.password==str_sha512_hex_encode(str(request.form['pass_old']))).one()
             if dbuser:
                 dbuser.password = str(request.form['pass_new'])
                 db_add_and_commit(dbuser)
@@ -1106,14 +1102,14 @@ def get_session_server_permission_level(srvid):
         return PermissionLevel()
     
     if session['uid'] == SUPERUSER_ID:
-        return PermissionLevel(name=_('Sudo Permission'), create=True, 
-                                delete=True, start=True, stop=True, config=True, 
-                                econ=True, issues=True, log=True)
+        return PermissionLevel(name=_('Sudo Permission'), 
+                               start=True, stop=True, config=True, 
+                               econ=True, issues=True, log=True)
     
     usip = None
-    if db.session.query(UserServerInstancePermission).count() > 0:
-        usip = db.session.query(UserServerInstancePermission).filter(UserServerInstancePermission.user_id.id == session['uid'],
-                                                                    UserServerInstancePermission.server_id.id == servid)
+    if UserServerInstancePermission.query.count() > 0:
+        usip = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id.id == session['uid'],
+                                                        UserServerInstancePermission.server_id.id == servid)
     if not usip or (usip and usip.count() == 0):
         return PermissionLevel()
     usip = usip.one()
@@ -1123,12 +1119,12 @@ def get_session_server_permission_level(srvid):
 @app.context_processor
 def utility_processor():
     def get_mod_instances(mod_folder):
-        servers = db.session.query(ServerInstance).filter(ServerInstance.base_folder.ilike(mod_folder))
+        servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(mod_folder))
         return servers
     def get_mod_binaries(mod_folder):
         return twpl.get_mod_binaries(app.config['SERVERS_BASEPATH'], mod_folder)
     def get_app_config():
-        return db.session.query(AppWebConfig).get(1)
+        return AppWebConfig.query.get(1)
     
     return dict(get_mod_instances=get_mod_instances, 
                 get_mod_binaries=get_mod_binaries,
@@ -1139,8 +1135,8 @@ def utility_processor():
 
 # Jobs
 def analyze_all_server_instances():
-    db.session.query(Player).update({Player.status:0})
-    db.session.query(ServerInstance).update({ServerInstance.status:0})
+    Player.query.update({Player.status:0})
+    ServerInstance.query.update({ServerInstance.status:0})
     
     # Check Server & Player Status
     netstat = twpl.netstat()
@@ -1150,9 +1146,9 @@ def analyze_all_server_instances():
         objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
         if objMatch:
             (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
-            srv = db.session.query(ServerInstance).filter(ServerInstance.port.ilike(conn[0]),
-                                                    ServerInstance.base_folder.ilike(base_folder),
-                                                    ServerInstance.bin.ilike(bin))
+            srv = ServerInstance.query.filter(ServerInstance.port.ilike(conn[0]),
+                                                ServerInstance.base_folder.ilike(base_folder),
+                                                ServerInstance.bin.ilike(bin))
             if srv.count() > 0:
                 srv = srv.one()
                 srv.status = 1
@@ -1165,7 +1161,7 @@ def analyze_all_server_instances():
                                      date = func.now())
                     db.session.add(nplayer)
                     
-                    playersMatch = db.session.query(Player).filter(Player.name.ilike(ntplayer.name))
+                    playersMatch = Player.query.filter(Player.name.ilike(ntplayer.name))
                     if playersMatch.count() < 1:
                         nplayer = Player(name=ntplayer.name,
                                          status=1)
@@ -1177,7 +1173,7 @@ def analyze_all_server_instances():
                         db.session.add(playerMatch)
                     
     # Reopen Offline Servers
-    servers = db.session.query(ServerInstance).filter(ServerInstance.status==0, ServerInstance.alaunch==True)
+    servers = ServerInstance.query.filter(ServerInstance.status==0, ServerInstance.alaunch==True)
     for dbserver in servers:
         modfolder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
         if not os.path.isdir(modfolder):

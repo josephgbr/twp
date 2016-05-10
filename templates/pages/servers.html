@@ -25,14 +25,10 @@
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		{{srv}}
-		{% if session.logged_in %}
+		{% if session.logged_in and session.uid == SUPERUSER_ID %}
 		<span class="pull-right">
-			{% if uidperms.create %}
 			<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
-			{% endif %}
-			{% if session.uid == SUPERUSER_ID %}
 			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
-			{% endif %}
 		</span>
 		{% endif %}
 	</div>
@@ -89,7 +85,7 @@
 							    </ul>
 							</div>
 							{% endif %}
-							{% if uidperms.delete %}
+							{% if session.uid == SUPERUSER_ID %}
 							<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.id}}" href="#" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></a>
 							{% endif %}
 							{% elif mod_inst.status %}

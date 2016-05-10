@@ -96,14 +96,12 @@ $(function(){
 			{
 				var row = "<tr id='permission-"+data['perm']['id']+"'>"+
 							"<td>"+data['perm']['name']+"</td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['create']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['delete']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['start']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['stop']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['config']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['econ']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['issues']?'fa-check':'fa-close')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['log']?'fa-check':'fa-close')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['start']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['stop']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['config']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['econ']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['issues']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><i class='fa "+(data['perm']['log']?'fa-check':'fa-minus')+"'></i></td>"+
 							"<td class='text-right'>"+
 							"<a class='remove-permission-level btn btn-xs' data-id='"+data['perm']['id']+"' href='#' title='"+$BABEL_STR_REMOVE_PERMISSION_LEVEL+"'><i class='fa fa-remove'></i></a>"+
 							"</td>"+

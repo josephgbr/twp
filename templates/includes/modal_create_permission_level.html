@@ -12,19 +12,6 @@
 							<div class="col-md-12" style="margin-bottom:0.5em">
 								<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}"/>
 							</div>
-							<div class="col-md-6"> 
-								<label for="create">{{_('Can create instances?')}}</label>
-								<input type="checkbox" name="create" id="create" />
-								<br/>
-								<label for="delete">{{_('Can delete instances?')}}</label>
-								<input type="checkbox" name="delete" id="delete" />
-								<br/>
-								<label for="start">{{_('Can start instances?')}}</label>
-								<input type="checkbox" name="start" id="start" />
-								<br/>
-								<label for="stop">{{_('Can stop instances?')}}</label>
-								<input type="checkbox" name="stop" id="stop" />
-							</div>
 							<div class="col-md-6">
 								<label for="log">{{_('Can view logs?')}}</label>
 								<input type="checkbox" name="log" id="log" />
@@ -37,6 +24,13 @@
 								<br/>
 								<label for="issues">{{_('Can view issues?')}}</label>
 								<input type="checkbox" name="issues" id="issues" />
+							</div>
+							<div class="col-md-6"> 
+								<label for="start">{{_('Can start server?')}}</label>
+								<input type="checkbox" name="start" id="start" />
+								<br/>
+								<label for="stop">{{_('Can stop server?')}}</label>
+								<input type="checkbox" name="stop" id="stop" />
 							</div>
 						</form>
 					</div>

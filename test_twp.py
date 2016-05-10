@@ -43,7 +43,6 @@ class TWPTestCase(unittest.TestCase):
         twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
         self.test_server_folder = r'%s/twsrv' % twp.app.config['SERVERS_BASEPATH']
         self.app = twp.app.test_client()
-        twp.db.create_all()
         twp.db_init()
         self.app.post('/_finish_installation', data=dict(
             adminuser='admin',
@@ -183,7 +182,6 @@ class LoginSecurityTestCase(unittest.TestCase):
         twp.app.config['TESTING'] = True
         twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
         self.app = twp.app.test_client()
-        twp.db.create_all()
         twp.db_init()
         self.app.post('/_finish_installation', data=dict(
             adminuser='admin',
