@@ -48,8 +48,6 @@ class PermissionLevel(db.Model):
     def todict(self):
         return {'id': self.id,
                 'name': self.name,
-                'create': self.create,
-                'delete': self.delete,
                 'start': self.start,
                 'stop': self.stop,
                 'log': self.log,

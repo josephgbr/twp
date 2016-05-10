@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, \
                   flash, jsonify, send_from_directory, send_file
-from sqlalchemy import or_, func, desc
+from sqlalchemy import or_, func, desc, asc
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
@@ -48,7 +48,6 @@ app = Flask(__name__)
 app.config.from_object(TWPConfig())
 babel = Babel(app)
 csrf = CsrfProtect(app)
-db.app = app
 db.init_app(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
@@ -70,10 +69,10 @@ def db_delete_and_commit(reg):
     db.session.commit()
 
 def db_init():
-    db.create_all()
-    app_config = AppWebConfig.query.count()
-    if app_config == 0:
-        db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
+    with app.app_context():
+        app_config = AppWebConfig.query.count()
+        if app_config == 0:
+            db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))
 
 
 # App Callbacks
@@ -253,7 +252,7 @@ def settings():
     check_session_admin()
     session['prev_url'] = request.path;
     
-    permission_levels = PermissionLevel.query.order_by(desc(PermissionLevel.name))
+    permission_levels = PermissionLevel.query.order_by(asc(PermissionLevel.id))
     return render_template('pages/settings.html', permission_levels=permission_levels)
 
 @app.route('/install_mod', methods=['POST'])
@@ -1044,79 +1043,80 @@ def utility_processor():
 
 # Jobs
 def analyze_all_server_instances():
-    Player.query.update({Player.status:0})
-    ServerInstance.query.update({ServerInstance.status:0})
-    
-    # Check Server & Player Status
-    netstat = twpl.netstat()
-    for conn in netstat:
-        if not conn[2]:
-            continue
-        objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
-        if objMatch:
-            (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
-            srv = ServerInstance.query.filter(ServerInstance.port.ilike(conn[0]),
-                                                ServerInstance.base_folder.ilike(base_folder),
-                                                ServerInstance.bin.ilike(bin))
-            if srv.count() > 0:
-                srv = srv.one()
-                srv.status = 1
-                netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
-                for ntplayer in netinfo.playerlist:
-                    nplayer = PlayerServerInstance(server_id = srv.id,
-                                     name = ntplayer.name,
-                                     clan = ntplayer.clan,
-                                     country = ntplayer.country,
-                                     date = func.now())
-                    db.session.add(nplayer)
-                    
-                    playersMatch = Player.query.filter(Player.name.ilike(ntplayer.name))
-                    if playersMatch.count() < 1:
-                        nplayer = Player(name=ntplayer.name,
-                                         status=1)
-                        db.session.add(nplayer)
-                    else:
-                        playerMatch = playersMatch.one()
-                        playerMatch.last_seen_date = func.now()
-                        playerMatch.status = 1
-                        db.session.add(playerMatch)
-                    
-    # Reopen Offline Servers
-    servers = ServerInstance.query.filter(ServerInstance.status==0, ServerInstance.alaunch==True)
-    for dbserver in servers:
-        modfolder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
-        if not os.path.isdir(modfolder):
-            continue
-                
-        if not os.path.isfile(r'%s/%s' % (modfolder, dbserver.bin)):
-            nissue = Issue(server_id=dbserver.id,
-                           message=_('Server binary not found'))
-            db.session.add(nissue)
-            continue
+    with app.app_context():
+        Player.query.update({Player.status:0})
+        ServerInstance.query.update({ServerInstance.status:0})
         
-        if dbserver.logfile:
-            current_time_hex = hex(int(time.time())).split('x')[1]
-            logs_folder = r'%s/%s/logs' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
-            log_file = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.logfile)
-            # Create logs folder if not exists
-            if not os.path.isdir(logs_folder):
-                os.makedirs(logs_folder)
-            # Move current log to logs folder
-            if os.path.isfile(log_file):
-                shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, dbserver.logfile))
-            nissue = Issue(server_id=dbserver.id,
-                           message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), 
-                                                                                                                          dbserver.id, 
-                                                                                                                          current_time_hex, 
-                                                                                                                          dbserver.logfile))
-        else:
-            nissue = Issue(server_id=dbserver.id,
-                           message=_('Server Offline'))
-        db.session.add(nissue)
-        # Open server
-        start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
-    
-    db.session.commit()
+        # Check Server & Player Status
+        netstat = twpl.netstat()
+        for conn in netstat:
+            if not conn[2]:
+                continue
+            objMatch = re.match("^.+\/([^\/]+)\/(.+)$", conn[2])
+            if objMatch:
+                (base_folder,bin) = [objMatch.group(1), objMatch.group(2)]
+                srv = ServerInstance.query.filter(ServerInstance.port.ilike(conn[0]),
+                                                    ServerInstance.base_folder.ilike(base_folder),
+                                                    ServerInstance.bin.ilike(bin))
+                if srv.count() > 0:
+                    srv = srv.one()
+                    srv.status = 1
+                    netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
+                    for ntplayer in netinfo.playerlist:
+                        nplayer = PlayerServerInstance(server_id = srv.id,
+                                         name = ntplayer.name,
+                                         clan = ntplayer.clan,
+                                         country = ntplayer.country,
+                                         date = func.now())
+                        db.session.add(nplayer)
+                        
+                        playersMatch = Player.query.filter(Player.name.ilike(ntplayer.name))
+                        if playersMatch.count() < 1:
+                            nplayer = Player(name=ntplayer.name,
+                                             status=1)
+                            db.session.add(nplayer)
+                        else:
+                            playerMatch = playersMatch.one()
+                            playerMatch.last_seen_date = func.now()
+                            playerMatch.status = 1
+                            db.session.add(playerMatch)
+                        
+        # Reopen Offline Servers
+        servers = ServerInstance.query.filter(ServerInstance.status==0, ServerInstance.alaunch==True)
+        for dbserver in servers:
+            modfolder = r'%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
+            if not os.path.isdir(modfolder):
+                continue
+                    
+            if not os.path.isfile(r'%s/%s' % (modfolder, dbserver.bin)):
+                nissue = Issue(server_id=dbserver.id,
+                               message=_('Server binary not found'))
+                db.session.add(nissue)
+                continue
+            
+            if dbserver.logfile:
+                current_time_hex = hex(int(time.time())).split('x')[1]
+                logs_folder = r'%s/%s/logs' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder)
+                log_file = r'%s/%s/%s' % (app.config['SERVERS_BASEPATH'], dbserver.base_folder, dbserver.logfile)
+                # Create logs folder if not exists
+                if not os.path.isdir(logs_folder):
+                    os.makedirs(logs_folder)
+                # Move current log to logs folder
+                if os.path.isfile(log_file):
+                    shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, dbserver.logfile))
+                nissue = Issue(server_id=dbserver.id,
+                               message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), 
+                                                                                                                              dbserver.id, 
+                                                                                                                              current_time_hex, 
+                                                                                                                              dbserver.logfile))
+            else:
+                nissue = Issue(server_id=dbserver.id,
+                               message=_('Server Offline'))
+            db.session.add(nissue)
+            # Open server
+            start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
+        
+        db.session.commit()
 scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, 
                   trigger={'second':30, 'type':'cron'}, replace_existing=True)
         
