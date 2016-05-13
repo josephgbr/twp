@@ -16,9 +16,12 @@
 ##    You should have received a copy of the GNU Affero General Public License
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
+from flask.ext.babel import Babel, _
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import or_, func, desc
+from sqlalchemy.orm import Session
 db = SQLAlchemy()
+
 
 class AppWebConfig(db.Model):
     __tablename__ = 'app_web_config'
@@ -96,11 +99,29 @@ class ServerInstance(db.Model):
     econ_port = db.Column(db.String(4))
     econ_password = db.Column(db.String(32))
     
+class ServerStaffRegistry(db.Model):
+    __tablename__ = 'server_staff_registry'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=func.now())
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    message = db.Column(db.String(1024), nullable=False)
+    
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
+    create_date = db.Column(db.DateTime, nullable=False, default=func.now())
+    last_login_date = db.Column(db.DateTime)
     username = db.Column(db.String(12), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    token = db.Column(db.String(128))
+    
+    def todict(self):
+        return {'id': self.id,
+                'create_date': str(self.create_date),
+                'last_login_date': str(self.last_login_date) if self.last_login_date else _('Never'),
+                'username': self.username,
+                'token': self.token}
     
 class ServerJob(db.Model):
     __tablename__ = 'server_job'

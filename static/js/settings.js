@@ -20,35 +20,35 @@
  */
 $(function(){
 	
-	$(document).on('click', "#form-settings-admin-pass a[id='btn-submit']", function(e){
-		var passOld = $('#admin-pass-old').val();
-		var passNew = $('#admin-pass-new').val();
-		var passNewRepeat = $('#admin-pass-new-repeat').val();
+	$(document).on('click', "#form-settings-change-pass a[id='btn-submit']", function(e){
+		var passOld = $('#pass-old').val();
+		var passNew = $('#pass-new').val();
+		var passNewRepeat = $('#pass-new-repeat').val();
 		
 		// Validate Form
-		$('#admin-pass-old,#admin-pass-new,#admin-pass-new-repeat').tooltip('hide');
+		$('#pass-old,#pass-new,#pass-new-repeat').tooltip('hide');
 		if (!passOld)
 		{
-			$('#admin-pass-old').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
-			$('#admin-pass-old').tooltip('show');
+			$('#pass-old').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
+			$('#pass-old').tooltip('show');
 			return;
 		}
 		if (!passNew)
 		{
-			$('#admin-pass-new').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
-			$('#admin-pass-new').tooltip('show');
+			$('#pass-new').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
+			$('#pass-new').tooltip('show');
 			return;
 		}
 		if (!passNewRepeat)
 		{
-			$('#admin-pass-new-repeat').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
-			$('#admin-pass-new-repeat').tooltip('show');
+			$('#pass-new-repeat').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_CANT_BE_EMPTY});
+			$('#pass-new-repeat').tooltip('show');
 			return;
 		}
 		if (passNew !== passNewRepeat)
 		{
-			$('#admin-pass-new-repeat').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_PASSWORD_DOESNT_MATCH});
-			$('#admin-pass-new-repeat').tooltip('show');
+			$('#pass-new-repeat').tooltip({trigger:'manual', placement:'bottom', title:$BABEL_STR_PASSWORD_DOESNT_MATCH});
+			$('#pass-new-repeat').tooltip('show');
 			return;
 		}
 		//
@@ -57,7 +57,7 @@ $(function(){
 		hashObj.update(passNew);
 		passNew = hashObj.getHash("HEX");
 		
-		$.post($SCRIPT_ROOT + '/_set_user_password/1', 'pass_old='+passOld+'&pass_new='+passNew, function(data) {
+		$.post($SCRIPT_ROOT + '/_set_user_password', 'pass_old='+passOld+'&pass_new='+passNew, function(data) {
 			check_server_data(data);
 			
 			if (data['success'])
@@ -80,6 +80,29 @@ $(function(){
 		});
 	});
 	
+	// Create User Slot
+	$(document).on("click", "#create_user_slot", function() {
+		$.post($SCRIPT_ROOT + '/_create_user_slot', '', function(data) {
+			check_server_data(data);
+			
+			if (data['success'] && data['user'])
+			{
+				var row = "<tr id='user-"+data['user']['id']+"'>"+
+							"<td><i>User Slot '"+data['user']['token'].slice(0,10)+"...'</i></td>"+
+							"<td>"+data['user']['create_date']+"</td>"+
+							"<td>"+data['user']['last_login_date']+"</td>"+
+							"<td class='text-right'>"+
+							"<a data-id='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
+							"<i class='fa fa-cog'></i> Permissions"+
+							"</a>"+
+							"<a class='remove-user btn btn-xs btn-delete-row' data-id='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></a>"+
+							"</td>";
+				$('#tbody-users').append(row);
+			}
+		});
+		
+		return false;
+	});
 	
 	// Open Dialog Create Permission Level
 	$(document).on("click", "a[data-target='#modal_create_permission_level']", function() {
@@ -96,14 +119,14 @@ $(function(){
 			{
 				var row = "<tr id='permission-"+data['perm']['id']+"'>"+
 							"<td>"+data['perm']['name']+"</td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['start']?'fa-check':'fa-minus')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['stop']?'fa-check':'fa-minus')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['config']?'fa-check':'fa-minus')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['econ']?'fa-check':'fa-minus')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['issues']?'fa-check':'fa-minus')+"'></i></td>"+
-							"<td class='text-center'><i class='fa "+(data['perm']['log']?'fa-check':'fa-minus')+"'></i></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='start' class='btn btn-xs btn-perm' style='color:"+(data['perm']['start']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['start']?'fa-check':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='stop' class='btn btn-xs btn-perm' style='color:"+(data['perm']['stop']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['stop']?'fa-check success':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='config' class='btn btn-xs btn-perm' style='color:"+(data['perm']['config']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['config']?'fa-check success':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='econ' class='btn btn-xs btn-perm' style='color:"+(data['perm']['econ']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['econ']?'fa-check success':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='issues' class='btn btn-xs btn-perm' style='color:"+(data['perm']['issues']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['issues']?'fa-check success':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='log' class='btn btn-xs btn-perm' style='color:"+(data['perm']['log']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['log']?'fa-check success':'fa-minus')+"'></i></a></td>"+
 							"<td class='text-right'>"+
-							"<a class='remove-permission-level btn btn-xs' data-id='"+data['perm']['id']+"' href='#' title='"+$BABEL_STR_REMOVE_PERMISSION_LEVEL+"'><i class='fa fa-remove'></i></a>"+
+							"<a class='remove-permission-level btn btn-xs btn-delete-row' data-id='"+data['perm']['id']+"' href='#' title='"+$BABEL_STR_REMOVE_PERMISSION_LEVEL+"'><i class='fa fa-remove'></i></a>"+
 							"</td>"+
 							"</tr>";
 				$('#tbody-permission-levels').append(row);
@@ -112,6 +135,23 @@ $(function(){
 		});
 	});
 	
+	
+	// Change Permission inline
+	$(document).on('click', '.btn-perm', function(){
+		var $this = $(this);
+		var id = $this.data('id');
+		var perm = $this.data('perm');
+		
+		toggle_perm_icon($this.children('i'));
+		$.post($SCRIPT_ROOT + '/_change_permission_level', 'id='+id+'&perm='+perm, function(data) {
+			check_server_data(data);
+
+			if (!data['success'])
+				toggle_perm_icon($this.children('i'));
+		});
+		
+		return false;
+	});
 	
 	// Remove Permission Level
 	$(document).on("click", ".remove-permission-level", function() {
@@ -139,5 +179,46 @@ $(function(){
 			    }
 			}
 		});
+		
+		return false;
 	});
+	
+	// Remove User
+	$(document).on("click", ".remove-user", function() {
+		var uid = $(this).data('id');
+		
+		bootbox.dialog({
+			message: $BABEL_STR_ARE_YOU_SURE,
+			title: $BABEL_STR_DELETE+" "+$BABEL_STR_USER,
+			buttons: {
+			    success: {
+			    	label: $BABEL_STR_DELETE,
+			    	className: "btn-danger",
+			    	callback: function() {		    		
+						$.post($SCRIPT_ROOT + '/_remove_user/'+uid, '', function(data) {
+							check_server_data(data);
+							
+							if (data['success'])
+								$('#user-'+uid).remove();
+						});
+			    	}
+			    },
+			    main: {
+			    	label: "Cancel",
+			    	className: "btn-default"
+			    }
+			}
+		});
+		
+		return false;
+	});
+	
 });
+
+function toggle_perm_icon(elm)
+{
+	if (elm.hasClass('fa-check'))
+		elm.removeClass('fa-check').addClass('fa-minus').css('color','#800000');
+	else
+		elm.removeClass('fa-minus').addClass('fa-check').css('color','#008000');
+}

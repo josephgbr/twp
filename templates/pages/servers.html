@@ -5,7 +5,7 @@
 
 {% if session.logged_in and session.uid == SUPERUSER_ID %}
 <div class="space-bottom">
-	<form action="{{ url_for('install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
+	<form action="{{ url_for('twp.install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
 		<div class="dropdown">
 			<a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" id="install-mod-button">
 				<i class="fa fa-puzzle-piece"></i> {{ _('Install Mod') }} <span class="caret"></span>
@@ -27,7 +27,7 @@
 		{{srv}}
 		{% if session.logged_in and session.uid == SUPERUSER_ID %}
 		<span class="pull-right">
-			<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
+			<a class="btn btn-xs btn-info" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
 			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
 		</span>
 		{% endif %}
@@ -86,7 +86,7 @@
 							</div>
 							{% endif %}
 							{% if session.uid == SUPERUSER_ID %}
-							<a class="remove-server-instance btn btn-xs" data-mod="{{srv}}" data-id="{{mod_inst.id}}" href="#" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></a>
+							<a class="remove-server-instance btn btn-xs btn-delete-row" data-mod="{{srv}}" data-id="{{mod_inst.id}}" href="#" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></a>
 							{% endif %}
 							{% elif mod_inst.status %}
 								{% if uidperms.econ and mod_inst.econ_port and mod_inst.econ_password %}
@@ -107,7 +107,9 @@
 			</tbody>
 		</table>
 		{% else %}
-		<div class="panel-body text-center text-muted">{{ _('No instances defined!') }}</div>
+		<div class="panel-body text-center text-muted">
+			<i>{{ _('No instances defined!') }}</i>
+		</div>
 		{% endif %}
 	
 </div>

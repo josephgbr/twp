@@ -8,20 +8,68 @@
 		<h1><i class="fa fa-cogs"></i> {{ _('Settings') }}</h1>
 	</div>
 </div>
+
+{% if session.logged_in and session.uid == SUPERUSER_ID %}
 <div class="row">
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			{{ _('Users') }}
+			<span class="pull-right">
+				<a class="btn btn-xs btn-info" id="create_user_slot"><i class="fa fa-user-plus"></i> {{ _('Create Slot') }}</a>
+			</span>
 		</div>
-		<div class="panel-body">
-		</div>
-	</div>
 
+		<table class="table table-condensed table-hover table-striped table-vertical-aligned">
+			<thead>
+				<tr>
+					<th>{{ _('Username') }}</th>
+					<th>{{ _('Create Date') }}</th>
+					<th>{{ _('Last Login Date') }}</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody id="tbody-users">
+				{% for user in users %}
+				{% if not user.id == SUPERUSER_ID %}
+				<tr id="user-{{user.id}}">
+					<td>{{user.username}}</td>
+					<td>{{user.create_date}}</td>
+					<td>{{user.last_login_date or _('Never')}}</td>
+					<td class='text-right'>
+						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></a>
+					</td>
+				</tr>
+				{% endif %}
+				{% endfor %}
+				
+				{% for user in users_token %}
+				<tr id="user-{{user.id}}">
+					<td><i>{{"%s '%s...'" % (_('User Slot'),user.token[:10])}}</i></td>
+					<td>{{user.create_date}}</td>
+					<td>{{user.last_login_date or _('Never')}}</td>
+					<td class='text-right'>
+						<a data-id="{{user.id}}" class="btn btn-xs btn-success copy-link-user">
+							<i class="fa fa-link"></i> {{ _('Copy Link') }}
+						</a>
+						<a data-id="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
+							<i class="fa fa-cog"></i> {{ _('Permissions') }}
+						</a>
+						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></a>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="row">
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			{{ _('Permission Levels') }}
 			<span class="pull-right">
-				<a class="btn btn-xs btn-warning" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_create_permission_level"><i class="fa fa-plus-circle"></i> {{ _('Create') }}</a>
+				<a class="btn btn-xs btn-info" data-toggle="modal" data-target="#modal_create_permission_level">
+					<i class="fa fa-plus-circle"></i> {{ _('Create Permission') }}
+				</a>
 			</span>
 		</div>
 
@@ -29,12 +77,12 @@
 			<thead>
 				<tr>
 					<th>{{ _('Name') }}</th>
-					<th class='text-center'>{{ _('Start') }}</th>
-					<th class='text-center'>{{ _('Stop') }}</th>
-					<th class='text-center'>{{ _('Config') }}</th>
-					<th class='text-center'>{{ _('ECon') }}</th>
-					<th class='text-center'>{{ _('Issues') }}</th>
-					<th class='text-center'>{{ _('Log') }}</th>
+					<th class='cursor-help text-center' title="{{ _('Can start server?') }}">{{ _('Start') }}</th>
+					<th class='cursor-help text-center' title="{{ _('Can stop server?') }}">{{ _('Stop') }}</th>
+					<th class='cursor-help text-center' title="{{ _('Can change configuration?') }}">{{ _('Config') }}</th>
+					<th class='cursor-help text-center' title="{{ _("Can use 'econ'?") }}">{{ _('ECon') }}</th>
+					<th class='cursor-help text-center' title="{{ _('Can view issues?') }}">{{ _('Issues') }}</th>
+					<th class='cursor-help text-center' title="{{ _('Can view logs?') }}">{{ _('Log') }}</th>
 					<th>&nbsp;</th>
 				</tr>
 			</thead>
@@ -42,39 +90,42 @@
 				{% for perm in permission_levels %}
 				<tr id="permission-{{perm.id}}">
 					<td>{{perm.name}}</td>
-					<td class='text-center'><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.econ and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.issues and 'fa-check' or 'fa-minus'}}"></i></td>
-					<td class='text-center'><i class="fa {{perm.log and 'fa-check' or 'fa-minus'}}"></i></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='start' class="btn btn-xs btn-perm" style="color:{{perm.start and '#008000' or '#800000'}};"><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='stop' class="btn btn-xs btn-perm" style="color:{{perm.stop and '#008000' or '#800000'}};"><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='config' class="btn btn-xs btn-perm" style="color:{{perm.config and '#008000' or '#800000'}};"><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='econ' class="btn btn-xs btn-perm" style="color:{{perm.econ and '#008000' or '#800000'}};"><i class="fa {{perm.econ and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='issues' class="btn btn-xs btn-perm" style="color:{{perm.issues and '#008000' or '#800000'}};"><i class="fa {{perm.issues and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><a data-id='{{perm.id}}' data-perm='log' class="btn btn-xs btn-perm" style="color:{{perm.log and '#008000' or '#800000'}};"><i class="fa {{perm.log and 'fa-check' or 'fa-minus'}}"></i></a></td>
 					<td class='text-right'>
-						<a class="remove-permission-level btn btn-xs" data-id="{{perm.id}}" href="#" title="{{ _('Remove Permission Level') }}"><i class="fa fa-remove"></i></a>
+						<a class="remove-permission-level btn btn-xs btn-delete-row" data-id="{{perm.id}}" href="#" title="{{ _('Remove Permission Level') }}"><i class="fa fa-remove"></i></a>
 					</td>
 				</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
+</div>
+{% endif %}
 
+<div class="row">
 	<div class="panel panel-danger" style="background-color: #F9FFCC;">
-		<div class="panel-heading">{{ _('Administrator Password') }}</div>
+		<div class="panel-heading">{{ _('Change Password') }}</div>
 		<div class="panel-body">
-			<form id="form-settings-admin-pass" class="form-vertical">
+			<form id="form-settings-change-pass" class="form-vertical">
 				<div class="form-group">
 					<div class="col-md-4">
-						<label for="admin-pass" class="control-label">{{ _('Old password:') }}</label>
+						<label for="pass-old" class="control-label">{{ _('Old password:') }}</label>
 						<div class="controls">
-							<input type="password" id="admin-pass-old" name="admin-pass-old" class="form-control" required />
+							<input type="password" id="pass-old" name="pass-old" class="form-control" required />
 							<p class="help-block"></p>
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-md-4">
-						<label for="admin-pass-new" class="control-label">{{ _('New password:') }}</label>
+						<label for="pass-new" class="control-label">{{ _('New password:') }}</label>
 						<div class="controls">
-							<input type="password" id="admin-pass-new" name="admin-pass-new" class="form-control" required />
+							<input type="password" id="pass-new" name="pass-new" class="form-control" required />
 							<p class="help-block"></p>
 						</div>
 					</div>
@@ -83,7 +134,7 @@
 					<div class="col-md-4">
 						<label for="admin-pass-new-repeat" class="control-label">{{ _('Repeat new password:') }}</label>
 						<div class="controls">
-							<input type="password" id="admin-pass-new-repeat" name="admin-pass-new-repeat" data-validation-match-match="admin-pass-new" class="form-control" required />
+							<input type="password" id="pass-new-repeat" name="pass-new-repeat" data-validation-match-match="admin-pass-new" class="form-control" required />
 							<p class="help-block"></p>
 						</div>
 					</div>
@@ -98,7 +149,9 @@
 	</div>
 </div>
 
-{% include "includes/modal_create_permission_level.html" %}
+{% if session.logged_in and session.uid == SUPERUSER_ID %}
+	{% include "includes/modal_create_permission_level.html" %}
+{% endif %}
 
 {% endblock %}
 {% block script %}
@@ -110,6 +163,7 @@
 		var $BABEL_STR_CONFIGURATION_CHANGED = {{_("Configuration Changed")|tojson|safe}};
 		var $BABEL_STR_PERMISSION_LEVEL = {{_("Permission Level")|tojson|safe}};
 		var $BABEL_STR_REMOVE_PERMISSION_LEVEL = {{_("Remove Permission Level")|tojson|safe}};
+		var $BABEL_STR_USER = {{_("User")|tojson|safe}};
 	</script>
 	<script type="text/javascript" src="{{ url_for('static', filename='lib/jssha-2.0.2/sha.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>

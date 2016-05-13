@@ -20,8 +20,9 @@
 
 import os
 import shutil
-import twp
+from twp import create_app, db_init
 from twpl.models import AppWebConfig, User
+from twpl.configs import TWPConfigTest
 import unittest
 import tempfile
 
@@ -38,14 +39,12 @@ class TWPTestCase(unittest.TestCase):
     
     def setUp(self):
         self.db_fd, dbfile = tempfile.mkstemp()
-        twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
-        twp.app.config['TESTING'] = True
-        twp.app.config['WTF_CSRF_ENABLED'] = False
-        twp.app.config['WTF_CSRF_CHECK_DEFAULT'] = False
-        twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
-        self.test_server_folder = r'%s/twsrv' % twp.app.config['SERVERS_BASEPATH']
-        self.app = twp.app.test_client()
-        twp.db_init()
+        self.twp_app = create_app(TWPConfigTest())
+        self.twp_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
+        self.twp_app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
+        self.test_server_folder = r'%s/twsrv' % self.twp_app.config['SERVERS_BASEPATH']
+        self.app = self.twp_app.test_client()
+        db_init(self.twp_app)
         self.app.post('/_finish_installation', data=dict(
             adminuser='admin',
             adminpass='admin',
@@ -54,7 +53,7 @@ class TWPTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
-        os.unlink(twp.app.config['SQLALCHEMY_DATABASE_URI'])
+        #os.unlink(self.twp_app.config['SQLALCHEMY_DATABASE_URI'])
         
     def test_login_logout(self):
         rv = self.login('admin', 'admin')
@@ -73,7 +72,7 @@ class TWPTestCase(unittest.TestCase):
         rv = self.app.post('/_create_server_instance/twsrv', data=dict(
             fileconfig='testsrv'
         ), follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         self.login('admin', 'admin')
         rv = self.app.post('/_create_server_instance/twsrv', data=dict(
@@ -105,24 +104,21 @@ class TWPTestCase(unittest.TestCase):
         
         ## SAVE SERVER CONFIG
         # NO AUTH
-        rv = self.app.post('/_save_server_config', data=dict(
-            srvid=1,
+        rv = self.app.post('/_save_server_config/1', data=dict(
             alsrv=0,
             srvcfg=""
         ), follow_redirects=True)
         assert 'notauth' in rv.data
         # AUTH
         self.login('admin', 'admin')
-        rv = self.app.post('/_save_server_config', data=dict(
-            srvid=1,
+        rv = self.app.post('/_save_server_config/1', data=dict(
             alsrv=0,
             srvcfg=u'sv_name test\nsv_port 8305'
         ), follow_redirects=True)
         assert 'success' in rv.data
         #- Special Characters
         self.login('admin', 'admin')
-        rv = self.app.post('/_save_server_config', data=dict(
-            srvid=1,
+        rv = self.app.post('/_save_server_config/1', data=dict(
             alsrv=0,
             srvcfg=u'sv_name test\nsv_port 8305\nsv_motd éáçñèö'
         ), follow_redirects=True)
@@ -158,7 +154,7 @@ class TWPTestCase(unittest.TestCase):
         rv = self.app.post('/_remove_server_instance/1/1', data=dict(
             fileconfig='testsrv'
         ), follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         self.login('admin', 'admin')
         rv = self.app.post('/_remove_server_instance/1/1', data=dict(
@@ -181,13 +177,12 @@ class LoginSecurityTestCase(unittest.TestCase):
     
     def setUp(self):
         self.db_fd, dbfile = tempfile.mkstemp()
-        twp.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
-        twp.app.config['TESTING'] = True
-        twp.app.config['WTF_CSRF_ENABLED'] = False
-        twp.app.config['WTF_CSRF_CHECK_DEFAULT'] = False
-        twp.app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
-        self.app = twp.app.test_client()
-        twp.db_init()
+        self.twp_app = create_app(TWPConfigTest())
+        self.twp_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s' % dbfile
+        self.twp_app.config['SERVERS_BASEPATH'] = tempfile.mkdtemp()
+        self.test_server_folder = r'%s/twsrv' % self.twp_app.config['SERVERS_BASEPATH']
+        self.app = self.twp_app.test_client()
+        db_init(self.twp_app)
         self.app.post('/_finish_installation', data=dict(
             adminuser='admin',
             adminpass='admin',
@@ -196,7 +191,7 @@ class LoginSecurityTestCase(unittest.TestCase):
 
     def tearDown(self):
         os.close(self.db_fd)
-        os.unlink(twp.app.config['SQLALCHEMY_DATABASE_URI'])
+        #os.unlink(self.twp_app.config['SQLALCHEMY_DATABASE_URI'])
         
     def test_login_security(self):
         rv = self.login('1234', '1234')

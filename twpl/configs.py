@@ -82,7 +82,9 @@ class TWPConfig(object):
         
 class TWPConfigTest(TWPConfig):
     def __init__(self):
+        TWPConfig.__init__(self)
         self.WTF_CSRF_ENABLED = False
         self.WTF_CSRF_CHECK_DEFAULT = False
+        self.TESTING = True
 
     

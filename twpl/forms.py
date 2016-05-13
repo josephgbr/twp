@@ -19,9 +19,10 @@
 from flask.ext.babel import Babel, _
 from flask.ext.wtf import Form
 from wtforms.fields import StringField, SubmitField, PasswordField
+from wtforms.validators import Required
 
 
 class LoginForm(Form):
-    username = StringField(_('Username'))
-    password = StringField(_('Password'))
+    username = StringField(_('Username'), validators=[Required()])
+    password = PasswordField(_('Password'), validators=[Required()])
     submit = SubmitField(_('Submit'))

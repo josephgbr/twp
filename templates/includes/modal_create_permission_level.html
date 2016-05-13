@@ -10,27 +10,7 @@
                     <div class="col-md-12">
 						<form id='form-create-permission-level' class="deny-enter form-vertical">
 							<div class="col-md-12" style="margin-bottom:0.5em">
-								<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}"/>
-							</div>
-							<div class="col-md-6">
-								<label for="log">{{_('Can view logs?')}}</label>
-								<input type="checkbox" name="log" id="log" />
-								<br/>
-								<label for="econ">{{_("Can use 'econ'?")}}</label>
-								<input type="checkbox" name="econ" id="econ" />
-								<br/>
-								<label for="create">{{_('Can change configuration?')}}</label>
-								<input type="checkbox" name="create" id="create" />
-								<br/>
-								<label for="issues">{{_('Can view issues?')}}</label>
-								<input type="checkbox" name="issues" id="issues" />
-							</div>
-							<div class="col-md-6"> 
-								<label for="start">{{_('Can start server?')}}</label>
-								<input type="checkbox" name="start" id="start" />
-								<br/>
-								<label for="stop">{{_('Can stop server?')}}</label>
-								<input type="checkbox" name="stop" id="stop" />
+								<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}" required/>
 							</div>
 						</form>
 					</div>

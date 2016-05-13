@@ -189,7 +189,7 @@ $(function(){
 		
 		$this.addClass('disabled').html("<i class='fa fa-spinner fa-spin'></i> "+$BABEL_STR_SENDING);
 		
-		$.post($SCRIPT_ROOT + '/_send_econ_command', $('#form-econ').serialize(), function(data) {
+		$.post($SCRIPT_ROOT + '/_send_econ_command/'+$('#form-econ #srvid').val(), $('#form-econ').serialize(), function(data) {
 			$this.removeClass('disabled').text("Send");
 			check_server_data(data);
 			
@@ -295,10 +295,10 @@ $(function(){
     });
 	
 	// Press "OK" button in Server Instance Configuration
-	$(document).on("click", "#modal_instance_configuration .btn-primary", function() {
+	$(document).on("click", "#modal_instance_configuration .btn-success", function() {
 		var $this = $(this);
 
-		$.post($SCRIPT_ROOT + '/_save_server_config', $('#form-server-config').serialize(), function(data) {
+		$.post($SCRIPT_ROOT + '/_save_server_config/'+$("#form-server-config #srvid").val(), $('#form-server-config').serialize(), function(data) {
 			check_server_data(data);
 			
 			if (data['success'])
