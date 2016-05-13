@@ -21,9 +21,9 @@ from StringIO import StringIO
 import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io, \
     copy
 from zipfile import ZipFile, is_zipfile
-from banned_list import BannedList
-from banner_generator import BannerGenerator
-from netstat import netstat
+from tools.banned_list import BannedList
+from tools.banner_generator import BannerGenerator
+from tools.netstat import netstat
 from urllib import urlretrieve
 from urllib2 import urlopen, URLError
 from tools.teeworlds import Teeworlds, TWServerRequest
