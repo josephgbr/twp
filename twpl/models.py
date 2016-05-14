@@ -57,6 +57,15 @@ class PermissionLevel(db.Model):
                 'econ': self.econ,
                 'config': self.config,
                 'isues': self.issues}
+        
+    def sudo(self):
+        self.start = True
+        self.stop = True
+        self.log = True
+        self.econ = True
+        self.config = True
+        self.issues = True
+        return self
     
 class Issue(db.Model):
     __tablename__ = 'issue'

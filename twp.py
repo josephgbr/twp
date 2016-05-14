@@ -171,13 +171,16 @@ def maps():
 
 @twp.route('/settings', methods=['GET'])
 def settings():
-    check_session_admin()
+    check_session()
     session['prev_url'] = request.path;
     
     users = User.query.filter(User.token == None).order_by(asc(User.id))
     users_token = User.query.filter(User.token != None).order_by(asc(User.id))
     permission_levels = PermissionLevel.query.order_by(asc(PermissionLevel.id))
-    return render_template('pages/settings.html', users=users, users_token=users_token, permission_levels=permission_levels)
+    servers = ServerInstance.query
+    return render_template('pages/settings.html', users=users, servers=servers,
+                           users_token=users_token, 
+                           permission_levels=permission_levels)
 
 @twp.route('/install_mod', methods=['POST'])
 def install_mod():
@@ -263,6 +266,16 @@ def logout():
     session.pop('uid', None)
     flash(_('You are logged out!'), 'success')
     return redirect(url_for('twp.overview'))
+
+@twp.route('/user_reg/<string:token>', methods=['GET'])
+def user_reg(token):
+    user = User.query.filter(User.token.like(token))
+    if user.count() < 1:
+        abort(403)
+        
+    user_reg_form = forms.UserRegistrationForm()
+    user = user.one()
+    return render_template('pages/user_register.html', user=user, reg_form=user_reg_form)
 
 
 ### SERVER ROUTES
@@ -490,6 +503,28 @@ def get_chart_values(chart, srvid=None):
 
 
 ### USER
+@twp.route('/_finish_user_reg', methods=['POST'])
+def finish_user_reg():
+    user_reg_form = forms.UserRegistrationForm()
+    token = request.form['token'] if request.form.has_key('token') else None
+    if not token:
+        abort(403)
+    
+    user = User.query.filter(User.token.like(token))
+    if user.count() < 1:
+        abort(403)
+    
+    if not user_reg_form.validate_on_submit():
+        return render_template('pages/user_register.html', user=user, reg_form=user_reg_form)
+    
+    user = user.one()
+    
+    user.token = None
+    user.password = str_sha512_hex_encode(userpass)
+    user.username = username
+    db_add_and_commit(user)
+    return redirect(url_for('twp.login'))
+
 @twp.route('/_set_user_password', methods=['POST'])
 def set_user_password():
     check_session()
@@ -600,6 +635,41 @@ def remove_permission_level(id):
     db_delete_and_commit(perm_id)
     return jsonify({'success':True})
 
+@twp.route('/_get_user_servers_level/<int:uid>', methods=['POST'])
+def get_user_servers_level(uid):
+    check_session_admin()
+    
+    perm_list = []
+    perms = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == uid)
+    for perm in perms:
+        perm_list.append((perm.server_id, perm.perm_id))
+    return jsonify({ 'success':True, 'perms':perm_list })
+
+@twp.route('/_set_user_server_level/<int:uid>/<int:srvid>', methods=['POST'])
+def _set_user_server_level(uid, srvid):
+    check_session_admin()
+    
+    if uid == SUPERUSER_ID:
+        return jsonify({ 'error':True, 'errormsg':"Can't define permission for superuser!" })
+    
+    perm_id = request.form['perm_id'] if request.form.has_key('perm_id') else None
+    if not perm_id:
+        return jsonify({ 'error':True, 'errormsg':'Permission ID not defined!' })
+    
+    perms = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == uid,
+                                                      UserServerInstancePermission.server_id == srvid)
+    if perms.count() > 0:
+        perm = perms.one()
+        if not perm_id == -1:
+            perm.perm_id = perm_id
+            db_add_and_commit(perm)
+        else:
+            db_delete_and_commit(perm)
+    elif not perm_id == -1:
+        perm = UserServerInstancePermission(user_id=uid, server_id=srvid, perm_id=perm_id)
+        db_add_and_commit(perm)
+    return jsonify({ 'success':True })
+    
 
 ### SERVER    
 @twp.route('/_upload_maps/<int:srvid>', methods=['POST'])
@@ -1112,18 +1182,14 @@ def get_session_server_permission_level(srvid):
         return PermissionLevel()
     
     if session['uid'] == SUPERUSER_ID:
-        return PermissionLevel(name=_('Sudo Permission'), 
-                               start=True, stop=True, config=True, 
-                               econ=True, issues=True, log=True)
-    
-    usip = None
-    if UserServerInstancePermission.query.count() > 0:
-        usip = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id.id == session['uid'],
-                                                        UserServerInstancePermission.server_id.id == servid)
-    if not usip or (usip and usip.count() == 0):
+        return PermissionLevel().sudo()
+
+    usip = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == session['uid'],
+                                                    UserServerInstancePermission.server_id == srvid)
+    if usip.count() < 1:
         return PermissionLevel()
     usip = usip.one()
-    return usip.perm_id
+    return PermissionLevel.query.get(usip.perm_id)
 
 # Context Processors
 @twp.context_processor

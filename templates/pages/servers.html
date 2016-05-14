@@ -21,7 +21,6 @@
 
 
 {% for srv in servers %}
-{% set uidperms = get_uid_permission_level(srv.id) %}
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		{{srv}}
@@ -49,6 +48,7 @@
 			</thead>
 			<tbody>
 				{% for mod_inst in mod_instances %}
+				{% set uidperms = get_uid_permission_level(mod_inst.id) %}
 				<tr id="srv-line-{{mod_inst.id}}" class="{% if mod_inst.status %}success{% endif %}">
 					<td class="col-md-1 srv-flags">
 						<i class="fa {% if not mod_inst.visible %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.visible %}title="{{ _('Register Server') }}" {% else %}style="color:#BBB;" title="{{ _('Not Register Server') }}" {% endif %}></i>

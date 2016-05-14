@@ -1,0 +1,37 @@
+{% extends "minimal_layout.html" %}
+{% block title %}{{ _('User Registration') }}{% endblock %}
+{% block base_content %}
+{{ super() }}
+
+<div class="row">
+	<form id="form-user-reg" action="/_finish_user_reg" method="POST">
+		{{ reg_form.hidden_tag() }}
+		<input type='hidden' name='token' value='{{user.token}}' />
+		<div class="col-md-6 col-md-offset-3 carrousel-fade" style="padding-top:2em;">
+			<div class="row carrousel-fade-list">
+				<div class="item text-center text-upper">
+					<i class="fa fa-user fa-5x"></i>
+					<h1>{{_('Welcome to %%s') % request.host}}</h1>
+					<p>
+						{{_('You are invited for be a member of the staff!<br/>Please, take a moment for complete the registration.')}}
+					</p>
+					<div class="row" style="margin-top:1em;">
+						<a href="#" class="btn btn-primary next">{{_('Next')}} <i class="fa fa-arrow-right"></i></a>
+					</div>
+				</div>
+				<div class="item">
+					{{ reg_form.username.label }}:
+				    {{ reg_form.username(size=12,class='form-control',autofocus='autofocus') }}
+					{{ reg_form.userpass.label }}:
+				    {{ reg_form.userpass(size=128,class='form-control') }}
+					{{ reg_form.ruserpass.label }}:
+				    {{ reg_form.ruserpass(size=128,class='form-control') }}
+					<div class="row text-center" style="margin-top:1em;">
+						{{ reg_form.submit(class='btn btn-success') }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+{% endblock %}

@@ -57,7 +57,7 @@ $(function(){
 		hashObj.update(passNew);
 		passNew = hashObj.getHash("HEX");
 		
-		$.post($SCRIPT_ROOT + '/_set_user_password', 'pass_old='+passOld+'&pass_new='+passNew, function(data) {
+		$.post($SCRIPT_ROOT + '/_set_user_password', 'pass_old='+passOld+'&pass_new='+passNew, function(data){
 			check_server_data(data);
 			
 			if (data['success'])
@@ -81,8 +81,8 @@ $(function(){
 	});
 	
 	// Create User Slot
-	$(document).on("click", "#create_user_slot", function() {
-		$.post($SCRIPT_ROOT + '/_create_user_slot', '', function(data) {
+	$(document).on("click", "#create_user_slot", function(){
+		$.post($SCRIPT_ROOT + '/_create_user_slot', '', function(data){
 			check_server_data(data);
 			
 			if (data['success'] && data['user'])
@@ -105,13 +105,13 @@ $(function(){
 	});
 	
 	// Open Dialog Create Permission Level
-	$(document).on("click", "a[data-target='#modal_create_permission_level']", function() {
+	$(document).on("click", "a[data-target='#modal_create_permission_level']", function(){
 		$('#form-create-permission-level #name').val('');
 		$("#form-create-permission-level input[type='checkbox']").each(function(){ $(this).prop('checked', false); });
 	});
 	
 	// Press "OK" button in Create Permission Level Dialog
-	$(document).on("click", "#modal_create_permission_level .btn-success", function() {
+	$(document).on("click", "#modal_create_permission_level .btn-success", function(){
 		$.post($SCRIPT_ROOT + '/_create_permission_level', $('#form-create-permission-level').serialize(), function(data) {
 			check_server_data(data);
 			
@@ -143,7 +143,7 @@ $(function(){
 		var perm = $this.data('perm');
 		
 		toggle_perm_icon($this.children('i'));
-		$.post($SCRIPT_ROOT + '/_change_permission_level', 'id='+id+'&perm='+perm, function(data) {
+		$.post($SCRIPT_ROOT + '/_change_permission_level', 'id='+id+'&perm='+perm, function(data){
 			check_server_data(data);
 
 			if (!data['success'])
@@ -154,7 +154,7 @@ $(function(){
 	});
 	
 	// Remove Permission Level
-	$(document).on("click", ".remove-permission-level", function() {
+	$(document).on("click", ".remove-permission-level", function(){
 		var permid = $(this).data('id');
 		
 		bootbox.dialog({
@@ -165,7 +165,7 @@ $(function(){
 			    	label: $BABEL_STR_DELETE,
 			    	className: "btn-danger",
 			    	callback: function() {		    		
-						$.post($SCRIPT_ROOT + '/_remove_permission_level/'+permid, '', function(data) {
+						$.post($SCRIPT_ROOT + '/_remove_permission_level/'+permid, '', function(data){
 							check_server_data(data);
 							
 							if (data['success'])
@@ -184,8 +184,8 @@ $(function(){
 	});
 	
 	// Remove User
-	$(document).on("click", ".remove-user", function() {
-		var uid = $(this).data('id');
+	$(document).on("click", ".remove-user", function(){
+		var uid = $(this).data('uid');
 		
 		bootbox.dialog({
 			message: $BABEL_STR_ARE_YOU_SURE,
@@ -195,7 +195,7 @@ $(function(){
 			    	label: $BABEL_STR_DELETE,
 			    	className: "btn-danger",
 			    	callback: function() {		    		
-						$.post($SCRIPT_ROOT + '/_remove_user/'+uid, '', function(data) {
+						$.post($SCRIPT_ROOT + '/_remove_user/'+uid, '', function(data){
 							check_server_data(data);
 							
 							if (data['success'])
@@ -211,6 +211,42 @@ $(function(){
 		});
 		
 		return false;
+	});
+	
+	// Open Dialog User Permissions
+	$(document).on("click", "a[data-target='#modal_user_permissions']", function(){
+		var uid = $(this).data('uid');
+
+		$('#modal_user_permissions #uid').val(uid);
+		
+		$.post($SCRIPT_ROOT + '/_get_user_servers_level/'+uid, '', function(data){
+			check_server_data(data);
+			
+			$("#modal_user_permissions select").each(function(){
+				$(this).children("option")[0].selected = true;
+			});
+			
+			if (data['success'])
+			{
+				for (var i in data['perms'])
+					$('#modal_user_permissions #perm-'+data['perms'][i][0]+' option[value='+data['perms'][i][1]+']')[0].selected = true;
+			}
+			else
+				$('#modal_user_permissions').modal('hide');
+		});
+	});
+	
+	// Change User Server Perm
+	$(document).on('change', '#modal_user_permissions select', function(){
+		var uid = $('#modal_user_permissions #uid').val();
+		var $this = $(this);
+		var select_id = $this.attr('id');
+		var select_val = $this.val();
+		var srvid = $this.data('srvid');
+		
+		$.post($SCRIPT_ROOT + '/_set_user_server_level/'+uid+'/'+srvid, 'perm_id='+select_val, function(data){
+			check_server_data(data);
+		});
 	});
 	
 });

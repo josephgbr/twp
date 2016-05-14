@@ -1,25 +1,21 @@
-<div id="modal_create_permission_level" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">{{ _('Create Permission Level') }}</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-                    <div class="col-md-12">
-						<form id='form-create-permission-level' class="deny-enter form-vertical">
-							<div class="col-md-12" style="margin-bottom:0.5em">
-								<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}" required/>
-							</div>
-						</form>
-					</div>
+{% extends "minimal_modal.html" %}
+{% set modal_id = 'modal_create_permission_level' %}
+
+{% block head_content %}
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">{{ _('Create Permission Level') }}</h4>
+{% endblock %}
+
+{% block body_content %}
+<div class="modal-body">
+	<div class="row">
+		<div class="col-md-12">
+			<form id='form-create-permission-level' class="deny-enter form-vertical">
+				<div class="col-md-12" style="margin-bottom:0.5em">
+					<input type="text" name="name" id="name" class="form-control" placeholder="{{_('Permission Name')}}" required/>
 				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Cancel') }}</button>
-				<button type="button" class="btn btn-success">{{ _('Create') }}</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

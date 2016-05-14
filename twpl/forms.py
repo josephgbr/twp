@@ -17,12 +17,18 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #########################################################################################
 from flask.ext.babel import Babel, _
-from flask.ext.wtf import Form
-from wtforms.fields import StringField, SubmitField, PasswordField
-from wtforms.validators import Required
+from flask_wtf import Form
+from wtforms import StringField, SubmitField, PasswordField
+from wtforms.validators import InputRequired, EqualTo
 
 
 class LoginForm(Form):
-    username = StringField(_('Username'), validators=[Required()])
-    password = PasswordField(_('Password'), validators=[Required()])
+    username = StringField(_('Username'), validators=[InputRequired()])
+    password = PasswordField(_('Password'), validators=[InputRequired()])
     submit = SubmitField(_('Submit'))
+    
+class UserRegistrationForm(Form):
+    username = StringField(_('Username'), validators=[InputRequired()])
+    userpass = PasswordField(_('Password'), validators=[InputRequired(), EqualTo('userpass',message=_('Passwords must match'))])
+    ruserpass = PasswordField(_('Repeat Password'), validators=[InputRequired()])
+    submit = SubmitField(_('Finish'))

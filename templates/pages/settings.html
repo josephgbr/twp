@@ -36,6 +36,9 @@
 					<td>{{user.create_date}}</td>
 					<td>{{user.last_login_date or _('Never')}}</td>
 					<td class='text-right'>
+						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
+							<i class="fa fa-cog"></i> {{ _('Permissions') }}
+						</a>
 						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></a>
 					</td>
 				</tr>
@@ -48,10 +51,10 @@
 					<td>{{user.create_date}}</td>
 					<td>{{user.last_login_date or _('Never')}}</td>
 					<td class='text-right'>
-						<a data-id="{{user.id}}" class="btn btn-xs btn-success copy-link-user">
+						<a data-uid="{{user.id}}" class="btn btn-xs btn-success copy-link-user btn-clipboard" data-clipboard-text="http://{{request.host}}/user_reg/{{user.token}}">
 							<i class="fa fa-link"></i> {{ _('Copy Link') }}
 						</a>
-						<a data-id="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
+						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
 							<i class="fa fa-cog"></i> {{ _('Permissions') }}
 						</a>
 						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></a>
@@ -151,6 +154,7 @@
 
 {% if session.logged_in and session.uid == SUPERUSER_ID %}
 	{% include "includes/modal_create_permission_level.html" %}
+	{% include "includes/modal_user_permissions.html" %}
 {% endif %}
 
 {% endblock %}

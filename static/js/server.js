@@ -23,9 +23,11 @@ var $LOG_FILTER_TYPE = 0; // All
 var $LOG_FILTER_ORDER = 0; // Desc
 var $ISSUES_PAGINATION = [0, 0] // cur. page, num. pages
 var $LOG_PAGINATION = [moment(new Date()).format("DD-MM-YYYY"),0] // cur. page
+var $COUNTRIES = [];
+// Countries
+$.getJSON($SCRIPT_ROOT+'/static/json/countries.json', function(data){ $COUNTRIES = data; });
 
-$(function(){
-	
+$(function(){	
 	// Prevent Enter Submit
 	$(document).on("keypress", ".deny-enter :input:not(textarea)", function(ev) {
 	    if (ev.keyCode == 13) {
@@ -92,6 +94,9 @@ $(function(){
 	
 	// Charts
 	$.post($SCRIPT_ROOT + '/_get_chart_values/server/'+$SRVID, '', function(data) {
+		if (!data['labels'] || !data['values'])
+			return;
+		
 		// Players last 7days
 		var chartData = [];
 		for (var i in data['labels']['players7d'])

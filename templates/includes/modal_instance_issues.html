@@ -1,23 +1,25 @@
-<div id="modal_instance_issues" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">{{ _('Issues') }}</h4>
-			</div>
-			<div class="modal-body" style="max-height:400px; overflow:auto;">
-				<table class="table table-condensed table-hover table-striped">
-					<thead><tr><th>{{ _('Date') }}</th><th>{{ _('Message') }}</th></tr></thead>
-					<tbody id="issues-list"></tbody>
-		  		</table>
-			</div>
-			<div class="modal-footer">
-				<nav class="pull-left">
-					<ul class="pagination" style="margin:0"></ul>
-				</nav>
-				<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
-			</div>
-			<input type="hidden" id="gamemode" />
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+{% extends "minimal_modal.html" %}
+{% set modal_id = 'modal_instance_issues' %}
+
+{% block head_content %}
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">{{ _('Issues') }}</h4>
+{% endblock %}
+
+{% block body_content %}
+<div class="modal-body" style="max-height:400px; overflow:auto;">
+	<table class="table table-condensed table-hover table-striped">
+		<thead><tr><th>{{ _('Date') }}</th><th>{{ _('Message') }}</th></tr></thead>
+		<tbody id="issues-list"></tbody>
+ 		</table>
+</div>
+{% endblock %}
+
+{% block footer_content %}
+<div class="modal-footer">
+	<nav class="pull-left">
+		<ul class="pagination" style="margin:0"></ul>
+	</nav>
+	<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
+</div>
+{% endblock %}

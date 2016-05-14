@@ -83,6 +83,11 @@ $(function(){
 	
 	/** CSS INITIALIZATIONS **/
 	$('.carrousel-fade').each(function(){ $(this).carrouselanim(); });
+	var clipboard = new Clipboard('.btn-clipboard');
+	clipboard.on('error', function(e) {
+		var $trigger = $(e.trigger);
+	    alert("Oops! your browser can't copy to clipboard...\nYou need to copy manually:\n\n"+$trigger.data('clipboard-text'));
+	});
 });
 
 /** AJAX CONFIG **/

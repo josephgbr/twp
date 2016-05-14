@@ -20,6 +20,7 @@ Project Requirements:
 - [Font Awesome v4.6.1](http://fontawesome.io/) for awesome icons
 - [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
 - [MomentJS v2.13.0](http://momentjs.com/) for easy date manage
+- [Clipboard v1.5.10](http://clipboardjs.com) for copy to clipboard
 - [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes
 - [JQuery v1.12.0](http://jquery.com/) for easy dom interaction and much more...
  - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design

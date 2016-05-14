@@ -1,25 +1,28 @@
-<div id="modal_new_server" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">{{ _('Create Server Instance') }}</h4>
-			</div>
-			<div class="modal-body">
-				<form class="deny-enter">
-					<input type="hidden" id="mod" />
-					<div class="form-group">
-				    	<label for="cfgfile">{{ _('Configuration File Name:') }}</label>
-						<input type="text" class="form-control" id="cfgfile" name="cfgfile" list="configs" required />
-						<datalist id="configs"></datalist>
-						<span class="help-block">{{ _('Without file extension.') }}</span>
-					</div>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
-				<button type="button" class="btn btn-success">{{ _('Create instance') }}</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+{% extends "minimal_modal.html" %}
+{% set modal_id = 'modal_new_server' %}
+
+{% block head_content %}
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">{{ _('Create Server Instance') }}</h4>
+{% endblock %}
+
+{% block body_content %}
+<div class="modal-body">
+	<form class="deny-enter">
+		<input type="hidden" id="mod" />
+		<div class="form-group">
+	    	<label for="cfgfile">{{ _('Configuration File Name:') }}</label>
+			<input type="text" class="form-control" id="cfgfile" name="cfgfile" list="configs" required />
+			<datalist id="configs"></datalist>
+			<span class="help-block">{{ _('Without file extension.') }}</span>
+		</div>
+	</form>
+</div>
+{% endblock %}
+
+{% block footer_content %}
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
+	<button type="button" class="btn btn-success">{{ _('Create instance') }}</button>
+</div>
+{% endblock %}			

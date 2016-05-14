@@ -1,0 +1,48 @@
+{% extends "minimal_modal.html" %}
+{% set modal_id = 'modal_user_permissions' %}
+
+{% block head_content %}
+<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<h4 class="modal-title">{{ _('User Permissions') }}</h4>
+{% endblock %}
+
+{% block body_content %}
+<input type='hidden' id='uid' value=''/>
+<div class="modal-body">
+	<div class="row">
+    	<div class="col-md-12">
+			<table class="table table-condensed table-hover table-striped">
+				<thead>
+					<tr>
+						<th>{{ _('Server') }}</th>
+						<th>{{ _('Port') }}</th>
+						<th>{{ _('Level') }}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for srv in servers %}
+					<tr>
+						<td style='vertical-align:middle;'>{{srv.name}}</td>
+						<td style='vertical-align:middle;'>{{srv.port}}</td>
+						<td>
+							<select id='perm-{{srv.id}}' data-srvid='{{srv.id}}' class="form-control">
+								<option value='-1'>None</option>
+								{% for perm in permission_levels %}
+								<option value='{{perm.id}}'>{{perm.name}}</option>
+								{% endfor %}
+							</select>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+	  		</table>
+	  	</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block footer_content %}
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
+</div>
+{% endblock %}
