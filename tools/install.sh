@@ -43,55 +43,49 @@ fi
 
 ### CHECK PACKAGE MANAGER
 hash apt-get &> /dev/null || {
-	PKG_MANGER = "apt-get"
+	$PKG_MANGER = "apt-get"
 }
 hash yum &> /dev/null || {
-	PKG_MANGER = "yum"
-}
-hash pacman &> /dev/null || {
-	PKG_MANGER = "pacman"
-}
-hash emerge &> /dev/null || {
-	PKG_MANGER = "emerge"
+	$PKG_MANGER = "yum"
 }
 
 
 ### INSTALL TWP
 echo 'Installing requirements. Please, wait...'
 
-apt-get update 1> /dev/null
+$PKG_MANGER update 1> /dev/null
 
 hash gcc &> /dev/null || {
 	echo '+ Installing gcc'
-	apt-get install -y gcc 1> /dev/null
+	$PKG_MANGER install -y gcc 1> /dev/null
 }
 
 echo '+ Installing libjpeg'
-apt-get install -y libjpeg-dev 1> /dev/null
+$PKG_MANGER install -y libjpeg-dev 1> /dev/null
 
 echo '+ Installing zlib1g'
-apt-get install -y zlib1g-dev 1> /dev/null
+$PKG_MANGER install -y zlib1g-dev 1> /dev/null
 
 echo '+ Installing libfreetype6-dev'
-apt-get install -y libfreetype6-dev 1> /dev/null
+$PKG_MANGER install -y libfreetype6-dev 1> /dev/null
 
 echo '+ Installing Python-dev'
-apt-get install -y python-dev 1> /dev/null
+$PKG_MANGER install -y python-dev 1> /dev/null
 
 hash python &> /dev/null || {
 	echo '+ Installing Python'
-	apt-get install -y python 1> /dev/null
+	$PKG_MANGER install -y python 1> /dev/null
 }
 
 hash pip &> /dev/null || {
 	echo '+ Installing Python pip'
-	apt-get install -y python-pip 1> /dev/null
+	$PKG_MANGER install -y python-pip 1> /dev/null
 }
 
 echo 'Cloning Teeworlds Web Panel...'
 hash git &> /dev/null || {
 	echo '+ Installing Git'
-	apt-get install -y git 1> /dev/null
+	$PKG_MANGER install -y git 1> /dev/null
 }
 
 git clone https://github.com/CytraL/twp.git "$INSTALL_DIR"
