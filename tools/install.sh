@@ -195,7 +195,5 @@ fi
 
 
 ### END
-echo 'Connect you on http://your-ip-address:8000/ (Example: http://localhost:8000)'
-echo 'User: admin'
-echo 'Password: admin'
-echo -e "*** DON'T FORGET CHANGE DEFAULT ADMIN PASSWORD!!! ***\n\n"
+echo -e 'TWP Installation finished!\n'
+echo -e 'Server on http://your-ip-address:8000/ (Example: http://localhost:8000)\n'
