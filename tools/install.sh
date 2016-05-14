@@ -42,11 +42,11 @@ if [[ $response =~ [nN] ]]; then
 fi
 
 ### CHECK PACKAGE MANAGER
-hash apt-get &> /dev/null || {
-	$PKG_MANGER = "apt-get"
+hash apt-get &> /dev/null && {
+	PKG_MANGER='apt-get'
 }
-hash yum &> /dev/null || {
-	$PKG_MANGER = "yum"
+hash yum &> /dev/null && {
+	PKG_MANGER='yum'
 }
 
 
