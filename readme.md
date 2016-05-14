@@ -34,11 +34,15 @@ _NOTE: If you want an production deploy read '[Deploying](https://github.com/Cyt
 ```bash
 $ wget http://cytral.github.io/twp/tools/install.sh && sudo bash install.sh
 ```
+or...
+```bash
+$ wget http://cytral.github.io/twp/tools/install.sh && su -c "bash install.sh $USER"
+```
 
 **Manual (Basic)**
 ```bash
 $ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-dev libfreetype6-dev
-$ git clone https://github.com/CytraL/twp.git "twp"
+$ git clone https://github.com/CytraL/twp.git
 $ cd twp
 $ sudo pip install -r requirements.txt
 $ chmod a+x twp.py
