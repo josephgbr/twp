@@ -60,9 +60,9 @@ class BannerGenerator(object):
         self._server = server
         self._netinfo = netinfo
         
-        self._fontLarge = ImageFont.truetype("fonts/FreeMono.ttf",16)
-        self._fontLargeBold = ImageFont.truetype("fonts/FreeMonoBold.ttf",16)
-        self._fontSmall = ImageFont.truetype("fonts/FreeMono.ttf",10)
+        self._fontLarge = ImageFont.truetype("fonts/dejavu-fonts-ttf-2.35/ttf/DejaVuSans.ttf",16)
+        self._fontLargeBold = ImageFont.truetype("fonts/dejavu-fonts-ttf-2.35/ttf/DejaVuSans-Bold.ttf",16)
+        self._fontSmall = ImageFont.truetype("fonts/dejavu-fonts-ttf-2.35/ttf/DejaVuSans.ttf",10)
         self._image = None
 
     def generate(self, ip, format="png"):
