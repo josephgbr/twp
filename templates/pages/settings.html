@@ -39,7 +39,7 @@
 						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
 							<i class="fa fa-cog"></i> {{ _('Permissions') }}
 						</a>
-						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></a>
+						<a class="remove-user btn btn-xs btn-delete-row" data-uid="{{user.id}}" href="#" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></a>
 					</td>
 				</tr>
 				{% endif %}
@@ -57,7 +57,7 @@
 						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
 							<i class="fa fa-cog"></i> {{ _('Permissions') }}
 						</a>
-						<a class="remove-user btn btn-xs btn-delete-row" data-id="{{user.id}}" href="#" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></a>
+						<a class="remove-user btn btn-xs btn-delete-row" data-uid="{{user.id}}" href="#" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></a>
 					</td>
 				</tr>
 				{% endfor %}

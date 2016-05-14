@@ -218,15 +218,24 @@ $.fn.extend({
 	carrouselanim: function(option) {
 		var $this = $(this);
 		
-		function selItem(index)
+		function selItem(index, noAnim)
 		{
 			var $items = $this.data('carrousel-items');
 			var selected = +$this.data('carrousel-sel');
-			$items[selected].animate({ opacity:'0' }, function(){
+			
+			if (noAnim)
+			{
 				$items[selected].css('display', 'none');
-			});
-			$items[index].css({ display:'initial', opacity:0 });
-			$items[index].animate({ opacity:1 });
+				$items[index].css({ display:'initial', opacity:1 });
+			}
+			else
+			{
+				$items[selected].animate({ opacity:'0' }, function(){
+					$items[selected].css('display', 'none');
+				});
+				$items[index].css({ display:'initial', opacity:0 });
+				$items[index].animate({ opacity:1 });
+			}
 			$this.data('carrousel-sel', index);
 		};
 		
@@ -254,10 +263,15 @@ $.fn.extend({
 		else
 		{
 			var $items = [];
+			var count=0;
+			var activedSel=-1;
 			$this.children('.carrousel-fade-list').children('.item').each(function(){
 				var $_this = $(this);
 				$_this.css({ display:'none', position:'absolute', width: '100%', left: 0 });
 				$items.push($_this);
+				if ($_this.hasClass('active'))
+					activedSel = count;
+				++count;
 			});
 			$this.css({ position:'relative' });
 			$this.data('carrousel-items', $items);
@@ -276,6 +290,9 @@ $.fn.extend({
 					return false;
 				})
 			});
+			
+			if (activedSel != -1)
+				selItem(activedSel, true);
 		}
 	}
 });

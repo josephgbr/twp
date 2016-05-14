@@ -6,13 +6,21 @@
 {% if session.logged_in and session.uid == SUPERUSER_ID %}
 <div class="space-bottom">
 	<form action="{{ url_for('twp.install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
+		{{ install_mod_form.hidden_tag() }}
 		<div class="dropdown">
 			<a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" id="install-mod-button">
 				<i class="fa fa-puzzle-piece"></i> {{ _('Install Mod') }} <span class="caret"></span>
 			</a>
 		    <ul class="dropdown-menu">
-		    	<li><a href="#" id='install-mod-url'><i class="fa fa-fw fa-external-link-square"></i> {{ _('From URL') }}</a> <input type="hidden" id="url" name="url" value=""/></li>
-		    	<li><a href="#" class="btn-file"><i class="fa fa-fw fa-file-zip-o"></i> {{ _('From Archive') }} <input type="file" name="file" id="file" /></a></li>
+		    	<li>
+		    		<a href="#" id='install-mod-url'><i class="fa fa-fw fa-external-link-square"></i> {{ install_mod_form.url.label }}</a>
+		    		{{ install_mod_form.url }}
+		    	</li>
+		    	<li>
+		    		<a href="#" class="btn-file"><i class="fa fa-fw fa-file-zip-o"></i> {{ install_mod_form.file.label }} 
+		    			{{ install_mod_form.file }}
+		    		</a>
+		    	</li>
 		    </ul>
 	    </div>
 	</form>

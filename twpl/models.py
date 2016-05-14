@@ -22,6 +22,9 @@ from sqlalchemy import or_, func, desc
 from sqlalchemy.orm import Session
 db = SQLAlchemy()
 
+class JSONSERIALIZER(object):
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class AppWebConfig(db.Model):
     __tablename__ = 'app_web_config'
@@ -30,14 +33,18 @@ class AppWebConfig(db.Model):
     brand_url = db.Column(db.String(512))
     installed = db.Column(db.Boolean, default=False)
     
-class UserServerInstancePermission(db.Model):
+class UserServerInstancePermission(db.Model, JSONSERIALIZER):
     __tablename__ = 'user_server_instance_permission'
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     perm_id = db.Column(db.Integer, db.ForeignKey("permission_level.id"), nullable=False)
+
+    server = db.relationship('ServerInstance', foreign_keys=server_id)
+    user = db.relationship('User', foreign_keys=user_id)
+    perm = db.relationship('PermissionLevel', foreign_keys=perm_id)
     
-class PermissionLevel(db.Model):
+class PermissionLevel(db.Model, JSONSERIALIZER):
     __tablename__ = 'permission_level'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False, unique=True)
@@ -47,16 +54,6 @@ class PermissionLevel(db.Model):
     econ = db.Column(db.Boolean, default=False)
     config = db.Column(db.Boolean, default=False)
     issues = db.Column(db.Boolean, default=False)
-    
-    def todict(self):
-        return {'id': self.id,
-                'name': self.name,
-                'start': self.start,
-                'stop': self.stop,
-                'log': self.log,
-                'econ': self.econ,
-                'config': self.config,
-                'isues': self.issues}
         
     def sudo(self):
         self.start = True
@@ -67,14 +64,16 @@ class PermissionLevel(db.Model):
         self.issues = True
         return self
     
-class Issue(db.Model):
+class Issue(db.Model, JSONSERIALIZER):
     __tablename__ = 'issue'
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=func.now())
     message = db.Column(db.String(512))
     
-class PlayerServerInstance(db.Model):
+    server = db.relationship('ServerInstance', foreign_keys=server_id)
+    
+class PlayerServerInstance(db.Model, JSONSERIALIZER):
     __tablename__ = 'player_server_instance'
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
@@ -83,15 +82,37 @@ class PlayerServerInstance(db.Model):
     country = db.Column(db.Integer)
     date = db.Column(db.DateTime, nullable=False, default=func.now())
     
-class Player(db.Model):
+    server = db.relationship('ServerInstance', foreign_keys=server_id)
+    
+class Player(db.Model, JSONSERIALIZER):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
     create_date = db.Column(db.DateTime, nullable=False, default=func.now())
     last_seen_date = db.Column(db.DateTime, nullable=False, default=func.now())
     status = db.Column(db.Integer, nullable=False)
+
+class ServerJob(db.Model, JSONSERIALIZER):
+    __tablename__ = 'server_job'
+    id = db.Column(db.String(191), primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable = False)
+    job_type = db.Column(db.Integer, nullable = False)
+    job_exec = db.Column(db.String(4092))
     
-class ServerInstance(db.Model):
+    server = db.relationship('ServerInstance', foreign_keys=server_id)
+    
+class ServerStaffRegistry(db.Model, JSONSERIALIZER):
+    __tablename__ = 'server_staff_registry'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=func.now())
+    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    message = db.Column(db.String(1024), nullable=False)
+    
+    server = db.relationship('ServerInstance', foreign_keys=server_id)
+    user = db.relationship('User', foreign_keys=user_id)
+    
+class ServerInstance(db.Model, JSONSERIALIZER):
     __tablename__ = 'server_instance'
     id = db.Column(db.Integer, primary_key=True)
     fileconfig = db.Column(db.String(128), nullable=False)
@@ -108,15 +129,13 @@ class ServerInstance(db.Model):
     econ_port = db.Column(db.String(4))
     econ_password = db.Column(db.String(32))
     
-class ServerStaffRegistry(db.Model):
-    __tablename__ = 'server_staff_registry'
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime, nullable=False, default=func.now())
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    message = db.Column(db.String(1024), nullable=False)
+    perms = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("server_instance"))
+    srv_staff_reg = db.relationship("ServerStaffRegistry", cascade = "all,delete", backref=db.backref("server_instance"))
+    srv_job = db.relationship("ServerJob", cascade = "all,delete", backref=db.backref("server_instance"))
+    player_srv_inst = db.relationship("PlayerServerInstance", cascade = "all,delete", backref=db.backref("server_instance"))
+    issues = db.relationship("Issue", cascade = "all,delete", backref=db.backref("server_instance"))
     
-class User(db.Model):
+class User(db.Model, JSONSERIALIZER):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     create_date = db.Column(db.DateTime, nullable=False, default=func.now())
@@ -125,16 +144,6 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     token = db.Column(db.String(128))
     
-    def todict(self):
-        return {'id': self.id,
-                'create_date': str(self.create_date),
-                'last_login_date': str(self.last_login_date) if self.last_login_date else _('Never'),
-                'username': self.username,
-                'token': self.token}
+    perms = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("users"))
+    srv_staff_reg = db.relationship("ServerStaffRegistry", cascade = "all,delete", backref=db.backref("users"))
     
-class ServerJob(db.Model):
-    __tablename__ = 'server_job'
-    id = db.Column(db.String(191), primary_key=True)
-    server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable = False)
-    job_type = db.Column(db.Integer, nullable = False)
-    job_exec = db.Column(db.String(4092))

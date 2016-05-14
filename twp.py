@@ -192,7 +192,7 @@ def install_mod():
             filename = secure_filename(twpl.download_mod_from_url(request.form['url'], current_app.config['UPLOAD_FOLDER']))
             flash(_('Mod installed successfully'), 'info')
         except Exception as e:
-            flash(_("Error: %s") % str(e), 'danger')
+            flash(_("Error: %%s") % str(e), 'danger')
     else:  
         if 'file' in request.files:
             file = request.files['file']
@@ -251,6 +251,7 @@ def login():
             session['last_login_try'] = int(time.time())
             flash(_('Invalid username or password! ({0}/{1})').format(get_login_tries(),
                                                                       current_app.config['LOGIN_MAX_TRIES']), 'danger')
+    flash_errors(login_form)
     return render_template('pages/login.html', login_form=login_form)
 
 @twp.route('/logout', methods=['GET'])
@@ -267,14 +268,27 @@ def logout():
     flash(_('You are logged out!'), 'success')
     return redirect(url_for('twp.overview'))
 
-@twp.route('/user_reg/<string:token>', methods=['GET'])
+@twp.route('/user_reg/<string:token>', methods=['GET', 'POST'])
 def user_reg(token):
     user = User.query.filter(User.token.like(token))
     if user.count() < 1:
         abort(403)
-        
-    user_reg_form = forms.UserRegistrationForm()
     user = user.one()
+    user_reg_form = forms.UserRegistrationForm()
+
+    if request.method == 'POST':
+        if not user_reg_form.validate_on_submit():
+            flash_errors(user_reg_form)
+            return render_template('pages/user_register.html', user=user, reg_form=user_reg_form, last_page=True)
+        user_count = User.query.filter(User.username.ilike(request.form['username'])).count()
+        if user_count > 0:
+            flash(_('Username already in use!'), 'danger')
+            return render_template('pages/user_register.html', user=user, reg_form=user_reg_form, last_page=True)
+        user.token = None
+        user.password = str_sha512_hex_encode(request.form['userpass'])
+        user.username = request.form['username']
+        db_add_and_commit(user)
+        return redirect(url_for('twp.login'))
     return render_template('pages/user_register.html', user=user, reg_form=user_reg_form)
 
 
@@ -285,6 +299,8 @@ def servers():
 
     ServerInstance.query.update({ServerInstance.status:0})
     db.session.commit()
+    
+    install_mod_form = forms.InstallModForm()
 
     netstat = twpl.netstat()
     for conn in netstat:
@@ -303,7 +319,11 @@ def servers():
                 srv.name = net_server_info['netinfo'].name
                 srv.gametype = net_server_info['netinfo'].gametype
                 db_add_and_commit(srv)
-    return render_template('pages/servers.html', servers=twpl.get_local_servers(current_app.config['SERVERS_BASEPATH']))
+                
+    flash_errors(install_mod_form)
+    return render_template('pages/servers.html', 
+                           servers=twpl.get_local_servers(current_app.config['SERVERS_BASEPATH']),
+                           install_mod_form=install_mod_form)
     
 @twp.route('/server/<int:id>', methods=['GET'])
 def server(id):
@@ -369,8 +389,10 @@ def finish_installation():
     app_config = AppWebConfig.query.get(1)
     if app_config.installed:
         abort(404)
-    if not 'adminpass' in request.form.keys() or not 'adminuser' in request.form.keys() \
-        or User.query.count() != 0:
+        
+    adminuser = request.form['adminuser'] if request.form.has_key('adminuser') else None
+    adminpass = request.form['adminpass'] if request.form.has_key('adminpass') else None
+    if not adminuser or not adminpass or User.query.count() != 0:
         return jsonify({ 'error':True, 'errormsg':_('Missed params!') })
     
     app_config.brand = request.form['brand'] if 'brand' in request.form else ''
@@ -378,7 +400,7 @@ def finish_installation():
         app_config.brand_url = request.form['brand-url']
     app_config.installed = True
     db_add_and_commit(app_config)
-    admin_user = User(username=request.form['adminuser'], password=str_sha512_hex_encode(request.form['adminpass']))
+    admin_user = User(username=adminuser, password=str_sha512_hex_encode(adminpass))
     db_add_and_commit(admin_user)
     return jsonify({ 'success':True })
 
@@ -503,28 +525,6 @@ def get_chart_values(chart, srvid=None):
 
 
 ### USER
-@twp.route('/_finish_user_reg', methods=['POST'])
-def finish_user_reg():
-    user_reg_form = forms.UserRegistrationForm()
-    token = request.form['token'] if request.form.has_key('token') else None
-    if not token:
-        abort(403)
-    
-    user = User.query.filter(User.token.like(token))
-    if user.count() < 1:
-        abort(403)
-    
-    if not user_reg_form.validate_on_submit():
-        return render_template('pages/user_register.html', user=user, reg_form=user_reg_form)
-    
-    user = user.one()
-    
-    user.token = None
-    user.password = str_sha512_hex_encode(userpass)
-    user.username = username
-    db_add_and_commit(user)
-    return redirect(url_for('twp.login'))
-
 @twp.route('/_set_user_password', methods=['POST'])
 def set_user_password():
     check_session()
@@ -548,7 +548,7 @@ def create_user_slot():
     user = User(username=token, password=token, token=token) # TODO: Perhaps best a table for slots?
     db_add_and_commit(user)
     if user.id:
-        return jsonify({'success':True, 'user':user.todict()})
+        return jsonify({'success':True, 'user':user.to_dict()})
     return jsonify({'error':True,'errormsg':_("Can't generate user slot!")})
 
 @twp.route('/_remove_user/<int:uid>', methods=['POST'])
@@ -623,7 +623,7 @@ def create_permission_level():
     # Create permisson level
     perm_level = PermissionLevel(name=request.form['name'])
     db_add_and_commit(perm_level)
-    return jsonify({'perm':perm_level.todict()})
+    return jsonify({'perm':perm_level.to_dict()})
     
 @twp.route('/_remove_permission_level/<int:id>', methods=['POST'])
 def remove_permission_level(id):
@@ -949,8 +949,7 @@ def get_mod_configs(mod_folder):
     for config in cfgs:
         srv = ServerInstance.query.filter(ServerInstance.fileconfig.ilike(config),
                                             ServerInstance.base_folder.ilike(mod_folder))
-        user_perm = get_session_server_permission_level(srv.id)
-        if user_perm.config and srv.count() < 1:
+        if srv.count() < 1:
             jsoncfgs['configs'].append(os.path.splitext(config)[0])
     return jsonify(jsoncfgs)
 
@@ -1317,6 +1316,15 @@ def start_server_instance(base_folder, bin, fileconfig):
 
 def get_login_tries():
     return int(session.get('login_try')) if 'login_try' in session else 0
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(_("Error in the %%s field - %%s") % (
+                getattr(form, field).label.text,
+                error
+            ), 'danger')
+
 
 
 # Init Module

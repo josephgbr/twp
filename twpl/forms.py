@@ -18,8 +18,10 @@
 #########################################################################################
 from flask.ext.babel import Babel, _
 from flask_wtf import Form
-from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import InputRequired, EqualTo
+from wtforms import StringField, SubmitField, PasswordField, HiddenField
+from wtforms.validators import InputRequired, EqualTo, url
+from wtforms.fields.html5 import URLField
+from flask_wtf.file import FileField
 
 
 class LoginForm(Form):
@@ -32,3 +34,7 @@ class UserRegistrationForm(Form):
     userpass = PasswordField(_('Password'), validators=[InputRequired(), EqualTo('userpass',message=_('Passwords must match'))])
     ruserpass = PasswordField(_('Repeat Password'), validators=[InputRequired()])
     submit = SubmitField(_('Finish'))
+
+class InstallModForm(Form):
+    file = FileField(_('From File'))
+    url = HiddenField(_('From URL'), validators=[url()])
