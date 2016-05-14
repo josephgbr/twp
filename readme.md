@@ -49,10 +49,6 @@ $ ./twp.py
 ### Get Started
 0. Configure the app, see the file 'twp.conf'
 1. Run or restart the app
-2. Login Admin using default credentials:
- * User: admin
- * Password: admin
-3. Go to settings page and change admin password
 
 ### .zip/.tar.gz/folder mod structure
 ```
