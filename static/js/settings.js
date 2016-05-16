@@ -93,10 +93,10 @@ $(function(){
 							"<td>"+createDate+"</td>"+
 							"<td>"+$BABEL_STR_NEVER+"</td>"+
 							"<td class='text-right'>"+
-							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-link btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
+							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
 							"<i class='fa fa-link'></i> "+$BABEL_STR_COPY_LINK+
 							"</button> "+
-							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-link btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
+							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
 							"<i class='fa fa-cog'></i> Permissions"+
 							"</button> "+
 							"<button type='button' class='remove-user btn btn-link btn-xs btn-delete-row' data-uid='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></button>"+
