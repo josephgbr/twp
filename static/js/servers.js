@@ -321,7 +321,7 @@ $(function(){
 				$name.text(data['name']);
 				$gametype.text(data['gametype']);
 				
-				if (!data['register'])
+				if (data['register'] == 0)
 					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash text-muted').prop('title', $BABEL_STR_PUBLIC_SERVER);
 				else
 					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PRIVATE_SERVER);
@@ -331,7 +331,7 @@ $(function(){
 				else
 					$flags.find('.tw-password').addClass('text-muted').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
 				
-				if (!data['alaunch'])
+				if (data['alaunch'] == 0)
 					$flags.find('.tw-alaunch').addClass('text-muted').prop('title', $BABEL_STR_NOT_AUTOLAUNCH);
 				else
 					$flags.find('.tw-alaunch').removeClass('text-muted').prop('title', $BABEL_STR_AUTOLAUNCH);
