@@ -193,7 +193,7 @@ def install_mod():
         try:
             filename = secure_filename(twpl.download_mod_from_url(request.form['url'], current_app.config['UPLOAD_FOLDER']))
         except Exception as e:
-            flash(_("Error: %%s") % str(e), 'danger')
+            flash(_("Error: {0}").format(str(e)), 'danger')
     else:  
         if 'file' in request.files:
             file = request.files['file']
@@ -702,7 +702,7 @@ def upload_maps(srvid):
                             return jsonify({'error':True, 'errormsg':str(e)})
                     elif not twpl.extract_maps_package(fullpath, download_folder, True):
                         return jsonify({'error':True, 'errormsg':_('Invalid map package')})
-                    db_create_server_staff_registry(srv.id, _("Uploaded new maps (%%s)") % filename)
+                    db_create_server_staff_registry(srv.id, _("Uploaded new maps ({0})").format(filename))
                     return jsonify({'success':True})
                 else:
                     return jsonify({'error':True, 'errormsg':_('Error: Can\'t upload selected maps')})
@@ -723,7 +723,7 @@ def remove_map(srvid):
                 fullpath = r'%s/%s/data/maps/%s.map' % (current_app.config['SERVERS_BASEPATH'],srv.base_folder,map)
                 if os.path.isfile(fullpath):
                     os.unlink(fullpath)
-                    db_create_server_staff_registry(srv.id, _("Remove the map '%%s'") % map)
+                    db_create_server_staff_registry(srv.id, _("Remove the map '{0}'").format(map))
                     return jsonify({'success':True})
                 return jsonify({'error':True, 'errormsg':_('Error: Map not exists!')})
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -1141,7 +1141,7 @@ def send_econ_command(srvid):
                 rcv = twpl.send_econ_command(int(srv.econ_port), srv.econ_password, econ_cmd)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("Send ECon command '%%s'") % econ_cmd)
+            db_create_server_staff_registry(srv.id, _("Send ECon command '{0}'").format(econ_cmd))
             return jsonify({'success':True, 'rcv':rcv})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
@@ -1163,7 +1163,7 @@ def kick_ban_player(srvid):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("%%s '%%s' via ECon") % (action.upper(),nick))
+            db_create_server_staff_registry(srv.id, _("{0} '{1}' via ECon").format(action.upper(),nick))
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
@@ -1338,7 +1338,7 @@ def get_login_tries():
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
-            flash(_("Error in the %%s field - %%s") % (
+            flash(_("Error in the '{0}' field - {1}").format(
                 getattr(form, field).label.text,
                 error
             ), 'danger')
