@@ -52,7 +52,7 @@
 		var $SRVLOGNAME = {{ logname|tojson|safe }};
 	</script>
 	{% endif %}
-	{% assets filters='jsmin', output='gen/packed_page_log.js', 'js/log.js' %}
+	{% assets filters='jsmin', output='gen/log.min.js', 'js/log.js' %}
    		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}

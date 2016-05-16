@@ -13,6 +13,7 @@ Project Requirements:
  - [Flask Assets v0.11](http://flask-assets.readthedocs.io/) for integrate webassets (Asset management for Python web development)
  - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support
 - [JSMin](https://pypi.python.org/pypi/jsmin) a javascript minifier
+- [CSSMin](https://pypi.python.org/pypi/cssmin/) a python port of the YUI CSS compression algorithm
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
 - [Pillow v3.2.0](https://pypi.python.org/pypi/Pillow/3.2.0) for generate png images
 - [MergeDict v0.2.0](https://pypi.python.org/pypi/mergedict/0.2.0) for make the life easier with python dictionaries

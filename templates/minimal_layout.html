@@ -8,14 +8,16 @@
 		<meta name="author" content="Alexandre Díaz">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 
-		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap-theme.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/font-awesome-4.6.1/font-awesome.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
-		
 		<link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
+		
+		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap-theme.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='lib/font-awesome-4.6.1/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.css') }}" rel="stylesheet" type="text/css">
+		{% assets filters='cssmin', output='gen/app.min.css', 'css/app.css' %}
+		  	<link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" />
+		{% endassets %}
 	</head>
 
 	<body>
@@ -45,7 +47,7 @@
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/clipboard-1.5.10/clipboard.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.js') }}"></script>
-		{% assets filters='jsmin', output='gen/packed.js', 'js/main.js' %}
+		{% assets filters='jsmin', output='gen/main.min.js', 'js/main.js' %}
 		  		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 		{% endassets %}
 		{% block script %}{% endblock %}

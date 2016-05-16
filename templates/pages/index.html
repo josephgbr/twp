@@ -74,7 +74,7 @@
 		var $BABEL_STR_PLAYERS = {{_("Players")|tojson|safe}};
 		var $BABEL_STR_FREE = {{_("free")|tojson|safe}};
 	</script>
-	{% assets filters='jsmin', output='gen/packed_page_index.js', 'js/overview.js' %}
+	{% assets filters='jsmin', output='gen/overview.min.js', 'js/overview.js' %}
    		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}
