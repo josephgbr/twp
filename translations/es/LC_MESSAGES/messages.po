@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-16 20:18+0200\n"
-"PO-Revision-Date: 2016-05-16 20:19+0100\n"
+"POT-Creation-Date: 2016-05-17 00:52+0200\n"
+"PO-Revision-Date: 2016-05-17 00:55+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language: es\n"
 "Language-Team:  <dev@redneboa.es>\n"
@@ -236,52 +236,52 @@ msgstr "Error en el campo '{0}' - {1}"
 msgid "Proudly hosted on"
 msgstr "Orgullosamente hospedado en"
 
-#: templates/minimal_layout.html:55
+#: templates/minimal_layout.html:54
 msgid "You haven't the permissions for do this action."
 msgstr "No tienes permisos para realizar esta acción."
 
-#: templates/minimal_layout.html:56
+#: templates/minimal_layout.html:55
 msgid "ACTION NOT ALLOWED"
 msgstr "ACCIÓN NO PERMITIDA"
 
-#: templates/minimal_layout.html:57
+#: templates/minimal_layout.html:56
 msgid "The session has expired"
 msgstr "La sesión ha expirado"
 
-#: templates/minimal_layout.html:58
+#: templates/minimal_layout.html:57
 msgid "Session Expired!"
 msgstr "Sesión Terminada!"
 
-#: templates/minimal_layout.html:59
+#: templates/minimal_layout.html:58
 msgid "Interal error has ocurred!"
 msgstr "Ha ocurrido un error interno!"
 
-#: templates/minimal_layout.html:60
+#: templates/minimal_layout.html:59
 msgid "Error - Ooops!"
 msgstr "Error - Ooops!"
 
-#: templates/minimal_layout.html:61
+#: templates/minimal_layout.html:60
 msgid "Damn"
 msgstr "Maldición"
 
-#: templates/minimal_layout.html:62
+#: templates/minimal_layout.html:61
 msgid "Are you sure?"
 msgstr "¿Estás seguro?"
 
-#: templates/minimal_layout.html:63
+#: templates/minimal_layout.html:62
 msgid "Delete"
 msgstr "Borrar"
 
-#: templates/minimal_layout.html:64 templates/pages/settings.html:167
+#: templates/minimal_layout.html:63 templates/pages/settings.html:167
 msgid "Ok"
 msgstr "Aceptar"
 
 #: templates/includes/modal_create_permission_level.html:25
-#: templates/minimal_layout.html:65 templates/pages/servers.html:161
+#: templates/minimal_layout.html:64 templates/pages/servers.html:161
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/minimal_layout.html:66
+#: templates/minimal_layout.html:65
 msgid "NO DATA"
 msgstr "SIN INFORMACIÓN"
 
@@ -510,7 +510,7 @@ msgstr "Servidores"
 #: templates/includes/nav.html:32 templates/pages/index.html:58
 #: templates/pages/index.html:75 templates/pages/players.html:3
 #: templates/pages/search.html:61 templates/pages/server.html:28
-#: templates/pages/server.html:73 templates/pages/server.html:231
+#: templates/pages/server.html:73 templates/pages/server.html:232
 #: tools/banner_generator.py:92
 msgid "Players"
 msgstr "Jugadores"
@@ -820,31 +820,31 @@ msgstr "Banear"
 msgid "SERVER OFFLINE"
 msgstr "SERVIDOR DESCONECTADO"
 
-#: templates/pages/server.html:232
+#: templates/pages/server.html:233
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: templates/pages/server.html:233
+#: templates/pages/server.html:234
 msgid "Year(s)"
 msgstr "Año(s)"
 
-#: templates/pages/server.html:234
+#: templates/pages/server.html:235
 msgid "Month(s)"
 msgstr "Mese(s)"
 
-#: templates/pages/server.html:235
+#: templates/pages/server.html:236
 msgid "Day(s)"
 msgstr "Día(s)"
 
-#: templates/pages/server.html:236
+#: templates/pages/server.html:237
 msgid "Hour(s)"
 msgstr "Hora(s)"
 
-#: templates/pages/server.html:237
+#: templates/pages/server.html:238
 msgid "Minute(s)"
 msgstr "Minuto(s)"
 
-#: templates/pages/server.html:238
+#: templates/pages/server.html:239
 msgid "Second(s)"
 msgstr "Segundo(s)"
 
@@ -875,7 +875,7 @@ msgstr "Configuración"
 #: templates/pages/servers.html:81 templates/pages/servers.html:158
 #: templates/pages/settings.html:84
 msgid "Start"
-msgstr "Empezar"
+msgstr "Iniciar"
 
 #: templates/pages/servers.html:93
 msgid "No binaries found!"
@@ -887,7 +887,7 @@ msgstr "Borrar Instancia del Servidor"
 
 #: templates/pages/servers.html:104
 msgid "ECon Admin"
-msgstr "Administración ECon"
+msgstr "ECon Admin."
 
 #: templates/pages/servers.html:109 templates/pages/settings.html:85
 msgid "Stop"
@@ -939,7 +939,7 @@ msgstr "Enviando..."
 
 #: templates/pages/servers.html:157
 msgid "Starting..."
-msgstr "Empezando..."
+msgstr "Iniciando..."
 
 #: templates/pages/servers.html:159
 msgid "This can't be canceled and erase all mod data on the disk!!"
@@ -1101,11 +1101,11 @@ msgstr "Registro de Usuario"
 #: templates/pages/user_register.html:14
 #, python-format
 msgid "Welcome to %%s"
-msgstr "Bienvenido a %%s"
+msgstr "Bienvenid@ a %%s"
 
 #: templates/pages/user_register.html:16
 msgid "You are invited for be a member of the staff!<br/>Please, take a moment for complete the registration."
-msgstr "Has sido invitado para ser miembro de la administración!<br/>Por favor, tómate un momento para completar el registro."
+msgstr "Has sido invitad@ para ser miembro de la administración!<br/>Por favor, tómate un momento para completar el registro."
 
 #: twpl/forms.py:29 twpl/forms.py:34
 msgid "Password"
