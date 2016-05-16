@@ -50,8 +50,7 @@
 		<script type="text/javascript">
 			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			var $REFRESH_TIME = {{ config['REFRESH_TIME']|tojson|safe }} * 1000;
-			
-			$BABEL_STR_NO_AUTH
+
 			var $BABEL_STR_NO_AUTH = {{_("You haven't the permissions for do this action.")|tojson|safe}};
 			var $BABEL_STR_TITLE_NO_AUTH = {{_("ACTION NOT ALLOWED")|tojson|safe}};
 			var $BABEL_STR_SESSION_EXPIRED = {{_("The session has expired")|tojson|safe}};

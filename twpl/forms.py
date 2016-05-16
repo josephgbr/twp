@@ -31,7 +31,7 @@ class LoginForm(Form):
     
 class UserRegistrationForm(Form):
     username = StringField(_('Username'), validators=[InputRequired()])
-    userpass = PasswordField(_('Password'), validators=[InputRequired(), EqualTo('userpass',message=_('Passwords must match'))])
+    userpass = PasswordField(_('Password'), validators=[InputRequired(), EqualTo('ruserpass',message=_('Passwords must match'))])
     ruserpass = PasswordField(_('Repeat Password'), validators=[InputRequired()])
     submit = SubmitField(_('Finish'))
 
