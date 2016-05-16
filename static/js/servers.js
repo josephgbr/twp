@@ -320,8 +320,8 @@ $(function(){
 				$port.text(data['port']);
 				$name.text(data['name']);
 				$gametype.text(data['gametype']);
-				
-				if (data['register'] == 0)
+
+				if (data['register'] == 1)
 					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash text-muted').prop('title', $BABEL_STR_PUBLIC_SERVER);
 				else
 					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PRIVATE_SERVER);
