@@ -27,7 +27,6 @@ from tools.netstat import netstat
 from urllib import urlretrieve
 from urllib2 import urlopen, URLError
 from tools.teeworlds import Teeworlds, TWServerRequest
-from . import forms, models
 from configs import TWPConfig
 
 ## http://stackoverflow.com/questions/1446549/how-to-identify-binary-and-text-files-using-python

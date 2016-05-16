@@ -33,7 +33,7 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from flask.ext.babel import Babel, _, format_datetime
 from flask.ext.assets import Environment, Bundle
 from flask_wtf.csrf import CsrfProtect
-from twpl import BannedList, BannerGenerator, forms
+from twpl import BannedList, BannerGenerator
 from twpl.models import *
 from twpl.configs import TWPConfig
 import logging
@@ -221,8 +221,9 @@ def login():
         BANLIST.add(request.remote_addr, current_app.config['LOGIN_BAN_TIME']);
         session['login_try'] = 0;
         abort(403)
-        
-    login_form = forms.LoginForm()
+
+    from twpl.forms import LoginForm
+    login_form = LoginForm()
     
     if request.method == 'POST':
         if login_form.validate_on_submit():
@@ -275,7 +276,8 @@ def user_reg(token):
     if user.count() < 1:
         abort(403)
     user = user.one()
-    user_reg_form = forms.UserRegistrationForm()
+    from twpl.forms import UserRegistrationForm
+    user_reg_form = UserRegistrationForm()
 
     if request.method == 'POST':
         if not user_reg_form.validate_on_submit():
@@ -301,7 +303,8 @@ def servers():
     ServerInstance.query.update({ServerInstance.status:0})
     db.session.commit()
     
-    install_mod_form = forms.InstallModForm()
+    from twpl.forms import InstallModForm
+    install_mod_form = InstallModForm()
 
     netstat = twpl.netstat()
     for conn in netstat:
@@ -699,7 +702,7 @@ def upload_maps(srvid):
                             return jsonify({'error':True, 'errormsg':str(e)})
                     elif not twpl.extract_maps_package(fullpath, download_folder, True):
                         return jsonify({'error':True, 'errormsg':_('Invalid map package')})
-                    db_create_server_staff_registry(srv.id, _("Uploaded new maps (%s)") % filename)
+                    db_create_server_staff_registry(srv.id, _("Uploaded new maps (%%s)") % filename)
                     return jsonify({'success':True})
                 else:
                     return jsonify({'error':True, 'errormsg':_('Error: Can\'t upload selected maps')})
@@ -720,7 +723,7 @@ def remove_map(srvid):
                 fullpath = r'%s/%s/data/maps/%s.map' % (current_app.config['SERVERS_BASEPATH'],srv.base_folder,map)
                 if os.path.isfile(fullpath):
                     os.unlink(fullpath)
-                    db_create_server_staff_registry(srv.id, _("Remove the map '%s'") % map)
+                    db_create_server_staff_registry(srv.id, _("Remove the map '%%s'") % map)
                     return jsonify({'success':True})
                 return jsonify({'error':True, 'errormsg':_('Error: Map not exists!')})
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -1138,7 +1141,7 @@ def send_econ_command(srvid):
                 rcv = twpl.send_econ_command(int(srv.econ_port), srv.econ_password, econ_cmd)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("Send ECon command '%s'") % econ_cmd)
+            db_create_server_staff_registry(srv.id, _("Send ECon command '%%s'") % econ_cmd)
             return jsonify({'success':True, 'rcv':rcv})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
@@ -1160,7 +1163,7 @@ def kick_ban_player(srvid):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("%s '%s' via ECon") % (action.upper(),nick))
+            db_create_server_staff_registry(srv.id, _("%%s '%%s' via ECon") % (action.upper(),nick))
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})

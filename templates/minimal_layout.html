@@ -21,7 +21,31 @@
 	</head>
 
 	<body>
-		{% block base_content %}{% endblock %}
+		{% if navbar %}
+			{% include "includes/nav.html" %}
+		{% endif %}
+		
+		<div id="page-content">
+			<div class="container">
+				{% block content %}
+					{% with messages = get_flashed_messages(with_categories=true) %}
+						{% if messages %}
+							{% for category, message in messages %}
+								<div class="alert alert-{{ category }}">
+									<button type="button" class="close" data-dismiss="alert">&times;</button>
+									{{ message }}
+								</div>
+							{% endfor %}
+						{% endif %}
+					{% endwith %}
+				{% endblock %}
+			</div>
+		</div>
+		<footer class="footer">
+			<div class="container">
+				<p class="text-muted credit"><small>Teeworlds Web Panel &copy; <a target='_blank' href="https://github.com/CytraL/twp/graphs/contributors">Contributors</a> - 2016 - <a target="_blank" href="https://www.gnu.org/licenses/agpl.html">GNU AGPL</a> - {{_('Proudly hosted on')}} <a href="https://github.com/CytraL/twp"><i class="fa fa-github"></i> GitHub</a></small></p>
+			</div>
+		</footer>
 
 		<script type="text/javascript">
 			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
