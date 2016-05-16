@@ -540,7 +540,7 @@ def set_user_password():
             dbuser.password = str(request.form['pass_new'])
             db_add_and_commit(dbuser)
             return jsonify({'success':True})
-        return jsonify({'error':True, 'errormsg':_('Error: Can\'t change admin password. '+\
+        return jsonify({'error':True, 'errormsg':_('Error: Can\'t change password. '+\
                                                    'Check settings and try again.')})
     else:
         return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
