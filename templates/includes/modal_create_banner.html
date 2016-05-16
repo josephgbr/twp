@@ -53,8 +53,8 @@
 	<div id="preview" style="overflow:auto; padding:0.5em;">
 		<img alt="{{_('Server Banner')}}" src="{{'/server/%d/banner' % server.id}}" id="server-banner" name="server-banner" />
 	</div>
-	<label style="margin-top:0.5em" for="code">{{_('Share URL')}}:</label>
-	<input type="text" id="share-url" class="form-control" readonly />
+	<label style="margin-top:0.5em" for="share-url">{{_('Share URL')}}:</label>
+	<input type="text" id="share-url" name="share-url" class="form-control" readonly />
 </div>
 {% endblock %}
 {% endif %}

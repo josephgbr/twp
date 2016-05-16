@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-17 01:27+0200\n"
+"POT-Creation-Date: 2016-05-17 01:35+0200\n"
 "PO-Revision-Date: 2016-05-17 01:27+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language: es\n"
-"Language-Team:  <dev@redneboa.es>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: <dev@redneboa.es>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"X-Generator: Poedit 1.6.10\n"
 
 #: twp.py:196
 msgid "Error: {0}"
@@ -86,7 +85,9 @@ msgstr "Gráfico no definido!"
 
 #: twp.py:549
 msgid "Error: Can't change password. Check settings and try again."
-msgstr "Error: No se ha podido cambiar la contraseña. Revisa la configuración e inténtalo de nuevo."
+msgstr ""
+"Error: No se ha podido cambiar la contraseña. Revisa la configuración e "
+"inténtalo de nuevo."
 
 #: twp.py:562
 msgid "Can't generate user slot!"
@@ -153,20 +154,37 @@ msgid "Invalid configuration file name."
 msgstr "Nombre de archivo de configuración inválido."
 
 #: twp.py:761
-msgid "Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again."
-msgstr "No puedes existir dos servidores con el mismo archivo de configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de nuevo."
+msgid ""
+"Can't exists two servers with the same configuration file.<br/>Please "
+"change configuration file name and try again."
+msgstr ""
+"No puedes existir dos servidores con el mismo archivo de "
+"configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de "
+"nuevo."
 
 #: twp.py:772 twp.py:871
-msgid "Can't exist two servers with the same log file.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo archivo de historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+msgid ""
+"Can't exist two servers with the same log file.<br/>Please check "
+"configuration and try again."
+msgstr ""
+"No pueden existir dos servidores con el mismo archivo de "
+"historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
 #: twp.py:780
-msgid "Can't exist two servers with the same 'ec_port'.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+msgid ""
+"Can't exist two servers with the same 'ec_port'.<br/>Please check "
+"configuration and try again."
+msgstr ""
+"No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor "
+"comprueba la configuración e inténtalo de nuevo."
 
 #: twp.py:861
-msgid "Can't exist two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again."
-msgstr "No puede existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+msgid ""
+"Can't exist two servers with the same 'sv_port' in the same "
+"MOD.<br/>Please check configuration and try again."
+msgstr ""
+"No puede existir dos servidores con el mismo 'sv_port' en el mismo "
+"MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
 #: twp.py:893
 msgid "Modified the configuration"
@@ -630,8 +648,13 @@ msgid "TWP Installation"
 msgstr "TWP Instalación"
 
 #: templates/pages/install.html:14
-msgid "Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, take a moment for complete the installation."
-msgstr "Gracias por confiar en TWP para administrar tus servidores de Teeworlds.<br/>Por favor, tómate un momento para completar la instalación."
+msgid ""
+"Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, "
+"take a moment for complete the installation."
+msgstr ""
+"Gracias por confiar en TWP para administrar tus servidores de "
+"Teeworlds.<br/>Por favor, tómate un momento para completar la "
+"instalación."
 
 #: templates/pages/install.html:17 templates/pages/user_register.html:19
 msgid "Next"
@@ -947,7 +970,9 @@ msgstr "Iniciando..."
 
 #: templates/pages/servers.html:159
 msgid "This can't be canceled and erase all mod data on the disk!!"
-msgstr "Esto no puede ser cancelado y se borrará toda la información del mod del disco!!"
+msgstr ""
+"Esto no puede ser cancelado y se borrará toda la información del mod del "
+"disco!!"
 
 #: templates/pages/servers.html:160
 msgid "Remove"
@@ -962,8 +987,12 @@ msgid "SERVER ONLINE"
 msgstr "SERVIDOR CONECTADO"
 
 #: templates/pages/servers.html:165
-msgid "Attetion: Server Online. The new configuration will not take effect until you restart the server."
-msgstr "Atención: Servidor Conectado. La nueva configuración no tendrá efecto hasta que no reinicies el servidor."
+msgid ""
+"Attetion: Server Online. The new configuration will not take effect until"
+" you restart the server."
+msgstr ""
+"Atención: Servidor Conectado. La nueva configuración no tendrá efecto "
+"hasta que no reinicies el servidor."
 
 #: templates/pages/servers.html:166
 msgid "Restart"
@@ -1109,8 +1138,12 @@ msgid "Welcome to %%s"
 msgstr "Bienvenid@ a %%s"
 
 #: templates/pages/user_register.html:16
-msgid "You are invited for be a member of the staff!<br/>Please, take a moment for complete the registration."
-msgstr "Has sido invitad@ para ser miembro de la administración!<br/>Por favor, tómate un momento para completar el registro."
+msgid ""
+"You are invited for be a member of the staff!<br/>Please, take a moment "
+"for complete the registration."
+msgstr ""
+"Has sido invitad@ para ser miembro de la administración!<br/>Por favor, "
+"tómate un momento para completar el registro."
 
 #: twpl/forms.py:29 twpl/forms.py:34
 msgid "Password"
@@ -1729,3 +1762,4 @@ msgstr "Desde URL"
 
 #~ msgid "Error in the {0} field - {1}"
 #~ msgstr "Error en el campo {0} - {1}"
+
