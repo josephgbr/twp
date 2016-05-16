@@ -172,7 +172,7 @@
 		var $BABEL_STR_COPY_LINK = {{_("Copy Link")|tojson|safe}};
 	</script>
 	<script type="text/javascript" src="{{ url_for('static', filename='lib/jssha-2.0.2/sha.min.js') }}"></script>
-	{% assets filters='jsmin', output='gen/packed_page.js', 'js/settings.js' %}
+	{% assets filters='jsmin', output='gen/packed_page_settings.js', 'js/settings.js' %}
    		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}

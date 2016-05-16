@@ -167,7 +167,7 @@
 		var $BABEL_STR_AUTOLAUNCH = {{_("Auto-Launch")|tojson|safe}};
 		var $BABEL_STR_NOT_AUTOLAUNCH = {{_("Not Auto-Launch")|tojson|safe}};
 	</script>
-	{% assets filters='jsmin', output='gen/packed_page.js', 'js/servers.js' %}
+	{% assets filters='jsmin', output='gen/packed_page_servers.js', 'js/servers.js' %}
    		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}

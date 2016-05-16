@@ -203,7 +203,7 @@
 		var $BABEL_STR_UNKNOWN = {{_("Unknown")|tojson|safe}};
 	</script>
 	{% endif %}
-	{% assets filters='jsmin', output='gen/packed_page.js', 'js/server.js' %}
+	{% assets filters='jsmin', output='gen/packed_page_server.js', 'js/server.js' %}
    		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}

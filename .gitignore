@@ -2,8 +2,9 @@
 .cproject
 .pydevproject
 .settings/
-#.webassets-cache/
+.webassets-cache/
 servers/
+static/gen/
 
 *.conf
 *.pot
