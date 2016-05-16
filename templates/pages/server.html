@@ -35,7 +35,7 @@
   	<div class="tab-pane active" id="general">
   		{% if session.logged_in and uidperms.issues %}
    		<div class="col-md-12">
-  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><button type="button" class="btn btn-link btn-xs" data-toggle="modal" id="issues_count" data-target="#modal_instance_issues">0</button></ins>
+  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <button type="button" class="btn btn-link btn-xs" data-toggle="modal" id="issues_count" data-target="#modal_instance_issues">0</button>
   		</div>
   		{% endif %}
   	
