@@ -990,7 +990,7 @@ def start_server(srvid):
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             
-            srv.launche_date = func.now()
+            srv.launch_date = func.now()
             db_add_and_commit(srv)
             db_create_server_staff_registry(srv.id, _('Start server'))
             time.sleep(1) # Be nice with the server...
@@ -1294,7 +1294,7 @@ def analyze_all_server_instances():
                                message=_('Server Offline'))
             db.session.add(nissue)
             # Open server
-            dbserver.launche_date = func.now()
+            dbserver.launch_date = func.now()
             db_add_and_commit(dbserver)
             start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
         
@@ -1345,8 +1345,8 @@ def flash_errors(form):
 # Init Module
 if __name__ == "__main__":
     app = create_app(TWPConfig())
-    
     db_init(app)
+    
     if len(app.config['LOGFILE']) > 0:
         handler = RotatingFileHandler(app.config['LOGFILE'], maxBytes=app.config['LOGBYTES'], backupCount=1)
         handler.setLevel(logging.INFO)
