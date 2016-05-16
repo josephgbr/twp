@@ -66,9 +66,9 @@
 					</td>
 					<td class="col-md-1 srv-status">{{_("Running") if mod_inst.status else _("Stopped")}}</td>
 					<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
-					<td class="col-md-2 srv-gametype">{{mod_inst.gametype}}</td>
-					<td class="col-md-4 srv-name">{{mod_inst.name}}</td>
-					<td class="col-md-3 text-right">
+					<td class="srv-gametype">{{mod_inst.gametype}}</td>
+					<td class="srv-name">{{mod_inst.name}}</td>
+					<td class="text-right">
 						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.id}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
 						{% if session.logged_in %}
 							{% if uidperms.config %}
