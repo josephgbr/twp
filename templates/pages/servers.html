@@ -72,7 +72,7 @@
 					<a class="btn btn-xs btn-default" href="/server/{{mod_inst.id}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
 					{% if session.logged_in %}
 						{% if uidperms.config %}
-						<a class="btn btn-xs btn-default" data-id="{{mod_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> {{ _('Config') }}</a>
+						<button type="button" class="btn btn-xs btn-default" data-id="{{mod_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> {{ _('Config') }}</button>
 						{% endif %}
 						{% if not mod_inst.status %}
 						{% if uidperms.start %}
@@ -100,14 +100,14 @@
 						{% endif %}
 						{% elif mod_inst.status %}
 							{% if uidperms.econ and mod_inst.econ_port and mod_inst.econ_password %}
-							<a data-id="{{mod_inst.id}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
+							<button type="button" data-id="{{mod_inst.id}}" class="admin-instance btn btn-xs btn-info" data-toggle="modal" data-target="#modal_external_console">
 						        <i class="fa fa-tty"></i> {{ _('ECon Admin') }}
-						    </a>
+						    </button>
 						    {% endif %}
 						    {% if uidperms.stop %}
-							<a data-id="{{mod_inst.id}}" class="stop-instance btn btn-xs btn-danger">
+							<button type="button" data-id="{{mod_inst.id}}" class="stop-instance btn btn-xs btn-danger">
 						        <i class="fa fa-stop"></i> {{ _('Stop') }}
-						    </a>
+						    </button>
 						    {% endif %}
 						{% endif %}
 					{% endif %}
