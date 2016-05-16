@@ -317,9 +317,9 @@ $(function(){
 				$gametype.text(data['gametype']);
 				
 				if (data['register'] == 0)
-					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash text-muted').prop('title', $BABEL_STR_PRIVATE_SERVER);
+					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PRIVATE_SERVER);
 				else
-					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PUBLIC_SERVER);
+					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash text-muted').prop('title', $BABEL_STR_PUBLIC_SERVER);
 				
 				if (data['password'] == 0)
 					$flags.find('.tw-password').removeClass('text-muted').prop('title', $BABEL_STR_REGISTER_SERVER);
