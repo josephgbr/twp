@@ -97,7 +97,7 @@ $(function(){
 							"<i class='fa fa-link'></i> "+$BABEL_STR_COPY_LINK+
 							"</button> "+
 							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
-							"<i class='fa fa-cog'></i> Permissions"+
+							"<i class='fa fa-cog'></i> "+$BABEL_STR_PERMISSIONS+
 							"</button> "+
 							"<button type='button' class='remove-user btn btn-link btn-xs btn-delete-row' data-uid='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></button>"+
 							"</td>";
