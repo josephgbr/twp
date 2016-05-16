@@ -19,15 +19,16 @@
 </div>
 
 <div class="page-header">
-	<h1><i class="fa fa-info"></i> {% if is_online %}{{netinfo.name}}{% else %}{{server.name}}{% endif %}</h1>
+	<h1><i class="fa fa-info"></i> {{ is_online and netinfo.name or server.name }}</h1>
+	{% if is_online %}<p>{{_('Uptime:')}} <span id="uptime">&nbsp;</span></p>{% endif %}
 </div> 
 
 <ul class="nav nav-pills nav-justified" role="tablist">
 	<li class="active"><a href="#general" role="tab" data-toggle="tab">{{ _('General') }}</a></li>
 	<li><a href="#players" data-toggle="tab">{{ _('Players') }}</a></li>
-{% if session.logged_in and uidperms.log %}
+	{% if session.logged_in and uidperms.log %}
   	<li><a href="#log" role="tab" data-toggle="tab">{{ _('Log') }}</a></li>
-{% endif %}
+	{% endif %}
 </ul>
 
 <div class="tab-content" style="margin-top:1.5em;">
@@ -98,6 +99,7 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="col-md-6 col-xs-6">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -118,6 +120,31 @@
 				</div>
 			</div>
 		</div>
+
+		
+		{% if session.logged_in and session.uid == SUPERUSER_ID %}
+		<div class="col-md-12 col-xs-12">
+			<p style="margin-top:1em"><strong>USER'S ACTIVITY REGISTRY</strong><span class="line-divisor-section"></span></p>
+		</div>
+		{% for reg in users_reg %}
+		<div class="col-md-12 col-xs-12" style="font-size:x-small;">
+			<div class="panel">
+				<div class="panel-heading">
+					<b>{{reg.user.username.upper()}} {% if reg.user_id == SUPERUSER_ID %}({{_('Administrator')}}){% endif %}</b>
+					<span class="text-muted pull-right">{{format_datetime(reg.date)}}</span>
+				</div>
+				<div class="panel-body">
+					{{reg.message}}
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+		{% if users_reg.count() == 0 %}
+		<h4 class="text-center text-muted">
+			{{ _('No activity found!') }}
+		</h4>
+		{% endif %}
+		{% endif %}
   	</div>
   	<div class="tab-pane" id="players">
   	{% if is_online %}
@@ -133,15 +160,15 @@
 			<tbody>
 	  		{% for player in netinfo.playerlist %}
 	  			<tr>
-	  				<td class="col-md-1 pl-score">{{player.score}}</td>
-	  				<td class="col-md-5 pl-name">{{player.name}}</td>
-	  				<td class="col-md-2 pl-clan">{{player.clan}}</td>
+	  				<td class="col-md-1 pl-score">{{player.score|safe}}</td>
+	  				<td class="col-md-5 pl-name">{{player.name|safe}}</td>
+	  				<td class="col-md-2 pl-clan">{{player.clan|safe}}</td>
 	  				<td class="col-md-4 pl-actions text-right">
 	  					{% if session.logged_in and server.econ_port and server.econ_password %}
-  						<a data-name="{{player.name}}" class="kick-player btn btn-xs btn-warning">
+  						<a data-name="{{player.name|safe}}" class="kick-player btn btn-xs btn-warning">
 					        <i class="fa fa-fire"></i> {{ _('Kick') }}
 					    </a>
-  						<a data-name="{{player.name}}" class="ban-player btn btn-xs btn-danger">
+  						<a data-name="{{player.name|safe}}" class="ban-player btn btn-xs btn-danger">
 					        <i class="fa fa-ban"></i> {{ _('Ban') }}
 					    </a>
 					    {% endif %}
@@ -200,8 +227,15 @@
 	{% if server %}
 	<script type="text/javascript">
 		var $SRVID = {{ server.id|tojson|safe }};
+		var $SRV_LAUNCH_DATE = {{server.launch_date|tojson|safe}}
 		var $BABEL_STR_PLAYERS = {{_("Players")|tojson|safe}};
 		var $BABEL_STR_UNKNOWN = {{_("Unknown")|tojson|safe}};
+		var $BABEL_STR_YEARS = {{_("Year(s)")|tojson|safe}};
+		var $BABEL_STR_MONTHS = {{_("Month(s)")|tojson|safe}};
+		var $BABEL_STR_DAYS = {{_("Day(s)")|tojson|safe}};
+		var $BABEL_STR_HOURS = {{_("Hour(s)")|tojson|safe}};
+		var $BABEL_STR_MINUTES = {{_("Minute(s)")|tojson|safe}};
+		var $BABEL_STR_SECONDS = {{_("Second(s)")|tojson|safe}};
 	</script>
 	{% endif %}
 	{% assets filters='jsmin', output='gen/server.min.js', 'js/server.js' %}

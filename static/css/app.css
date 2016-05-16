@@ -18,7 +18,12 @@ body {
   z-index: 1000;
 }
 
-
+.line-divisor-section {
+	border: 1px solid #CECECE;
+	display: block;
+	vertical-align: middle;
+	margin-left: 0.5em;
+}
 .table-vertical-aligned td {
   vertical-align: middle !important;
 }

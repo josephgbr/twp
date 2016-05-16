@@ -8,7 +8,7 @@ Project Requirements:
 - [SQLite](https://www.sqlite.org/) for default database
 - [Flask v0.10.1](http://flask.pocoo.org/) for web development
  - [Flask APScheduler v1.3.7](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
- - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support
+ - [Flask Babel v0.10](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support
  - [Flask WTF v0.12](https://flask-wtf.readthedocs.io/en/latest/) for CSRF protection and recaptcha
  - [Flask Assets v0.11](http://flask-assets.readthedocs.io/) for integrate webassets (Asset management for Python web development)
  - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support

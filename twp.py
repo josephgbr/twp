@@ -329,22 +329,26 @@ def servers():
                            servers=twpl.get_local_servers(current_app.config['SERVERS_BASEPATH']),
                            install_mod_form=install_mod_form)
     
-@twp.route('/server/<int:id>', methods=['GET'])
-def server(id):
+@twp.route('/server/<int:srvid>', methods=['GET'])
+def server(srvid):
     session['prev_url'] = request.path;
-    srv = ServerInstance.query.get(id)
+    srv = ServerInstance.query.get(srvid)
 
     netinfo = None
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
     else:
         flash(_('Server not found!'), "danger")
+        
+    users_reg = ServerStaffRegistry.query.filter(ServerStaffRegistry.server_id==srvid)\
+                                                .order_by(desc(ServerStaffRegistry.date))
     return render_template('pages/server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo, 
-                           uidperms=get_session_server_permission_level(srv.id))
+                           uidperms=get_session_server_permission_level(srv.id),
+                           users_reg=users_reg)
 
-@twp.route('/server/<int:id>/banner', methods=['GET'])
-def generate_server_banner(id):
-    srv = ServerInstance.query.get(id)
+@twp.route('/server/<int:srvid>/banner', methods=['GET'])
+def generate_server_banner(srvid):
+    srv = ServerInstance.query.get(srvid)
     if srv:
         netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
         banner_image = BannerGenerator((600, 40), srv, netinfo)
@@ -493,8 +497,9 @@ def get_chart_values(chart, srvid=None):
             labels['topclan'] = list()
             values['topclan'] = list()
             for value in query_data:
-                labels['topclan'].append(value.clan)
-                values['topclan'].append(value.num)
+                if not value.clan < 1:
+                    labels['topclan'].append(value.clan)
+                    values['topclan'].append(value.num)
                 
         query_data = db.session.execute("SELECT count(country) as num, country FROM \
                                         (SELECT DISTINCT name,country,server_id FROM player_server_instance \
@@ -504,8 +509,9 @@ def get_chart_values(chart, srvid=None):
             labels['topcountry'] = list()
             values['topcountry'] = list()
             for value in query_data:
-                labels['topcountry'].append(value.country)
-                values['topcountry'].append(value.num)
+                if not value.country < 1:
+                    labels['topcountry'].append(value.country)
+                    values['topcountry'].append(value.num)
             
         return jsonify({'success':True, 'series':values, 'labels':labels})
     elif chart.lower() == 'machine':

@@ -94,30 +94,38 @@ $(function(){
 	
 	// Charts
 	$.post($SCRIPT_ROOT + '/_get_chart_values/server/'+$SRVID, '', function(data) {
-		if (!data['labels'] || !data['series'])
-			return;
-		
 		// Players last 7days
-		createAnimatedChartLine('#chart-players-7d', data, 'players7d');
+		if (data['labels'] && data['labels']['players7d'] && data['labels']['players7d'].length > 0)
+			createAnimatedChartLine('#chart-players-7d', data, 'players7d');
+		else
+			$('#chart-players-7d').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
 
 		// Top Clans
-		createAnimatedChartDonut('#chart-active-clan', data, 'topclan');
+		if (data['labels'] && data['labels']['topclan'] && data['labels']['topclan'].length > 0)
+			createAnimatedChartDonut('#chart-active-clan', data, 'topclan');
+		else
+			$('#chart-active-clan').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
 		
 		// Top Countries
-		for (var i in data['labels']['topcountry'])
+		if (data['labels'] && data['labels']['topcountry'] && data['labels']['topcountry'].length > 0)
 		{
-			var countryName = undefined;
-			if (data['labels']['topcountry'][i] != -1)
-				countryName = $.grep($COUNTRIES, function(e){ return e.codenum == data['labels']['topcountry'][i]; });
-			
-			if (!countryName || !countryName[0])
-				countryName = $BABEL_STR_UNKNOWN;
-			else
-				countryName = countryName[0].name;
+			for (var i in data['labels']['topcountry'])
+			{
+				var countryName = undefined;
+				if (data['labels']['topcountry'][i] != -1)
+					countryName = $.grep($COUNTRIES, function(e){ return e.codenum == data['labels']['topcountry'][i]; });
 				
-			data['labels']['topcountry'][i] = countryName;
+				if (!countryName || !countryName[0])
+					countryName = $BABEL_STR_UNKNOWN;
+				else
+					countryName = countryName[0].name;
+					
+				data['labels']['topcountry'][i] = countryName;
+			}
+			createAnimatedChartDonut('#chart-active-country', data, 'topcountry');
 		}
-		createAnimatedChartDonut('#chart-active-country', data, 'topcountry');
+		else
+			$('#chart-active-country').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
 	});
 	
 	
@@ -174,10 +182,27 @@ $(function(){
 		ev.preventDefault();
 	});
 	
+	refresh_uptime();
+	window.setInterval('refresh_uptime()', 900);
 	window.setInterval('refresh_issues_count()', $REFRESH_TIME);
 	refresh_issues_count();
 	
 });
+
+function refresh_uptime()
+{
+	var a = moment(new Date($SRV_LAUNCH_DATE)).utc();
+	var dur = moment.duration(moment().utc().diff(a), 'milliseconds');
+	
+	var hstr = "";
+	if (dur.years() > 0) hstr += dur.years()+" "+$BABEL_STR_YEARS+", ";
+	if (dur.months() > 0) hstr += dur.months()+" "+$BABEL_STR_MONTHS+", ";
+	if (dur.days() > 0) hstr += dur.days()+" "+$BABEL_STR_DAYS+", ";
+	if (dur.hours() > 0) hstr += dur.hours()+" "+$BABEL_STR_HOURS+", ";
+	if (dur.minutes() > 0) hstr += dur.minutes()+" "+$BABEL_STR_MINUTES+", ";
+	hstr += dur.seconds()+" "+$BABEL_STR_SECONDS;
+	$('#uptime').text(hstr);
+}
 
 function refresh_issues()
 {

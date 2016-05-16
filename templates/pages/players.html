@@ -27,7 +27,7 @@
 			<tbody>
 			{% for player in players %}
 				<tr id="ply-line-{{player.id}}" class="{% if player.status == 1 %}success{% endif %}">
-					<td>{{player.name}}</td>
+					<td>{{player.name|safe}}</td>
 					<td class="col-md-3">{{ format_datetime(player.create_date, 'short') }}</td>
 					<td class="col-md-3">{{ format_datetime(player.last_seen_date, 'short') }}</td>
 				</tr>
