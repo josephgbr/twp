@@ -233,6 +233,8 @@ $(function(){
 	$(document).on("click", "a[data-target='#modal_instance_configuration']", function() {
 	     var srvid = $(this).data('id');
 	     $('#form-server-config #srvid').val(srvid);
+	     $('#modal_instance_configuration .btn-success').css('visibility','hidden');
+	     $('#modal_instance_configuration .btn-default').css('visibility','hidden');
 	     $.post($SCRIPT_ROOT + '/_get_server_config/'+srvid, '', function(data) {
 	    	 check_server_data(data);
 	    	 
@@ -248,6 +250,9 @@ $(function(){
 		    	 $("#modal_instance_configuration #srvcfg").val("");
 		    	 $("#modal_instance_configuration .modal-title").text($BABEL_STR_INSTANCE_CONF);
 	    	 }
+	    	 
+	    	 $('#modal_instance_configuration .btn-success').css('visibility','');
+		     $('#modal_instance_configuration .btn-default').css('visibility','');
 	     });
 	});
 	// Select map
@@ -316,20 +321,20 @@ $(function(){
 				$name.text(data['name']);
 				$gametype.text(data['gametype']);
 				
-				if (data['register'] == 0)
-					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PRIVATE_SERVER);
-				else
+				if (!data['register'])
 					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash text-muted').prop('title', $BABEL_STR_PUBLIC_SERVER);
+				else
+					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').prop('title', $BABEL_STR_PRIVATE_SERVER);
 				
-				if (data['password'] == 0)
+				if (data['password'])
 					$flags.find('.tw-password').removeClass('text-muted').prop('title', $BABEL_STR_REGISTER_SERVER);
 				else
 					$flags.find('.tw-password').addClass('text-muted').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
 				
-				if (data['alaunch'] == 0)
-					$flags.find('.tw-alaunch').addClass('text-muted').prop('title', $BABEL_STR_AUTOLAUNCH);
+				if (!data['alaunch'])
+					$flags.find('.tw-alaunch').addClass('text-muted').prop('title', $BABEL_STR_NOT_AUTOLAUNCH);
 				else
-					$flags.find('.tw-alaunch').removeClass('text-muted').prop('title', $BABEL_STR_NOT_AUTOLAUNCH);
+					$flags.find('.tw-alaunch').removeClass('text-muted').prop('title', $BABEL_STR_AUTOLAUNCH);
 				
 				$('#modal_instance_configuration').modal('hide');
 				

@@ -212,7 +212,7 @@ def parse_data_config_basics(data):
     
     emtpyfile = True if content else False
     cfgbasic = {'name': 'unnamed server', 'port':'8303', 'gametype':'DM', 'register':1, 
-                'password':0, 'logfile':None, 'econ_port':None, 'econ_pass': None,
+                'password':None, 'logfile':None, 'econ_port':None, 'econ_pass': None,
                 'empty':emtpyfile}
 
     for line in content:
@@ -226,9 +226,9 @@ def parse_data_config_basics(data):
             elif varname == 'sv_gametype':
                 cfgbasic['gametype'] = value
             elif varname == 'sv_register':
-                cfgbasic['register'] = value
-            elif varname == 'sv_password':
-                cfgbasic['password'] = 1
+                cfgbasic['register'] = 1
+            elif varname == 'password':
+                cfgbasic['password'] = value
             elif varname == 'logfile':
                 cfgbasic['logfile'] = value
             elif varname == 'ec_port':
