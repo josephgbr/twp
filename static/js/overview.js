@@ -107,11 +107,8 @@ $(function() {
 	window.setInterval('refresh()', $REFRESH_TIME);
 	
 	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
-		if (!data['labels'] || !data['series'])
-			return;
-		
 		// Players last 7days
-		if (data['labels']['players7d'] && data['labels']['players7d'].length > 0)
+		if (data['labels'] && data['labels']['players7d'] && data['labels']['players7d'].length > 0)
 			createAnimatedChartLine('#chart-machine-players7d', data, 'players7d');
 		else
 			$('#chart-machine-players7d').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
