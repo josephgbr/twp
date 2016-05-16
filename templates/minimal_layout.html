@@ -11,7 +11,7 @@
 		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap-theme.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='lib/font-awesome-4.6.1/font-awesome.min.css') }}" rel="stylesheet">
-		<link href="{{ url_for('static', filename='lib/morrisjs-0.5.1/morris.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.css') }}" rel="stylesheet">
 		<link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 		
@@ -25,6 +25,9 @@
 			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			var $REFRESH_TIME = {{ config['REFRESH_TIME']|tojson|safe }} * 1000;
 			
+			$BABEL_STR_NO_AUTH
+			var $BABEL_STR_NO_AUTH = {{_("You haven't the permissions for do this action.")|tojson|safe}};
+			var $BABEL_STR_TITLE_NO_AUTH = {{_("ACTION NOT ALLOWED")|tojson|safe}};
 			var $BABEL_STR_SESSION_EXPIRED = {{_("The session has expired")|tojson|safe}};
 			var $BABEL_STR_TITLE_SESSION_EXPIRED = {{_("Session Expired!")|tojson|safe}};
 			var $BABEL_STR_INTERNAL_ERROR = {{_("Interal error has ocurred!")|tojson|safe}};
@@ -32,16 +35,19 @@
 			var $BABEL_STR_DAMN = {{_("Damn")|tojson|safe}};
 			var $BABEL_STR_ARE_YOU_SURE = {{_("Are you sure?")|tojson|safe}};
 			var $BABEL_STR_DELETE = {{_("Delete")|tojson|safe}};
+			var $BABEL_STR_OK = {{_("Ok")|tojson|safe}};
+			var $BABEL_STR_Cancel = {{_("Cancel")|tojson|safe}};
 		</script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/moment-2.11.1/moment.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/jquery-1.12.3/jquery.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/bootstrap-3.3.6/bootstrap.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/bootbox-4.4.0/bootbox.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/morrisjs-0.5.1/raphael.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='lib/morrisjs-0.5.1/morris.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/clipboard-1.5.10/clipboard.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+		{% assets filters='jsmin', output='gen/packed.js', 'js/main.js' %}
+		  		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+		{% endassets %}
 		{% block script %}{% endblock %}
 	</body>
 </html>

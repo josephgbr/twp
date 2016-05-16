@@ -79,6 +79,7 @@ class TWPConfig(object):
         
         self.BABEL_DEFAULT_LOCALE = 'en'
         self.SUPPORT_LANGUAGES = twpl.get_support_languages()
+
         
 class TWPConfigTest(TWPConfig):
     def __init__(self):
@@ -86,5 +87,6 @@ class TWPConfigTest(TWPConfig):
         self.WTF_CSRF_ENABLED = False
         self.WTF_CSRF_CHECK_DEFAULT = False
         self.TESTING = True
+        self.ASSETS_DEBUG = True
 
     

@@ -1,8 +1,8 @@
 "use strict";
 /*
  ********************************************************************************************
- **    TWP v0.1.0 - Teeworlds Web Panel
- **    Copyright (C) 2015  Alexandre Díaz
+ **    TWP v0.3.0 - Teeworlds Web Panel
+ **    Copyright (C) 2016  Alexandre Díaz
  **
  **    This program is free software: you can redistribute it and/or modify
  **    it under the terms of the GNU Affero General Public License as
@@ -87,15 +87,19 @@ $(function(){
 			
 			if (data['success'] && data['user'])
 			{
+				var createDate = moment(data['user']['create_date']).utc().format("YYYY-MM-DD HH:mm:ss");
 				var row = "<tr id='user-"+data['user']['id']+"'>"+
 							"<td><i>User Slot '"+data['user']['token'].slice(0,10)+"...'</i></td>"+
-							"<td>"+data['user']['create_date']+"</td>"+
-							"<td>"+data['user']['last_login_date']+"</td>"+
+							"<td>"+createDate+"</td>"+
+							"<td>"+$BABEL_STR_NEVER+"</td>"+
 							"<td class='text-right'>"+
-							"<a data-id='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
+							"<a data-uid='"+data['user']['id']+"' class='btn btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
+							"<i class='fa fa-link'></i> "+$BABEL_STR_COPY_LINK+
+							"</a> "+
+							"<a data-uid='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
 							"<i class='fa fa-cog'></i> Permissions"+
-							"</a>"+
-							"<a class='remove-user btn btn-xs btn-delete-row' data-id='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></a>"+
+							"</a> "+
+							"<a class='remove-user btn btn-xs btn-delete-row' data-uid='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></a>"+
 							"</td>";
 				$('#tbody-users').append(row);
 			}
@@ -115,7 +119,7 @@ $(function(){
 		$.post($SCRIPT_ROOT + '/_create_permission_level', $('#form-create-permission-level').serialize(), function(data) {
 			check_server_data(data);
 			
-			if (data['perm'])
+			if (data['success'] && data['perm'])
 			{
 				var row = "<tr id='permission-"+data['perm']['id']+"'>"+
 							"<td>"+data['perm']['name']+"</td>"+
@@ -131,6 +135,7 @@ $(function(){
 							"</tr>";
 				$('#tbody-permission-levels').append(row);
 				$('#modal_create_permission_level').modal('hide');
+				$('#modal_user_permissions select').append("<option value='"+data['perm']['id']+"'>"+data['perm']['name']+"</option>");
 			}
 		});
 	});
@@ -169,7 +174,10 @@ $(function(){
 							check_server_data(data);
 							
 							if (data['success'])
+							{
 								$('#permission-'+permid).remove();
+								$('#modal_user_permissions select').children("option[value='"+permid+"']").remove();
+							}
 						});
 			    	}
 			    },

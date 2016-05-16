@@ -1,8 +1,12 @@
+html {
+     overflow: -moz-scrollbars-vertical;
+     overflow: y-scroll;
+}
 body {
   /* Margin bottom by footer height */
   margin-top: 5em;
   margin-bottom: 30px;
-  background-color: #EFEFEF;
+  background-color: #F9F9F9;
 }
 .footer {
   width: 100%;
@@ -120,7 +124,7 @@ body.slide-active {
 
 /* put toggle bars on the left :: not using button */
 #slide-nav {
-	box-shadow: 0 2px 5px #888;
+	box-shadow: 0 2px 5px #CCC;
 }
 #slide-nav .navbar-toggle {
     cursor: pointer;
@@ -246,4 +250,10 @@ body.slide-active {
 	overflow: auto;
 	max-height: 270px;
 	padding: 0 5px;
+}
+
+/* CHARTS */
+.ct-label {
+	font-weight: bold;
+	font-size: x-small;
 }

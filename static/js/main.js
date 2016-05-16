@@ -1,8 +1,8 @@
 "use strict";
 /*
  ********************************************************************************************
- **    TWP v0.1.0 - Teeworlds Web Panel
- **    Copyright (C) 2015  Alexandre Díaz
+ **    TWP v0.3.0 - Teeworlds Web Panel
+ **    Copyright (C) 2016  Alexandre Díaz
  **
  **    This program is free software: you can redistribute it and/or modify
  **    it under the terms of the GNU Affero General Public License as
@@ -132,8 +132,8 @@ function check_server_data(data)
 	if (data['notauth'])
 	{
 		bootbox.dialog({
-			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> "+$BABEL_STR_SESSION_EXPIRED+" <i class='fa fa-warning'></i></p>",
-			title: $BABEL_STR_TITLE_SESSION_EXPIRED,
+			message: "<p class='text-center' style='color:#800000;'><i class='fa fa-warning'></i> "+$BABEL_STR_NO_AUTH+" <i class='fa fa-warning'></i></p>",
+			title: $BABEL_STR_TITLE_NO_AUTH,
 			buttons: {
 				success: {
 					label: "Oh!",
@@ -185,7 +185,7 @@ function get_config_value_textarea($ta, param)
 	return undefined;
 }
 
-function update_config_textarea($ta, param, new_value)
+function update_config_textarea($ta, param, new_value, defval)
 {
 	var lines = $ta.splitlines();
 	var nvalue = "";
@@ -196,16 +196,22 @@ function update_config_textarea($ta, param, new_value)
         var objMatch = lines[i].match(/^([^#\s]+)\s([^#\r\n]+)/);
         if (objMatch && param.toLowerCase() === objMatch[1].toLowerCase())
         {
-        	if (new_value)
+        	if ((typeof defval === 'undefined' && new_value) 
+        		|| (typeof defval !== 'undefined' && new_value != defval))
+        	{ 
         		nvalue += param+" "+new_value+"\n";
+        	}
             replaced = true;
         }
         else
         	nvalue += lines[i]+"\n";
 	}
 	
-    if (!replaced && new_value)
+    if (!replaced && ((typeof defval === 'undefined' && new_value) 
+    					|| (typeof defval !== 'undefined' && new_value != defval)))
+    {
     	nvalue += param+" "+new_value+"\n";
+    }
     
     $ta.val(nvalue);
 }
@@ -311,3 +317,79 @@ $.fn.extend({
 		return texts;
 	}
 });
+
+/** CHARTS **/
+function createAnimatedChartDonut(selector, data, chartType)
+{
+	var chartData = {'labels':data['labels'][chartType],'series':data['series'][chartType]};
+	var chartConfig = {
+		donut: true,
+		donutWidth: 30,
+		labelOffset: 0,
+		labelDirection: 'explode'
+		//showLabel: false
+	};
+	
+	var chart = new Chartist.Pie(selector, chartData, chartConfig);
+
+	chart.on('draw', function(data) {
+		if(data.type === 'slice') {
+			var pathLength = data.element._node.getTotalLength();
+			var animationDefinition = {
+				'stroke-dashoffset': {
+					id: 'anim' + data.index,
+					dur: 1000,
+					from: -pathLength + 'px',
+					to:  '0px',
+					easing: Chartist.Svg.Easing.easeOutQuint,
+					// We need to use `fill: 'freeze'` otherwise our animation will fall back to initial (not visible)
+					fill: 'freeze'
+				}
+			};
+
+			data.element.attr({ 
+				'stroke-dashoffset': -pathLength + 'px',
+				'stroke-dasharray': pathLength + 'px ' + pathLength + 'px'
+			});
+			if(data.index !== 0)
+				animationDefinition['stroke-dashoffset'].begin = 'anim' + (data.index - 1) + '.end';
+			data.element.animate(animationDefinition, false);
+		}
+	});
+}
+
+function createAnimatedChartLine(selector, data, chartType)
+{
+	var chartData = {'labels':data['labels'][chartType],'series':[data['series'][chartType]]};
+	var chartConfig = {
+		axisY: {
+			type: Chartist.AutoScaleAxis,
+		    onlyInteger: true
+		}
+	};
+	
+	// return moment(x).format("DD/MM/YYYY"); 
+	var chart = Chartist.Line(selector, chartData, chartConfig);
+	var seq = 0;
+	chart.on('created', function() { seq = 0; });
+	chart.on('draw', function(data) {
+		if(data.type === 'point') {
+			data.element.animate({
+				opacity: {
+					begin: seq++ * 80,
+					dur: 500,
+					from: 0,
+					to: 1
+				},
+				x1: {
+					begin: seq++ * 80,
+					dur: 500,
+					from: data.x - 100,
+					to: data.x,
+					easing: Chartist.Svg.Easing.easeOutQuart
+				}
+			});
+		}
+	});
+	return chart;
+}

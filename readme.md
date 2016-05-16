@@ -10,7 +10,9 @@ Project Requirements:
  - [Flask APScheduler v1.3.7](https://github.com/viniciuschiele/flask-apscheduler) for periodically tasks
  - [Flask Babel v0.9](https://pythonhosted.org/Flask-Babel/) for i18n and l10n support
  - [Flask WTF v0.12](https://flask-wtf.readthedocs.io/en/latest/) for CSRF protection and recaptcha
+ - [Flask Assets v0.11](http://flask-assets.readthedocs.io/) for integrate webassets (Asset management for Python web development)
  - [Flask SQLAlchemy v2.1](http://flask-sqlalchemy.pocoo.org/2.1/) for SQLAlchemy ORM support
+- [JSMin](https://pypi.python.org/pypi/jsmin) a javascript minifier
 - [Teeworlds Serverlist Library](https://blog.mnus.de/2011/07/teeworlds-serverlist-library-for-python/) for teeworlds requests
 - [Pillow v3.2.0](https://pypi.python.org/pypi/Pillow/3.2.0) for generate png images
 - [MergeDict v0.2.0](https://pypi.python.org/pypi/mergedict/0.2.0) for make the life easier with python dictionaries
@@ -18,7 +20,7 @@ Project Requirements:
 
 **Client Side**
 - [Font Awesome v4.6.1](http://fontawesome.io/) for awesome icons
-- [MorrisJS v0.5.1](http://morrisjs.github.io/morris.js/) for responsive charts
+- [ChartistJS v0.9.7](http://gionkunz.github.io/chartist-js/) for responsive charts
 - [MomentJS v2.13.0](http://momentjs.com/) for easy date manage
 - [Clipboard v1.5.10](http://clipboardjs.com) for copy to clipboard
 - [jsSHA v2.0.2](http://caligatio.github.io/jsSHA/) for generate SHA-512 hashes

@@ -128,6 +128,7 @@ class ServerInstance(db.Model, JSONSERIALIZER):
     logfile = db.Column(db.String(128))
     econ_port = db.Column(db.String(4))
     econ_password = db.Column(db.String(32))
+    launch_date = db.Column(db.DateTime, nullable=False, default=func.now())
     
     perms = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("server_instance"))
     srv_staff_reg = db.relationship("ServerStaffRegistry", cascade = "all,delete", backref=db.backref("server_instance"))

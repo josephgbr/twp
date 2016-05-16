@@ -29,7 +29,7 @@
 
 
 {% for srv in servers %}
-<div class="panel panel-primary">
+<div class="panel panel-default">
 	<div class="panel-heading">
 		{{srv}}
 		{% if session.logged_in and session.uid == SUPERUSER_ID %}
@@ -59,8 +59,9 @@
 				{% set uidperms = get_uid_permission_level(mod_inst.id) %}
 				<tr id="srv-line-{{mod_inst.id}}" class="{% if mod_inst.status %}success{% endif %}">
 					<td class="col-md-1 srv-flags">
-						<i class="fa {% if not mod_inst.visible %}fa-eye-slash{% else %}fa-eye{% endif %} tw-no-register" {% if mod_inst.visible %}title="{{ _('Register Server') }}" {% else %}style="color:#BBB;" title="{{ _('Not Register Server') }}" {% endif %}></i>
-						<i class="fa fa-lock tw-password" {% if mod_inst.public %}style="color:#BBB;" title="{{ _('Public Server') }}" {% else %}title="{{ _('Private Server') }}" {% endif %}></i>
+						<i class="fa fa-refresh tw-alaunch {{ not mod_inst.alaunch and 'text-muted' or '' }}" title="{{ mod_inst.alaunch and _('Auto-Launch') or _('Not Auto-Launch') }}"></i>
+						<i class="fa {{ mod_inst.visible and 'fa-eye' or 'fa-eye-slash text-muted' }} tw-no-register" title="{{ mod_inst.visible and _('Register Server') or _('Not Register Server') }}"></i>
+						<i class="fa fa-lock tw-password {{ mod_inst.public and 'text-muted' or '' }}" title="{{ mod_inst.public and _('Public Server') or _('Private Server') }}"></i>
 					</td>
 					<td class="col-md-1 srv-status">{{_("Running") if mod_inst.status else _("Stopped")}}</td>
 					<td class="col-md-1 srv-port">{{mod_inst.port}}</td>
@@ -69,10 +70,10 @@
 					<td class="col-md-3 text-right">
 						<a class="btn btn-xs btn-default" href="/server/{{mod_inst.id}}" title="{{ _('Server Instance Information') }}"><i class="fa fa-info"></i></a>
 						{% if session.logged_in %}
-							{% if not mod_inst.status %}
 							{% if uidperms.config %}
 							<a class="btn btn-xs btn-default" data-id="{{mod_inst.id}}" data-toggle="modal" data-target="#modal_instance_configuration"><i class="fa fa-pencil-square-o"></i> {{ _('Config') }}</a>
 							{% endif %}
+							{% if not mod_inst.status %}
 							{% if uidperms.start %}
 							<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.id}}">
 							    <a data-id="{{mod_inst.id}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
@@ -160,6 +161,13 @@
 		var $BABEL_STR_CANCEL = {{_("Cancel")|tojson|safe}};
 		var $BABEL_STR_REMOVE_MAP = {{_("Remove Map")|tojson|safe}};
 		var $BABEL_STR_SENDING = {{_("Sending...")|tojson|safe}};
+		var $BABEL_STR_TITLE_SERVER_ONLINE_CONFIG = {{_("SERVER ONLINE")|tojson|safe}};
+		var $BABEL_STR_SERVER_ONLINE_CONFIG = {{_("Attetion: Server Online. The new configuration will not take effect until you restart the server.")|tojson|safe}};
+		var $BABEL_STR_RESTART = {{_("Restart")|tojson|safe}};
+		var $BABEL_STR_AUTOLAUNCH = {{_("Auto-Launch")|tojson|safe}};
+		var $BABEL_STR_NOT_AUTOLAUNCH = {{_("Not Auto-Launch")|tojson|safe}};
 	</script>
-	<script type="text/javascript" src="{{ url_for('static', filename='js/servers.js') }}"></script>
+	{% assets filters='jsmin', output='gen/packed_page.js', 'js/servers.js' %}
+   		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% endblock %}

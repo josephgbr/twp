@@ -30,7 +30,8 @@ from sqlalchemy import or_, func, desc, asc
 from werkzeug import secure_filename
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from flask.ext.babel import Babel, _
+from flask.ext.babel import Babel, _, format_datetime
+from flask.ext.assets import Environment, Bundle
 from flask_wtf.csrf import CsrfProtect
 from twpl import BannedList, BannerGenerator, forms
 from twpl.models import *
@@ -38,7 +39,7 @@ from twpl.configs import TWPConfig
 import logging
 logging.basicConfig()
 
-twp = Blueprint('twp', __name__)
+twp = Blueprint('twp', __name__, static_folder='static/')
 
 # Global
 BANLIST = BannedList()
@@ -52,6 +53,7 @@ def create_app(twpconf):
     app.register_blueprint(twp)
     db.init_app(app)
     babel = Babel(app)
+    assets = Environment(app)
     csrf = CsrfProtect(app)
     scheduler = APScheduler()
     scheduler.init_app(app)
@@ -190,7 +192,6 @@ def install_mod():
     if 'url' in request.form and not request.form['url'] == '':
         try:
             filename = secure_filename(twpl.download_mod_from_url(request.form['url'], current_app.config['UPLOAD_FOLDER']))
-            flash(_('Mod installed successfully'), 'info')
         except Exception as e:
             flash(_("Error: %%s") % str(e), 'danger')
     else:  
@@ -200,7 +201,7 @@ def install_mod():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             else:
-                flash(_('Error: Can\'t install selected mod package'), 'danger')
+                flash(_('Error: File type not allowed!'), 'danger')
         else:
             flash(_('Error: No file detected!'), 'danger')
             
@@ -371,7 +372,7 @@ def log(srvid, code, name):
                 flash(_('Logfile not exists!'), "danger")
             else:
                 dt = datetime.fromtimestamp(time.mktime(time.localtime(int(code, 16))))
-                logdate = dt.strftime("%d-%m-%Y %H:%M:%S")
+                logdate = format_datetime(dt)
                 netinfo = twpl.get_server_net_info("127.0.0.1", [srv])[0]['netinfo']
         else:
             flash(_('Server not found!'), "danger")
@@ -503,7 +504,7 @@ def get_chart_values(chart, srvid=None):
                 labels['topcountry'].append(value.country)
                 values['topcountry'].append(value.num)
             
-        return jsonify({'success':True, 'values':values, 'labels':labels})
+        return jsonify({'success':True, 'series':values, 'labels':labels})
     elif chart.lower() == 'machine':
         labels['players7d'] = list()
         values['players7d'] = list()
@@ -520,7 +521,7 @@ def get_chart_values(chart, srvid=None):
         for secc in allowed_dates:
             labels['players7d'].append(secc)
             values['players7d'].append(len(chart_data[secc]) if secc in chart_data else 0)
-        return jsonify({'success':True, 'values':values, 'labels':labels})
+        return jsonify({'success':True, 'series':values, 'labels':labels})
     return jsonify({'error':True, 'errormsg':_('Undefined Chart!')})
 
 
@@ -623,7 +624,7 @@ def create_permission_level():
     # Create permisson level
     perm_level = PermissionLevel(name=request.form['name'])
     db_add_and_commit(perm_level)
-    return jsonify({'perm':perm_level.to_dict()})
+    return jsonify({'success':True, 'perm':perm_level.to_dict()})
     
 @twp.route('/_remove_permission_level/<int:id>', methods=['POST'])
 def remove_permission_level(id):
@@ -878,7 +879,7 @@ def save_server_config(srvid):
                 cfgfile.close()
             except IOError as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            res = {'success':True, 'cfg':cfgbasic, 'id':srvid}
+            res = {'success':True, 'cfg':cfgbasic, 'id':srvid, 'status': srv.status, 'alaunch': alaunch}
             res.update(cfgbasic)
             db_create_server_staff_registry(srv.id, _('Modified the configuration'))
             return jsonify(res)
@@ -989,6 +990,8 @@ def start_server(srvid):
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
             
+            srv.launche_date = func.now()
+            db_add_and_commit(srv)
             db_create_server_staff_registry(srv.id, _('Start server'))
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
@@ -1011,6 +1014,15 @@ def stop_server(srvid):
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Can\'t found server pid')})
         else:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
+    return jsonify({'notauth':True})
+
+@twp.route('/_restart_server_instance/<int:srvid>', methods=['POST'])
+def restart_server(srvid):
+    user_perm = get_session_server_permission_level(srvid)
+    if user_perm.start and user_perm.stop:
+        stop_server(srvid)
+        start_server(srvid)
+        return jsonify({'success':True})
     return jsonify({'notauth':True})
 
 @twp.route('/_get_server_instances_online', methods=['POST'])
@@ -1061,7 +1073,7 @@ def get_current_server_instance_log(srvid, pdate=None):
                             type = 'warning'
                         elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                             type = 'success'
-                        logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
+                        logcontent.append({'date':format_datetime(dt),
                                            'section':section,
                                            'message':message,
                                            'type':type})
@@ -1101,7 +1113,7 @@ def get_selected_server_instance_log(srvid, code, name):
                         type = 'warning'
                     elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                         type = 'success'
-                    logcontent.append({'date':dt.strftime("%d-%m-%Y %H:%M:%S"),
+                    logcontent.append({'date':format_datetime(dt),
                                        'section':section,
                                        'message':message,
                                        'type':type})
@@ -1205,7 +1217,8 @@ def utility_processor():
                 get_mod_binaries=get_mod_binaries,
                 get_app_config=get_app_config,
                 get_uid_permission_level=get_session_server_permission_level,
-                SUPERUSER_ID=SUPERUSER_ID)
+                SUPERUSER_ID=SUPERUSER_ID,
+                format_datetime=format_datetime)
 
 
 # Jobs
@@ -1281,6 +1294,8 @@ def analyze_all_server_instances():
                                message=_('Server Offline'))
             db.session.add(nissue)
             # Open server
+            dbserver.launche_date = func.now()
+            db_add_and_commit(dbserver)
             start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
         
         db.session.commit()

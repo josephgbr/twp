@@ -33,7 +33,7 @@
 				{% if not user.id == SUPERUSER_ID %}
 				<tr id="user-{{user.id}}">
 					<td>{{user.username}}</td>
-					<td>{{user.create_date}}</td>
+					<td>{{ format_datetime(user.create_date) }}</td>
 					<td>{{user.last_login_date or _('Never')}}</td>
 					<td class='text-right'>
 						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
@@ -48,8 +48,8 @@
 				{% for user in users_token %}
 				<tr id="user-{{user.id}}">
 					<td><i>{{"%s '%s...'" % (_('User Slot'),user.token[:10])}}</i></td>
-					<td>{{user.create_date}}</td>
-					<td>{{user.last_login_date or _('Never')}}</td>
+					<td>{{ format_datetime(user.create_date) }}</td>
+					<td>{{ user.last_login_date and format_datetime(user.last_login_date) or _('Never')}}</td>
 					<td class='text-right'>
 						<a data-uid="{{user.id}}" class="btn btn-xs btn-success copy-link-user btn-clipboard" data-clipboard-text="http://{{request.host}}/user_reg/{{user.token}}">
 							<i class="fa fa-link"></i> {{ _('Copy Link') }}
@@ -168,7 +168,11 @@
 		var $BABEL_STR_PERMISSION_LEVEL = {{_("Permission Level")|tojson|safe}};
 		var $BABEL_STR_REMOVE_PERMISSION_LEVEL = {{_("Remove Permission Level")|tojson|safe}};
 		var $BABEL_STR_USER = {{_("User")|tojson|safe}};
+		var $BABEL_STR_NEVER = {{_("Never")|tojson|safe}};
+		var $BABEL_STR_COPY_LINK = {{_("Copy Link")|tojson|safe}};
 	</script>
-	<script type="text/javascript" src="{{ url_for('static', filename='lib/jssha-2.0.2/sha.js') }}"></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='js/settings.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='lib/jssha-2.0.2/sha.min.js') }}"></script>
+	{% assets filters='jsmin', output='gen/packed_page.js', 'js/settings.js' %}
+   		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% endblock %}

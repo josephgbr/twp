@@ -1,8 +1,8 @@
 "use strict";
 /*
  ********************************************************************************************
- **    TWP v0.1.0 - Teeworlds Web Panel
- **    Copyright (C) 2015  Alexandre Díaz
+ **    TWP v0.3.0 - Teeworlds Web Panel
+ **    Copyright (C) 2016  Alexandre Díaz
  **
  **    This program is free software: you can redistribute it and/or modify
  **    it under the terms of the GNU Affero General Public License as
@@ -164,7 +164,7 @@ $(function(){
 			    	}
 			    },
 			    main: {
-			    	label: "Cancel",
+			    	label: $BABEL_STR_CANCEL,
 			    	className: "btn-default"
 			    }
 			}
@@ -222,6 +222,8 @@ $(function(){
 				$('#btn-play-srv-'+srvid+' .start-instance').removeClass('disabled');
 			}
 		});
+		
+		return false;
 	});
 	
 	// Dialog Cofiguration can't close when click out
@@ -273,9 +275,10 @@ $(function(){
 	$(document).on("change", ".wizard-param", function() {
 		var $this = $(this);
 		var value = $this.val();
+		var defval = $this.data('default')==='undefined'?undefined:$this.data('default'); // TODO: Not use 'undefined'
 		if ($this.is("input") && "checkbox" === $this.prop("type"))
 			value = $this.prop('checked')?1:0;
-		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), value);
+		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), value, defval);
 	});
 	
 	// Select re-launch if offline
@@ -316,14 +319,44 @@ $(function(){
 				if (data['visible'] == 0)
 					$flags.find('.tw-no-register').addClass('fa-eye').removeClass('fa-eye-slash').css('color','#333').prop('title', $BABEL_STR_PRIVATE_SERVER);
 				else
-					$flags.find('.tw-no-register').addClass('fa-eye-slash').removeClass('fa-eye').css('color','#BBB').prop('title', $BABEL_STR_PUBLIC_SERVER);
+					$flags.find('.tw-no-register').addClass('fa-eye-slash text-muted').removeClass('fa-eye').css('color','#BBB').prop('title', $BABEL_STR_PUBLIC_SERVER);
 				
 				if (data['public'] == 0)
-					$flags.find('.tw-password').css('color','#333').prop('title', $BABEL_STR_REGISTER_SERVER);
+					$flags.find('.tw-password').removeClass('text-muted').prop('title', $BABEL_STR_REGISTER_SERVER);
 				else
-					$flags.find('.tw-password').css('color','#BBB').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
+					$flags.find('.tw-password').addClass('text-muted').prop('title', $BABEL_STR_NOT_REGISTER_SERVER);
+				
+				if (data['alaunch'] == 0)
+					$flags.find('.tw-alaunch').addClass('text-muted').prop('title', $BABEL_STR_AUTOLAUNCH);
+				else
+					$flags.find('.tw-alaunch').removeClass('text-muted').prop('title', $BABEL_STR_NOT_AUTOLAUNCH);
 				
 				$('#modal_instance_configuration').modal('hide');
+				
+				if (data['status'])
+				{
+					bootbox.dialog({
+						message: $BABEL_STR_SERVER_ONLINE_CONFIG,
+						title: $BABEL_STR_TITLE_SERVER_ONLINE_CONFIG,
+						buttons: {
+						    success: {
+						    	label: $BABEL_STR_RESTART,
+						    	className: "btn-danger",
+						    	callback: function() {
+						    		$.post($SCRIPT_ROOT + '/_restart_server_instance/'+data['id'], '', function(data) {
+						    			check_server_data(data);
+						    			if (data['success'])
+						    				window.location.href = '/servers';
+						    		});
+						    	}
+						    },
+						    main: {
+						    	label: $BABEL_STR_OK,
+						    	className: "btn-default"
+						    }
+						}
+					});
+				}
 			}
 		});
 	});
@@ -460,26 +493,27 @@ function generate_wizard($wizard, srvid)
 			$.each(mcfg, function(section, variables){		  	
 				html += "<div class='tab-pane' id='"+section.replace(" ","_")+"' style='overflow:auto; height:220px;'>";
 				$.each(variables, function(key, val){
+					var defval = val.default;
 					var rval = get_config_value_textarea($("#modal_instance_configuration #srvcfg"), key);
 					if (!rval)
-						rval = val.default;
+						rval = defval;
 					
 					if ("select" === val.type)
 					{					
 						html += "<label for='"+key+"'>"+val.label+"</label>";
-						html += "<select id='"+key+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
+						html += "<select id='"+key+"' data-default='"+defval+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
 						for (var i in val.values)
 							html += "<option value='"+val.values[i]+"' "+(val.values[i]==rval?'selected':'')+">"+val.values[i]+"</option>";
 						html += "</select>";
 					}
 					else if ("checkbox" === val.type)
 					{
-						html += "<input class='wizard-param' id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1==rval?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
+						html += "<input class='wizard-param' data-default='"+defval+"' id='"+key+"' type="+val.type+" title='"+(val.tooltip?val.tooltip:'')+"' "+(1==rval?'checked':'')+"/> <span style='font-weight:bold'>"+val.label+"</span><br/>";
 					}
 					else
 					{
 						html += "<label for='"+key+"'>"+val.label+"</label>";
-						html += "<input id='"+key+"' type="+val.type+" value='"+(rval?rval:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"' />";
+						html += "<input id='"+key+"' data-default='"+defval+"' type="+val.type+" value='"+(rval?rval:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"' />";
 					}
 				});
 				html += "</div>";

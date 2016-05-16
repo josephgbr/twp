@@ -1,8 +1,8 @@
 "use strict";
 /*
  ********************************************************************************************
- **    TWP v0.1.0 - Teeworlds Web Panel
- **    Copyright (C) 2015  Alexandre Díaz
+ **    TWP v0.3.0 - Teeworlds Web Panel
+ **    Copyright (C) 2016  Alexandre Díaz
  **
  **    This program is free software: you can redistribute it and/or modify
  **    it under the terms of the GNU Affero General Public License as
@@ -107,26 +107,10 @@ $(function() {
 	window.setInterval('refresh()', $REFRESH_TIME);
 	
 	$.post($SCRIPT_ROOT + '/_get_chart_values/machine', '', function(data) {
-		if (!data['labels'] || !data['values'])
+		if (!data['labels'] || !data['series'])
 			return;
 		
 		// Players last 7days
-		var chartData = [];
-		for (var i in data['labels']['players7d'])
-		{
-			chartData.push({
-				a: data['values']['players7d'][i],
-				x: data['labels']['players7d'][i]
-			});
-		}
-		Morris.Line({
-			  element: 'chart-machine-players7d',
-			  data: chartData,
-			  xkey: 'x',
-			  ykeys: ['a'],
-			  labels: [$BABEL_STR_PLAYERS],
-			  resize: true,
-			  dateFormat: function (x) { return moment(x).format("DD/MM/YYYY"); }
-		});
+		createAnimatedChartLine('#chart-machine-players7d', data, 'players7d');
 	});
 });
