@@ -506,7 +506,7 @@ function generate_wizard($wizard, srvid)
 					if ("select" === val.type)
 					{					
 						html += "<label for='"+key+"'>"+val.label+"</label>";
-						html += "<select id='"+key+"' data-default='"+defval+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
+						html += "<select id='"+key+"' name='"+key+"' data-default='"+defval+"' class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"'>";
 						for (var i in val.values)
 							html += "<option value='"+val.values[i]+"' "+(val.values[i]==rval?'selected':'')+">"+val.values[i]+"</option>";
 						html += "</select>";
@@ -518,7 +518,7 @@ function generate_wizard($wizard, srvid)
 					else
 					{
 						html += "<label for='"+key+"'>"+val.label+"</label>";
-						html += "<input id='"+key+"' data-default='"+defval+"' type="+val.type+" value='"+(rval?rval:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"' />";
+						html += "<input id='"+key+"' name='"+key+"' data-default='"+defval+"' type="+val.type+" value='"+(rval?rval:'')+"' "+(val.range?"min='"+val.range[0]+"' max='"+val.range[1]+"'":'')+" class='form-control wizard-param' title='"+(val.tooltip?val.tooltip:'')+"' />";
 					}
 				});
 				html += "</div>";

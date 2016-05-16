@@ -12,35 +12,35 @@
 	<div class="col-md-4">
 		<label for="color-title">{{_('Server Name Color')}}:</label>
 		<div class="input-group colorpicker-input" id="color-title">
-		    <input type="text" value="rgb(34, 33, 60)" class="form-control" />
+		    <input type="text" value="rgb(34, 33, 60)" class="form-control" name="color-title"/>
 		    <span class="input-group-addon"><i></i></span>
 		</div>
 	</div>
 	<div class="col-md-4">
 		<label for="color-detail">{{_('Detail Color')}}:</label>
 		<div class="input-group colorpicker-input" id="color-detail">
-		    <input type="text" value="rgb(0, 0, 0)" class="form-control" />
+		    <input type="text" value="rgb(0, 0, 0)" class="form-control" name="color-detail"/>
 		    <span class="input-group-addon"><i></i></span>
 		</div>
 	</div>
 	<div class="col-md-4">
 		<label for="color-address">{{_('Address Color')}}:</label>
 		<div class="input-group colorpicker-input" id="color-address">
-		    <input type="text" value="rgb(1, 65, 103)" class="form-control" />
+		    <input type="text" value="rgb(1, 65, 103)" class="form-control" name="color-address" />
 		    <span class="input-group-addon"><i></i></span>
 		</div>
 	</div>
 	<div class="col-md-6">
 		<label for="color-grad-start">{{_('Gradient Start')}}:</label>
 		<div class="input-group colorpicker-input" id="color-grad-start">
-		    <input type="text" value="rgb(214, 213, 213)" class="form-control" />
+		    <input type="text" value="rgb(214, 213, 213)" class="form-control" name="color-grad-start" />
 		    <span class="input-group-addon"><i></i></span>
 		</div>
 	</div>
 	<div class="col-md-6">
 		<label for="color-grad-end">{{_('Gradient End')}}:</label>
 		<div class="input-group colorpicker-input" id="color-grad-end">
-		    <input type="text" value="rgb(166, 165, 165)" class="form-control" />
+		    <input type="text" value="rgb(166, 165, 165)" class="form-control" name="color-grad-end" />
 		    <span class="input-group-addon"><i></i></span>
 		</div>
 	</div>
@@ -49,9 +49,9 @@
 		<button type="button" id="generate-banner" class="btn btn-primary">{{_('Generate')}}</button>
 	</div>
 
-	<label for="preview">{{_('Preview')}}:</label>
+	<label for="server-banner">{{_('Preview')}}:</label>
 	<div id="preview" style="overflow:auto; padding:0.5em;">
-		<img src="{{'/server/%d/banner' % server.id}}" id="server-banner" />
+		<img alt="{{_('Server Banner')}}" src="{{'/server/%d/banner' % server.id}}" id="server-banner" name="server-banner" />
 	</div>
 	<label style="margin-top:0.5em" for="code">{{_('Share URL')}}:</label>
 	<input type="text" id="share-url" class="form-control" readonly />
