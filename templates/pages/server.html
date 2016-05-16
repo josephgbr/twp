@@ -15,7 +15,7 @@
 </ol>
 
 <div class="text-right">
-	<i class="fa fa-picture-o"></i> <a data-toggle="modal" data-target="#modal_create_banner" href="#">{{_('Create Banner')}}</a>
+	<button type="button" class="btn btn-link" data-toggle="modal" data-target="#modal_create_banner"><i class="fa fa-picture-o" style="margin-right:0.3em;"></i>{{_('Create Banner')}}</button>
 </div>
 
 <div class="page-header">
@@ -35,57 +35,57 @@
   	<div class="tab-pane active" id="general">
   		{% if session.logged_in and uidperms.issues %}
    		<div class="col-md-12">
-  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><a data-toggle="modal" id="issues_count" data-target="#modal_instance_issues" href="#">0</a></ins>
+  			<strong><i class="fa fa-exclamation"></i> {{ _('Issues') }}</strong> <ins><button type="button" class="btn btn-link" data-toggle="modal" id="issues_count" data-target="#modal_instance_issues">0</button></ins>
   		</div>
   		{% endif %}
   	
-  		<div class="col-md-2 col-xs-6" id="server-status">
-  			<div class="pill-server panel panel-default" style="background-color:{% if is_online %}#438D43{% else %}#B05454{% endif %};">
+  		<div class="col-md-2 col-xs-12" id="server-status">
+  			<div class="pill-server panel panel-default" style="background-color:{{ is_online and '#438D43' or '#B05454' }};">
   				<i class="fa fa-power-off fa-4x"></i>
   				<span>{{_('Status')}}</span>
-  				<b style="color:{% if is_online %}#C5E0C5{% else %}#FFE0E0{% endif %};">{% if is_online %}{{_('Online')}}{% else %}{{_('Offline')}}{% endif %}</b>
+  				<b style="color:{{ is_online and '#C5E0C5' or '#FFE0E0' }};">{{ is_online and _('Online') or _('Offline') }}</b>
   			</div>
   		</div>
-  		<div class="col-md-2 col-xs-6" id="server-address">
+  		<div class="col-md-2 col-xs-12" id="server-address">
   			<div class="pill-server panel panel-default" style="background-color:#719696;">
   				<i class="fa fa-server fa-4x"></i>
   				<span>{{_('Address')}}</span>
 	  			<b>{{ip}}:{{server.port}}</b>
 	  		</div>
   		</div>
-  		<div class="col-md-2 col-xs-4" id="server-gametype">
+  		<div class="col-md-2 col-xs-12" id="server-gametype">
   			<div class="pill-server panel panel-default" style="background-color:#B07E54;">
   				<i class="fa fa-puzzle-piece fa-4x"></i>
   				<span>{{_('Game Type')}}</span>
-	  			<b>{% if netinfo.gametype %}{{netinfo.gametype}}{% else %}{{server.gametype}}{% endif %}</b>
+	  			<b>{{ netinfo.gametype or server.gametype }}</b>
 	  		</div>
   		</div>
-  		<div class="col-md-2 col-xs-4" id="server-map">
+  		<div class="col-md-2 col-xs-12" id="server-map">
   			<div class="pill-server panel panel-default" style="background-color:#915D31;">
   				<i class="fa fa-map fa-4x"></i>
   				<span>{{_('Map')}}</span>
-	  			<b>{% if is_online %}{{netinfo.map}}{% else %}. . .{% endif %}</b>
+	  			<b>{{ is_online and netinfo.map or '. . .' }}</b>
 	  		</div>
   		</div>
-   		<div class="col-md-2 col-xs-4" id="server-players">
+   		<div class="col-md-2 col-xs-12" id="server-players">
    			<div class="pill-server panel panel-default" style="background-color:#326A6A;">
    				<i class="fa fa-group fa-4x"></i>
    				<span>{{_('Players')}}</span>
-  				<b>{% if is_online %}{{'%d/%d' % (netinfo.players,netinfo.max_players)}}{% else %}. . .{% endif %}</b>
+  				<b>{{ is_online and '%d/%d' % (netinfo.players,netinfo.max_players) or '. . .' }}</b>
   			</div>
   		</div>
-  		<div class="col-md-1 col-xs-6" id="server-visible">
+  		<div class="col-md-1 col-xs-12" id="server-visible">
   			<div class="pill-server panel panel-default" style="background-color:#9775AA;">
   				<i class="fa fa-eye fa-3x"></i>
   				<span>{{_('Visible')}}</span>
-	  			<b>{% if server.visible %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</b>
+	  			<b>{{ server.visible and _('Yes') or _('No') }}</b>
 	  		</div>
   		</div>
-  		<div class="col-md-1 col-xs-6" id="server-visible">
+  		<div class="col-md-1 col-xs-12" id="server-visible">
   			<div class="pill-server panel panel-default" style="background-color:#764B8E;">
   				<i class="fa fa-lock fa-3x"></i>
   				<span>{{_('Public')}}</span>
-	  			<b>{% if server.public %}{{ _('No') }}{% else %}{{ _('Yes') }}{% endif %}</b>
+	  			<b>{{ server.public and _('Yes') or _('No') }}</b>
 	  		</div>
   		</div>
   		
@@ -100,7 +100,7 @@
 			</div>
 		</div>
 
-		<div class="col-md-6 col-xs-6">
+		<div class="col-md-6 col-xs-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					{{ _('Top 5 - Clans') }}
@@ -110,7 +110,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6 col-xs-6">
+		<div class="col-md-6 col-xs-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					{{ _('Top 5 - Countries') }}

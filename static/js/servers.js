@@ -466,7 +466,7 @@ function refresh_server_maps_list(srvid)
 	    		 row += "<td><input type='checkbox' name='map_used' class='check_map' data-map='"+data['maps'][i].name+"' "+(mapSelected?'checked':'')+"/></td>";
 	    		 row += "<td>"+data['maps'][i].name+"</td>";
 	    		 row += "<td>"+data['maps'][i].size+"</td>";
-	    		 row += "<td class='text-right'><a class='remove-map btn btn-xs' data-map='"+data['maps'][i].name+"' href='#' title='"+$BABEL_STR_REMOVE_MAP+"'><i class='fa fa-remove'></i></a></td>";
+	    		 row += "<td class='text-right'><button type='button' class='remove-map btn btn-link btn-xs btn-delete-row' data-map='"+data['maps'][i].name+"' title='"+$BABEL_STR_REMOVE_MAP+"'><i class='fa fa-remove'></i></button></td>";
 	    		 row += "</tr>";
 	    		 $("#maplist").append(row);
 	    	 }

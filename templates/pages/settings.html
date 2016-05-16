@@ -37,10 +37,10 @@
 					<td>{{ format_datetime(user.create_date) }}</td>
 					<td>{{user.last_login_date or _('Never')}}</td>
 					<td class='text-right'>
-						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
+						<button type="button" data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
 							<i class="fa fa-cog"></i> {{ _('Permissions') }}
-						</a>
-						<a class="remove-user btn btn-xs btn-delete-row" data-uid="{{user.id}}" href="#" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></a>
+						</button>
+						<button type="button" class="remove-user btn btn-link btn-xs btn-delete-row" data-uid="{{user.id}}" title="{{ _('Remove User') }}"><i class="fa fa-remove"></i></button>
 					</td>
 				</tr>
 				{% endif %}
@@ -52,13 +52,13 @@
 					<td>{{ format_datetime(user.create_date) }}</td>
 					<td>{{ user.last_login_date and format_datetime(user.last_login_date) or _('Never')}}</td>
 					<td class='text-right'>
-						<a data-uid="{{user.id}}" class="btn btn-xs btn-success copy-link-user btn-clipboard" data-clipboard-text="http://{{request.host}}/user_reg/{{user.token}}">
+						<button type="button" data-uid="{{user.id}}" class="btn btn-xs btn-success copy-link-user btn-clipboard" data-clipboard-text="http://{{request.host}}/user_reg/{{user.token}}">
 							<i class="fa fa-link"></i> {{ _('Copy Link') }}
-						</a>
-						<a data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
+						</button>
+						<button type="button" data-uid="{{user.id}}" class="btn btn-xs btn-default" data-toggle="modal" data-target="#modal_user_permissions">
 							<i class="fa fa-cog"></i> {{ _('Permissions') }}
-						</a>
-						<a class="remove-user btn btn-xs btn-delete-row" data-uid="{{user.id}}" href="#" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></a>
+						</button>
+						<button type="button" class="remove-user btn btn-link btn-xs btn-delete-row" data-uid="{{user.id}}" title="{{ _('Cancel User Slot') }}"><i class="fa fa-remove"></i></button>
 					</td>
 				</tr>
 				{% endfor %}
@@ -94,14 +94,14 @@
 				{% for perm in permission_levels %}
 				<tr id="permission-{{perm.id}}">
 					<td>{{perm.name}}</td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='start' class="btn btn-xs btn-perm" style="color:{{perm.start and '#008000' or '#800000'}};"><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></a></td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='stop' class="btn btn-xs btn-perm" style="color:{{perm.stop and '#008000' or '#800000'}};"><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></a></td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='config' class="btn btn-xs btn-perm" style="color:{{perm.config and '#008000' or '#800000'}};"><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></a></td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='econ' class="btn btn-xs btn-perm" style="color:{{perm.econ and '#008000' or '#800000'}};"><i class="fa {{perm.econ and 'fa-check' or 'fa-minus'}}"></i></a></td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='issues' class="btn btn-xs btn-perm" style="color:{{perm.issues and '#008000' or '#800000'}};"><i class="fa {{perm.issues and 'fa-check' or 'fa-minus'}}"></i></a></td>
-					<td class='text-center'><a data-id='{{perm.id}}' data-perm='log' class="btn btn-xs btn-perm" style="color:{{perm.log and '#008000' or '#800000'}};"><i class="fa {{perm.log and 'fa-check' or 'fa-minus'}}"></i></a></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='start' class="btn btn-link btn-xs btn-perm" style="color:{{perm.start and '#008000' or '#800000'}};"><i class="fa {{perm.start and 'fa-check' or 'fa-minus'}}"></i></button></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='stop' class="btn btn-link btn-xs btn-perm" style="color:{{perm.stop and '#008000' or '#800000'}};"><i class="fa {{perm.stop and 'fa-check' or 'fa-minus'}}"></i></button></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='config' class="btn btn-link btn-xs btn-perm" style="color:{{perm.config and '#008000' or '#800000'}};"><i class="fa {{perm.config and 'fa-check' or 'fa-minus'}}"></i></button></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='econ' class="btn btn-link btn-xs btn-perm" style="color:{{perm.econ and '#008000' or '#800000'}};"><i class="fa {{perm.econ and 'fa-check' or 'fa-minus'}}"></i></button></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='issues' class="btn btn-link btn-xs btn-perm" style="color:{{perm.issues and '#008000' or '#800000'}};"><i class="fa {{perm.issues and 'fa-check' or 'fa-minus'}}"></i></button></td>
+					<td class='text-center'><button type="button" data-id='{{perm.id}}' data-perm='log' class="btn btn-link btn-xs btn-perm" style="color:{{perm.log and '#008000' or '#800000'}};"><i class="fa {{perm.log and 'fa-check' or 'fa-minus'}}"></i></button></td>
 					<td class='text-right'>
-						<a class="remove-permission-level btn btn-xs btn-delete-row" data-id="{{perm.id}}" href="#" title="{{ _('Remove Permission Level') }}"><i class="fa fa-remove"></i></a>
+						<button type="button" class="remove-permission-level btn btn-link btn-xs btn-delete-row" data-id="{{perm.id}}" title="{{ _('Remove Permission Level') }}"><i class="fa fa-remove"></i></button>
 					</td>
 				</tr>
 				{% endfor %}
@@ -145,7 +145,7 @@
 				</div>
 				<div class="form-group">
 					<div class="col-md-12 text-right" style="margin-top:0.5em;">
-						<a id="btn-submit" href="#" class="btn btn-danger">{{ _('Change') }}</a>
+						<button type="button" id="btn-submit" class="btn btn-danger">{{ _('Change') }}</button>
 					</div>
 				</div>
 			</form>

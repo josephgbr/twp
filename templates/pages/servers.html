@@ -9,9 +9,9 @@
 	<form action="{{ url_for('twp.install_mod') }}" method="POST" enctype="multipart/form-data" id="install-mod">
 		{{ install_mod_form.hidden_tag() }}
 		<div class="dropdown">
-			<a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" id="install-mod-button">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="install-mod-button">
 				<i class="fa fa-puzzle-piece"></i> {{ _('Install Mod') }} <span class="caret"></span>
-			</a>
+			</button>
 		    <ul class="dropdown-menu">
 		    	<li>
 		    		<a href="#" id='install-mod-url'><i class="fa fa-fw fa-external-link-square"></i> {{ install_mod_form.url.label }}</a>
@@ -35,8 +35,8 @@
 		{{srv}}
 		{% if session.logged_in and session.uid == SUPERUSER_ID %}
 		<span class="pull-right">
-			<a class="btn btn-xs btn-info" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</a>
-			<a class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></a>
+			<button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-mod="{{srv}}" data-target="#modal_new_server"><i class="fa fa-plus-circle"></i> {{ _('Create Instance') }}</button>
+			<button type="button" class="btn btn-xs btn-default remove-mod" data-mod="{{srv}}" title="{{ _('Remove Mod') }}"><i class="fa fa-trash"></i></button>
 		</span>
 		{% endif %}
 	</div>
@@ -77,12 +77,12 @@
 						{% if not mod_inst.status %}
 						{% if uidperms.start %}
 						<div class="dropdown btn-group" id="btn-play-srv-{{mod_inst.id}}">
-						    <a data-id="{{mod_inst.id}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
+						    <button type="button" data-id="{{mod_inst.id}}" class="start-instance btn btn-xs btn-success {% if mod_inst.bin == None %}disabled{% endif %}">
 						        <i class="fa fa-play"></i> {{ _('Start') }}
-						    </a>
-						    <a class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown" href="#">
+						    </button>
+						    <button type="button" class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown">
 						        <span class="caret"></span>
-						    </a>
+						    </button>
 						    <ul class="dropdown-menu" data-id="{{mod_inst.id}}">
 						    	{% if not server_bins == None %}
 						    		{% for bin in server_bins %}
@@ -96,7 +96,7 @@
 						</div>
 						{% endif %}
 						{% if session.uid == SUPERUSER_ID %}
-						<a class="remove-server-instance btn btn-xs btn-delete-row" data-mod="{{srv}}" data-id="{{mod_inst.id}}" href="#" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></a>
+						<button type="button" class="remove-server-instance btn btn-link btn-xs btn-delete-row" data-mod="{{srv}}" data-id="{{mod_inst.id}}" title="{{ _('Remove Server Instance') }}"><i class="fa fa-remove"></i></button>
 						{% endif %}
 						{% elif mod_inst.status %}
 							{% if uidperms.econ and mod_inst.econ_port and mod_inst.econ_password %}

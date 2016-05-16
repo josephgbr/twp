@@ -93,19 +93,17 @@ $(function(){
 							"<td>"+createDate+"</td>"+
 							"<td>"+$BABEL_STR_NEVER+"</td>"+
 							"<td class='text-right'>"+
-							"<a data-uid='"+data['user']['id']+"' class='btn btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
+							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-link btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
 							"<i class='fa fa-link'></i> "+$BABEL_STR_COPY_LINK+
-							"</a> "+
-							"<a data-uid='"+data['user']['id']+"' class='btn btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
+							"</button> "+
+							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-link btn-xs btn-default' data-toggle='modal' data-target='#modal_user_permissions'>"+
 							"<i class='fa fa-cog'></i> Permissions"+
-							"</a> "+
-							"<a class='remove-user btn btn-xs btn-delete-row' data-uid='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></a>"+
+							"</button> "+
+							"<button type='button' class='remove-user btn btn-link btn-xs btn-delete-row' data-uid='"+data['user']['id']+"' href='#' title='Cancel User Slot'><i class='fa fa-remove'></i></button>"+
 							"</td>";
 				$('#tbody-users').append(row);
 			}
 		});
-		
-		return false;
 	});
 	
 	// Open Dialog Create Permission Level
@@ -123,14 +121,14 @@ $(function(){
 			{
 				var row = "<tr id='permission-"+data['perm']['id']+"'>"+
 							"<td>"+data['perm']['name']+"</td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='start' class='btn btn-xs btn-perm' style='color:"+(data['perm']['start']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['start']?'fa-check':'fa-minus')+"'></i></a></td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='stop' class='btn btn-xs btn-perm' style='color:"+(data['perm']['stop']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['stop']?'fa-check success':'fa-minus')+"'></i></a></td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='config' class='btn btn-xs btn-perm' style='color:"+(data['perm']['config']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['config']?'fa-check success':'fa-minus')+"'></i></a></td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='econ' class='btn btn-xs btn-perm' style='color:"+(data['perm']['econ']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['econ']?'fa-check success':'fa-minus')+"'></i></a></td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='issues' class='btn btn-xs btn-perm' style='color:"+(data['perm']['issues']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['issues']?'fa-check success':'fa-minus')+"'></i></a></td>"+
-							"<td class='text-center'><a data-id='"+data['perm']['id']+"' data-perm='log' class='btn btn-xs btn-perm' style='color:"+(data['perm']['log']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['log']?'fa-check success':'fa-minus')+"'></i></a></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='start' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['start']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['start']?'fa-check':'fa-minus')+"'></i></button></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='stop' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['stop']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['stop']?'fa-check success':'fa-minus')+"'></i></button></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='config' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['config']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['config']?'fa-check success':'fa-minus')+"'></i></button></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='econ' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['econ']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['econ']?'fa-check success':'fa-minus')+"'></i></button></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='issues' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['issues']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['issues']?'fa-check success':'fa-minus')+"'></i></button></td>"+
+							"<td class='text-center'><button type='button' data-id='"+data['perm']['id']+"' data-perm='log' class='btn btn-link btn-xs btn-perm' style='color:"+(data['perm']['log']?'#008000':'#800000')+"'><i class='fa "+(data['perm']['log']?'fa-check success':'fa-minus')+"'></i></button></td>"+
 							"<td class='text-right'>"+
-							"<a class='remove-permission-level btn btn-xs btn-delete-row' data-id='"+data['perm']['id']+"' href='#' title='"+$BABEL_STR_REMOVE_PERMISSION_LEVEL+"'><i class='fa fa-remove'></i></a>"+
+							"<button type='button' class='remove-permission-level btn btn-link btn-xs btn-delete-row' data-id='"+data['perm']['id']+"' href='#' title='"+$BABEL_STR_REMOVE_PERMISSION_LEVEL+"'><i class='fa fa-remove'></i></button>"+
 							"</td>"+
 							"</tr>";
 				$('#tbody-permission-levels').append(row);
@@ -154,8 +152,6 @@ $(function(){
 			if (!data['success'])
 				toggle_perm_icon($this.children('i'));
 		});
-		
-		return false;
 	});
 	
 	// Remove Permission Level
@@ -187,8 +183,6 @@ $(function(){
 			    }
 			}
 		});
-		
-		return false;
 	});
 	
 	// Remove User
@@ -217,8 +211,6 @@ $(function(){
 			    }
 			}
 		});
-		
-		return false;
 	});
 	
 	// Open Dialog User Permissions
