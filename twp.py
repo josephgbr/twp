@@ -806,7 +806,7 @@ def create_server_instance(mod_folder):
                              port=str(fport),
                              name=cfgbasic['name'],
                              gametype=cfgbasic['gametype'],
-                             visible=True if cfgbasic['register'] and cfgbasic['register'] == 1 else False,
+                             visible=False if cfgbasic['register'] and cfgbasic['register'] == '0' else True,
                              public=False if cfgbasic['password'] else True,
                              logfile=cfgbasic['logfile'],
                              econ_port=cfgbasic['econ_port'],
@@ -875,7 +875,7 @@ def save_server_config(srvid):
             srv.port = cfgbasic['port']
             srv.name = cfgbasic['name']
             srv.gametype = cfgbasic['gametype']
-            srv.visible = True if cfgbasic['register'] and cfgbasic['register'] == 1 else False
+            srv.visible = False if cfgbasic['register'] and cfgbasic['register'] == '0' else True
             srv.public = False if cfgbasic['password'] else True
             srv.logfile = cfgbasic['logfile']
             srv.econ_port = cfgbasic['econ_port']

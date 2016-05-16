@@ -218,7 +218,7 @@ def parse_data_config_basics(data):
     for line in content:
         objMatch = re.match("^([^#\s]+)\s([^#\r\n]+)", line)
         if objMatch:
-            (varname,value) = [objMatch.group(1),objMatch.group(2)]
+            (varname,value) = [objMatch.group(1).lower(),objMatch.group(2)]
             if varname == 'sv_name':
                 cfgbasic['name'] = value
             elif varname == 'sv_port':
@@ -226,7 +226,7 @@ def parse_data_config_basics(data):
             elif varname == 'sv_gametype':
                 cfgbasic['gametype'] = value
             elif varname == 'sv_register':
-                cfgbasic['register'] = 1
+                cfgbasic['register'] = value
             elif varname == 'password':
                 cfgbasic['password'] = value
             elif varname == 'logfile':
