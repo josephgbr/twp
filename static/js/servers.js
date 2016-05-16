@@ -104,7 +104,7 @@ $(function(){
 	});
 	
 	// Open Dialog Create New Server Instance
-	$(document).on("click", "a[data-target='#modal_new_server']", function() {
+	$(document).on("click", "button[data-target='#modal_new_server']", function() {
 	     var mod = $(this).data('mod');
 	     $('#modal_new_server #mod').val(mod);
 	     var $cfglist = $('#modal_new_server #configs');
@@ -172,7 +172,7 @@ $(function(){
 	});
 	
 	// Open ECon Modal
-	$(document).on("click", "a[data-target='#modal_external_console']", function() {
+	$(document).on("click", "button[data-target='#modal_external_console']", function() {
 		var srvid = $(this).data('id');
 		$("#modal_external_console #srvid").val(srvid);
 		$("#modal_external_console #econ-log").val('');
@@ -230,7 +230,7 @@ $(function(){
 	$('#modal_instance_configuration').modal({'backdrop':'static', 'show':false});
 	
 	// Open Dialog Server Instance Configuration
-	$(document).on("click", "a[data-target='#modal_instance_configuration']", function() {
+	$(document).on("click", "button[data-target='#modal_instance_configuration']", function() {
 	     var srvid = $(this).data('id');
 	     $('#form-server-config #srvid').val(srvid);
 	     $('#modal_instance_configuration .btn-success').css('visibility','hidden');
@@ -376,7 +376,7 @@ $(function(){
 		
 		$this.addClass('disabled btn-warning').removeClass('btn-success');
 		$btnlist.addClass('disabled btn-warning').removeClass('btn-success');
-		$listline.find("a[data-target='#modal_instance_configuration']").addClass('disabled hidden');
+		$listline.find("button[data-target='#modal_instance_configuration']").addClass('disabled hidden');
 		$listline.find(".remove-server-instance").addClass('disabled');
 		$this.html("<i class='fa fa-spinner fa-spin'></i> "+$BABEL_STR_STARTING);
 		
@@ -385,7 +385,7 @@ $(function(){
 			{
 				$this.removeClass('disabled btn-warning').addClass('btn-success');
 				$btnlist.removeClass('disabled btn-warning').addClass('btn-success');
-				$listline.find("a[data-target='#modal_instance_configuration']").removeClass('disabled hidden');
+				$listline.find("button[data-target='#modal_instance_configuration']").removeClass('disabled hidden');
 				$listline.find(".remove-server-instance").removeClass('disabled');
 				$this.html("<i class='fa fa-play'></i> "+$BABEL_STR_START);
 			}

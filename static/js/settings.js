@@ -107,7 +107,7 @@ $(function(){
 	});
 	
 	// Open Dialog Create Permission Level
-	$(document).on("click", "a[data-target='#modal_create_permission_level']", function(){
+	$(document).on("click", "button[data-target='#modal_create_permission_level']", function(){
 		$('#form-create-permission-level #name').val('');
 		$("#form-create-permission-level input[type='checkbox']").each(function(){ $(this).prop('checked', false); });
 	});
@@ -214,7 +214,7 @@ $(function(){
 	});
 	
 	// Open Dialog User Permissions
-	$(document).on("click", "a[data-target='#modal_user_permissions']", function(){
+	$(document).on("click", "button[data-target='#modal_user_permissions']", function(){
 		var uid = $(this).data('uid');
 
 		$('#modal_user_permissions #uid').val(uid);
