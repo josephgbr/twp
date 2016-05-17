@@ -34,7 +34,7 @@
 			</span>
 		</h1>
 	{% else %}
-		{% include "includes/server_log.html" %}
+		{% include 'includes/server_log.html' %}
   	{% endif %}
   	</div>
 {% endif %}
@@ -48,6 +48,7 @@
 {% block script %}
 	{% if server %}
 	<script type="text/javascript">
+		"use strict";
 		var $SRVID = {{ server.id|tojson|safe }};
 		var $SRVLOGCODE = {{ logcode|tojson|safe }};
 		var $SRVLOGNAME = {{ logname|tojson|safe }};

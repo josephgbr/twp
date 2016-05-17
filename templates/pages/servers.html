@@ -132,14 +132,15 @@
 {% endif %}
 
 {% if session.logged_in %}
-	{% include "includes/modal_new_server.html" %}
-	{% include "includes/modal_instance_configuration.html" %}
-	{% include "includes/modal_external_console.html" %}
+	{% include 'includes/modal_new_server.html' %}
+	{% include 'includes/modal_instance_configuration.html' %}
+	{% include 'includes/modal_external_console.html' %}
 {% endif %}
 
 {% endblock %}
 {% block script %}
 	<script type="text/javascript">
+		"use strict";
 		var $BABEL_STR_INSTALLING = {{_("Installing")|tojson|safe}};
 		var $BABEL_STR_UPLOADING = {{_("Uploading")|tojson|safe}};
 		var $BABEL_STR_UNEXPECTED_ERROR = {{_("Unexpected error!")|tojson|safe}};

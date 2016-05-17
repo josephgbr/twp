@@ -48,6 +48,7 @@
 		</footer>
 
 		<script type="text/javascript">
+			"use strict";
 			var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 			var $REFRESH_TIME = {{ config['REFRESH_TIME']|tojson|safe }} * 1000;
 

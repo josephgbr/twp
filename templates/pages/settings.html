@@ -154,13 +154,14 @@
 </div>
 
 {% if session.logged_in and session.uid == SUPERUSER_ID %}
-	{% include "includes/modal_create_permission_level.html" %}
-	{% include "includes/modal_user_permissions.html" %}
+	{% include 'includes/modal_create_permission_level.html' %}
+	{% include 'includes/modal_user_permissions.html' %}
 {% endif %}
 
 {% endblock %}
 {% block script %}
 	<script type="text/javascript">
+		"use strict";
 		var $BABEL_STR_CANT_BE_EMPTY = {{_("Can't be empty")|tojson|safe}};
 		var $BABEL_STR_PASSWORD_DOESNT_MATCH = {{_("Passwords doesn't match!")|tojson|safe}};
 		var $BABEL_STR_PASSWORD_CHANGED_SUCCESSFULLY = {{_("Password changed successfully :)")|tojson|safe}};

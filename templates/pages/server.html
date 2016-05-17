@@ -217,17 +217,18 @@
 
 
 {% if session.logged_in and uidperms.issues %}
-	{% include "includes/modal_instance_issues.html" %}
+	{% include 'includes/modal_instance_issues.html' %}
 {% endif %}
 
-{% include "includes/modal_create_banner.html" %}
+{% include 'includes/modal_create_banner.html' %}
 
 {% endblock %}
 {% block script %}
 	{% if server %}
 	<script type="text/javascript">
+		"use strict";
 		var $SRVID = {{ server.id|tojson|safe }};
-		var $SRV_LAUNCH_DATE = {{server.launch_date|tojson|safe}}
+		var $SRV_LAUNCH_DATE = {{server.launch_date|tojson|safe}};
 		
 		var $BABEL_STR_PLAYERS = {{_("Players")|tojson|safe}};
 		var $BABEL_STR_UNKNOWN = {{_("Unknown")|tojson|safe}};
