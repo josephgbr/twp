@@ -145,6 +145,7 @@ class User(db.Model, JSONSERIALIZER):
     last_login_date = db.Column(db.DateTime)
     username = db.Column(db.String(12), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    timezone = db.Column(db.String(32))
     token = db.Column(db.String(128))
     
     perms = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("users"))

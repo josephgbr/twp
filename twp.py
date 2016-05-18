@@ -73,7 +73,10 @@ def create_app(twpconf):
     @babel.timezoneselector
     def get_timezone():
         try:
-            if 'timezone' in session:
+            sess_user = get_session_user()
+            if sess_user and sess_user.timezone:
+                tzstr = sess_user.timezone
+            elif 'timezone' in session:
                 tzstr = session.get('timezone')
             else:
                 tzstr = pytz.country_timezones[request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])][0]
@@ -247,6 +250,7 @@ def login():
                 session['uid'] = dbuser.id
                 session['last_activity'] = int(time.time())
                 session['username'] = dbuser.username
+                session.pop('timezone', None)
                 flash(_('You are logged in!'), 'success')
                 
                 dbuser.last_login_date = func.now()
@@ -274,6 +278,7 @@ def logout():
     session.pop('login_try', None)
     session.pop('last_login_try', None)
     session.pop('uid', None)
+    session.pop('timezone', None)
     flash(_('You are logged out!'), 'success')
     return redirect(url_for('twp.overview'))
 
@@ -1188,7 +1193,13 @@ def set_timezone():
     tzstr = request.form['tzstr'] if 'tzstr' in request.form else None
     if not tzstr:
         return jsonify({'error':True, 'errormsg':_('Invalid TimeZone!')})
-    session['timezone'] = tzstr
+    
+    sess_user = get_session_user()
+    if sess_user:
+        sess_user.timezone = tzstr
+        db_add_and_commit(sess_user)
+    else:
+        session['timezone'] = tzstr
     return jsonify({'success':True})
 
 
@@ -1212,7 +1223,12 @@ def check_session_admin():
     check_session()
     if not 'uid' in session or not session['uid'] == SUPERUSER_ID:
         abort(403)
-            
+
+def get_session_user():
+    if not 'logged_in' in session or not session['logged_in'] or not 'uid' in session:
+        return None
+    return User.query.get(session['uid'])
+    
 def get_session_server_permission_level(srvid):
     if not 'logged_in' in session or not session['logged_in']:
         return PermissionLevel()
