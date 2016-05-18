@@ -286,11 +286,6 @@ $(function(){
 		update_config_textarea($("#modal_instance_configuration #srvcfg"), $this.attr("id"), value, defval);
 	});
 	
-	// Select re-launch if offline
-	$(document).on("change", "#check_alsrv", function() {
-		$("#modal_instance_configuration #alsrv").val($(this).is(":checked"));
-	});
-	
 	// Select Tab
 	$("ul.nav-tabs > li > a").on("shown.bs.tab", function (e) {
         var id = $(e.target).attr("href").substr(1);
@@ -305,7 +300,7 @@ $(function(){
 	// Press "OK" button in Server Instance Configuration
 	$(document).on("click", "#modal_instance_configuration .btn-success", function() {
 		var $this = $(this);
-
+		$("#modal_instance_configuration #alsrv").val($("#check_alsrv").is(":checked"));
 		$.post($SCRIPT_ROOT + '/_save_server_config/'+$("#form-server-config #srvid").val(), $('#form-server-config').serialize(), function(data) {
 			check_server_data(data);
 			
