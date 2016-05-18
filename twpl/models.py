@@ -71,7 +71,7 @@ class Issue(db.Model, JSONSERIALIZER):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey("server_instance.id"), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=func.now())
-    message = db.Column(db.String(512))
+    message = db.Column(db.String(1024))
     
     server = db.relationship('ServerInstance', foreign_keys=server_id)
     

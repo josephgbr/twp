@@ -139,8 +139,8 @@ $(function(){
 
 function refresh_uptime()
 {
-	var a = moment(new Date($SRV_LAUNCH_DATE)).utc();
-	var dur = moment.duration(moment().utc().diff(a), 'milliseconds');
+	var srvStartTime = moment(new Date($SRV_LAUNCH_DATE)).utc();
+	var dur = moment.duration(moment().utc().diff(srvStartTime), 'milliseconds');
 	
 	var hstr = "";
 	if (dur.years() > 0) hstr += dur.years()+" "+$BABEL_STR_YEARS+", ";
@@ -165,7 +165,7 @@ function refresh_issues()
 			{
 				var row = data['issues'][i];
 				var html = "<tr>";
-				html += "<td class='col-md-4'>"+moment(new Date(row[0])).format("DD-MM-YYYY HH:mm")+"</td>";
+				html += "<td class='col-md-4'>"+row[0]+"</td>";
 				html += "<td class='col-md-8'>"+row[1]+"</td>";
 				html += "</tr>";
 				$('#modal_instance_issues #issues-list').append(html);

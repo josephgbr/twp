@@ -383,7 +383,6 @@ function createAnimatedChartLine(selector, data, chartType)
 		}
 	};
 	
-	// return moment(x).format("DD/MM/YYYY"); 
 	var chart = Chartist.Line(selector, chartData, chartConfig);
 	var seq = 0;
 	chart.on('created', function() { seq = 0; });

@@ -58,8 +58,10 @@ def create_app(twpconf):
     scheduler = APScheduler()
     scheduler.init_app(app)
     scheduler.start()
-    scheduler.add_job('analyze_all_server_instances', analyze_all_server_instances, 
-                  trigger={'second':30, 'type':'cron'}, replace_existing=True)
+    scheduler.add_job('analyze_all_server_instances', 
+                      analyze_all_server_instances, 
+                      trigger={'second':30, 'type':'cron'}, 
+                      replace_existing=True, args=(app,))
 
     # Check Servers path
     app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, 
@@ -722,7 +724,7 @@ def upload_maps(srvid):
                             return jsonify({'error':True, 'errormsg':str(e)})
                     elif not twpl.extract_maps_package(fullpath, download_folder, True):
                         return jsonify({'error':True, 'errormsg':_('Invalid map package')})
-                    db_create_server_staff_registry(srv.id, _("Uploaded new maps ({0})").format(filename))
+                    db_create_server_staff_registry(srv.id, "Uploaded new maps ({0})".format(filename))
                     return jsonify({'success':True})
                 else:
                     return jsonify({'error':True, 'errormsg':_('Error: Can\'t upload selected maps')})
@@ -743,7 +745,7 @@ def remove_map(srvid):
                 fullpath = r'%s/%s/data/maps/%s.map' % (current_app.config['SERVERS_BASEPATH'],srv.base_folder,map)
                 if os.path.isfile(fullpath):
                     os.unlink(fullpath)
-                    db_create_server_staff_registry(srv.id, _("Remove the map '{0}'").format(map))
+                    db_create_server_staff_registry(srv.id, "Removed the map '{0}'".format(map))
                     return jsonify({'success':True})
                 return jsonify({'error':True, 'errormsg':_('Error: Map not exists!')})
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
@@ -904,7 +906,7 @@ def save_server_config(srvid):
                 return jsonify({'error':True, 'errormsg':str(e)})
             res = {'success':True, 'cfg':cfgbasic, 'id':srvid, 'status': srv.status, 'alaunch': alaunch}
             res.update(cfgbasic)
-            db_create_server_staff_registry(srv.id, _('Modified the configuration'))
+            db_create_server_staff_registry(srv.id, 'Modified the configuration')
             return jsonify(res)
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
     return jsonify({'notauth':True})
@@ -941,7 +943,7 @@ def get_server_issues(srvid, page=0):
         dbissues = Issue.query.filter(Issue.server_id==srvid).order_by(desc(Issue.date))
         numpages = int(dbissues.count()/RPP)
         dbissues_page = dbissues.offset(RPP*page).limit(RPP)
-        issues = [(dbissue.date, dbissue.message) for dbissue in dbissues_page]
+        issues = [(format_datetime(dbissue.date, 'short'), dbissue.message) for dbissue in dbissues_page]
         return jsonify({'success':True, 'issues':issues, 'pages':numpages})
     return jsonify({'notauth':True})
 
@@ -1015,7 +1017,7 @@ def start_server(srvid):
             
             srv.launch_date = func.now()
             db_add_and_commit(srv)
-            db_create_server_staff_registry(srv.id, _('Start server'))
+            db_create_server_staff_registry(srv.id, 'Start server')
             time.sleep(1) # Be nice with the server...
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not exists!')})
@@ -1032,7 +1034,7 @@ def stop_server(srvid):
             proc = twpl.search_server_pid(binpath, dbserver.fileconfig)
             if proc:
                 os.kill(proc, signal.SIGTERM)
-                db_create_server_staff_registry(dbserver.id, _('Stop server'))
+                db_create_server_staff_registry(dbserver.id, 'Stop server')
                 return jsonify({'success':True})
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Can\'t found server pid')})
         else:
@@ -1161,7 +1163,7 @@ def send_econ_command(srvid):
                 rcv = twpl.send_econ_command(int(srv.econ_port), srv.econ_password, econ_cmd)
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("Send ECon command '{0}'").format(econ_cmd))
+            db_create_server_staff_registry(srv.id, "Send ECon command '{0}'".format(econ_cmd))
             return jsonify({'success':True, 'rcv':rcv})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
@@ -1183,7 +1185,7 @@ def kick_ban_player(srvid):
                     return jsonify({'error':True, 'errormsg':_('Can\'t found \'{0}\' player!').format(nick)})         
             except Exception as e:
                 return jsonify({'error':True, 'errormsg':str(e)})
-            db_create_server_staff_registry(srv.id, _("{0} '{1}' via ECon").format(action.upper(),nick))
+            db_create_server_staff_registry(srv.id, "{0} '{1}' via ECon".format(action.upper(),nick))
             return jsonify({'success':True})
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
@@ -1266,7 +1268,7 @@ def utility_processor():
 
 
 # Jobs
-def analyze_all_server_instances():
+def analyze_all_server_instances(app):
     with app.app_context():
         Player.query.update({Player.status:0})
         ServerInstance.query.update({ServerInstance.status:0})
@@ -1314,7 +1316,7 @@ def analyze_all_server_instances():
                     
             if not os.path.isfile(r'%s/%s' % (modfolder, dbserver.bin)):
                 nissue = Issue(server_id=dbserver.id,
-                               message=_('Server binary not found'))
+                               message="Can't start: No server binary selected!")
                 db.session.add(nissue)
                 continue
             
@@ -1329,14 +1331,16 @@ def analyze_all_server_instances():
                 if os.path.isfile(log_file):
                     shutil.move(log_file, r'%s/%s-%s' % (logs_folder, current_time_hex, dbserver.logfile))
                 nissue = Issue(server_id=dbserver.id,
-                               message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % (_('Server Offline'), 
+                               message="%s <a class='btn btn-xs btn-primary pull-right' href='/log/%d/%s/%s'>View log</a>" % ('Server Offline', 
                                                                                                                               dbserver.id, 
                                                                                                                               current_time_hex, 
                                                                                                                               dbserver.logfile))
+                db.session.add(nissue)
             else:
                 nissue = Issue(server_id=dbserver.id,
-                               message=_('Server Offline'))
-            db.session.add(nissue)
+                               message='Server Offline')
+                db.session.add(nissue)
+
             # Open server
             dbserver.launch_date = func.now()
             db_add_and_commit(dbserver)
