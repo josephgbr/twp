@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-18 03:38+0200\n"
-"PO-Revision-Date: 2016-05-18 03:39+0100\n"
+"POT-Creation-Date: 2016-05-18 07:48+0200\n"
+"PO-Revision-Date: 2016-05-18 07:48+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language: es\n"
 "Language-Team:  <dev@redneboa.es>\n"
@@ -19,269 +19,237 @@ msgstr ""
 "Generated-By: Babel 2.3.4\n"
 "X-Generator: Poedit 1.6.10\n"
 
-#: twp.py:195
+#: twp.py:208
 msgid "Error: {0}"
 msgstr "Error: {0}"
 
-#: twp.py:203
+#: twp.py:216
 msgid "Error: File type not allowed!"
 msgstr "Error: Tipo de archivo no permitido!"
 
-#: twp.py:205 twp.py:717
+#: twp.py:218 twp.py:732
 msgid "Error: No file detected!"
 msgstr "Error: Archivo no detectado!"
 
-#: twp.py:209
+#: twp.py:222
 msgid "Mod installed successfully"
 msgstr "Mod instalado satisfactoriamente"
 
-#: twp.py:211
+#: twp.py:224
 msgid "Error: Can't install selected mod package"
 msgstr "Error: No se puede instalar el paquete del mod"
 
-#: twp.py:242
+#: twp.py:256
 msgid "You are logged in!"
 msgstr "Te has logeado correctamente!"
 
-#: twp.py:253
+#: twp.py:267
 msgid "Invalid username or password! ({0}/{1})"
 msgstr "Nombre de usuario o contraseña incorrectos! ({0}/{1})"
 
-#: twp.py:269
+#: twp.py:284
 msgid "You are logged out!"
 msgstr "Sesión cerrada correctamente!"
 
-#: twp.py:287
+#: twp.py:302
 msgid "Username already in use!"
 msgstr "Nombre de usuario en uso!"
 
-#: twp.py:340 twp.py:384
+#: twp.py:355 twp.py:399
 msgid "Server not found!"
 msgstr "Servidor no encontrado!"
 
-#: twp.py:378 twp.py:1104
+#: twp.py:393 twp.py:1119
 msgid "Logfile not exists!"
 msgstr "El historial no existe!"
 
-#: twp.py:403
+#: twp.py:418
 msgid "Missed params!"
 msgstr "Faltan parámetros!"
 
-#: twp.py:427
+#: twp.py:442
 msgid "Error: Folder mod not exists!"
 msgstr "Error: La carpeta del mod no existe!"
 
-#: twp.py:428 twp.py:553
+#: twp.py:443 twp.py:568
 msgid "Error: Old or new password not defined!"
 msgstr "Error: Alguna contraseña no ha sido definida!"
 
-#: twp.py:481 twp.py:523 twp.py:736 twp.py:825 twp.py:1026 twp.py:1092
-#: twp.py:1132
+#: twp.py:496 twp.py:538 twp.py:751 twp.py:840 twp.py:1041 twp.py:1107
+#: twp.py:1147
 msgid "Invalid Operation: Server not found!"
 msgstr "Operación Inválida: Servidor no encontrado!"
 
-#: twp.py:535
+#: twp.py:550
 msgid "Undefined Chart!"
 msgstr "Gráfico no definido!"
 
-#: twp.py:550
+#: twp.py:565
 msgid "Error: Can't change password. Check settings and try again."
 msgstr "Error: No se ha podido cambiar la contraseña. Revisa la configuración e inténtalo de nuevo."
 
-#: twp.py:563
+#: twp.py:578
 msgid "Can't generate user slot!"
 msgstr "No se ha podido generar un espacio de usuario!"
 
-#: twp.py:569
+#: twp.py:584
 msgid "Can't remove superuser!"
 msgstr "No se puede eliminar el administrador!"
 
-#: twp.py:574
+#: twp.py:589
 msgid "Can't found user"
 msgstr "No se ha podido encontrar al usuario"
 
-#: twp.py:583 twp.py:599
+#: twp.py:598 twp.py:614
 msgid "Invalid params!"
 msgstr "Parámetros inválidos!"
 
-#: twp.py:610
+#: twp.py:625
 msgid "Permission need a name!"
 msgstr "El permiso necesita un nombre!"
 
-#: twp.py:615
+#: twp.py:630
 msgid "Permission Level name need be unique"
 msgstr "El nombre del nivel debe ser único"
 
-#: twp.py:645
+#: twp.py:660
 msgid "Invalid Permission"
 msgstr "Permiso inválido"
 
-#: twp.py:711
+#: twp.py:726
 msgid "Invalid map package"
 msgstr "Paquete de mapas inválido"
 
-#: twp.py:712
-msgid "Uploaded new maps ({0})"
-msgstr "Subidos nuevos mapas ({0})"
-
-#: twp.py:715
+#: twp.py:730
 msgid "Error: Can't upload selected maps"
 msgstr "Error: No se pueden subir los mapas seleccionados"
 
-#: twp.py:718 twp.py:896 twp.py:919 twp.py:952 twp.py:980 twp.py:1008
+#: twp.py:733 twp.py:911 twp.py:934 twp.py:967 twp.py:995 twp.py:1023
 msgid "Invalid Operation: Server not exists!"
 msgstr "Operación Inválida: El servidor no existe!"
 
-#: twp.py:720
+#: twp.py:735
 msgid "Error: You haven't permissions for upload new maps!"
 msgstr "Error: No tienes los permisos necesarios para subir mapas nuevos!"
 
-#: twp.py:733
-msgid "Remove the map '{0}'"
-msgstr "Borrado el mapa '{0}'"
-
-#: twp.py:735
+#: twp.py:750
 msgid "Error: Map not exists!"
 msgstr "Error: El mapa no existe!"
 
-#: twp.py:737
+#: twp.py:752
 msgid "Invalid Operation: Map not defined!"
 msgstr "Operación Inválida: Mapa no definido!"
 
-#: twp.py:746
+#: twp.py:761
 msgid "Invalid configuration file name."
 msgstr "Nombre de archivo de configuración inválido."
 
-#: twp.py:762
+#: twp.py:777
 msgid "Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again."
 msgstr "No puedes existir dos servidores con el mismo archivo de configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de nuevo."
 
-#: twp.py:773 twp.py:872
+#: twp.py:788 twp.py:887
 msgid "Can't exist two servers with the same log file.<br/>Please check configuration and try again."
 msgstr "No pueden existir dos servidores con el mismo archivo de historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
-#: twp.py:781
+#: twp.py:796
 msgid "Can't exist two servers with the same 'ec_port'.<br/>Please check configuration and try again."
 msgstr "No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
-#: twp.py:862
+#: twp.py:877
 msgid "Can't exist two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again."
 msgstr "No puede existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
-#: twp.py:894
-msgid "Modified the configuration"
-msgstr "Configuración modificada"
-
-#: twp.py:990
+#: twp.py:1005
 msgid "Undefined server binary file!!"
 msgstr "Binario de servidor no definido!!"
 
-#: twp.py:996
+#: twp.py:1011
 msgid "Can't run two servers in the same port!"
 msgstr "No se pueden ejecutar dos servidores al mismo tiempo en el mismo puerto!"
 
-#: twp.py:1005
-msgid "Start server"
-msgstr "Iniciar servidor"
-
-#: twp.py:1022
-msgid "Stop server"
-msgstr "Para servidor"
-
-#: twp.py:1024
+#: twp.py:1039
 msgid "Invalid Operation: Can't found server pid"
 msgstr "Operación Inválida: No se ha podido encontrar el 'pid' del servidor"
 
-#: twp.py:1051
+#: twp.py:1066
 msgid "Logfile not defined!"
 msgstr "Historial no definido!"
 
-#: twp.py:1151
-msgid "Send ECon command '{0}'"
-msgstr "Enviado comando ECon '{0}'"
-
-#: twp.py:1153 twp.py:1175
+#: twp.py:1168 twp.py:1190
 msgid "Invalid Operation: Server not found or econ not configured!"
 msgstr "Operación Inválida: Servidor no encontrado o econ no configurado!"
 
-#: twp.py:1162
+#: twp.py:1177
 msgid "Client player not defined!"
 msgstr "Jugador no definido!"
 
-#: twp.py:1170
+#: twp.py:1185
 msgid "Can't found '{0}' player!"
 msgstr "No se ha podido encontrar al jugador '{0}'!"
 
-#: twp.py:1173
-msgid "{0} '{1}' via ECon"
-msgstr "{0} '{1}' via ECon"
+#: twp.py:1197
+msgid "Invalid TimeZone!"
+msgstr "Zona Horaria Inválida!"
 
-#: twp.py:1187
+#: twp.py:1215
 msgid "Session timed out!"
 msgstr "La sesión ha expirado!"
 
-#: twp.py:1283
-msgid "Server binary not found"
-msgstr "Binario de servidor no encontrado"
-
-#: twp.py:1298 twp.py:1304
-msgid "Server Offline"
-msgstr "Servidor Desconectado"
-
-#: twp.py:1348
+#: twp.py:1386
 msgid "Error in the '{0}' field - {1}"
 msgstr "Error en el campo '{0}' - {1}"
 
-#: templates/minimal_layout.html:46
+#: templates/minimal_layout.html:47
 msgid "Proudly hosted on"
 msgstr "Orgullosamente hospedado en"
 
-#: templates/minimal_layout.html:55
+#: templates/minimal_layout.html:56
 msgid "You haven't the permissions for do this action."
 msgstr "No tienes permisos para realizar esta acción."
 
-#: templates/minimal_layout.html:56
+#: templates/minimal_layout.html:57
 msgid "ACTION NOT ALLOWED"
 msgstr "ACCIÓN NO PERMITIDA"
 
-#: templates/minimal_layout.html:57
+#: templates/minimal_layout.html:58
 msgid "The session has expired"
 msgstr "La sesión ha expirado"
 
-#: templates/minimal_layout.html:58
+#: templates/minimal_layout.html:59
 msgid "Session Expired!"
 msgstr "Sesión Terminada!"
 
-#: templates/minimal_layout.html:59
+#: templates/minimal_layout.html:60
 msgid "Interal error has ocurred!"
 msgstr "Ha ocurrido un error interno!"
 
-#: templates/minimal_layout.html:60
+#: templates/minimal_layout.html:61
 msgid "Error - Ooops!"
 msgstr "Error - Ooops!"
 
-#: templates/minimal_layout.html:61
+#: templates/minimal_layout.html:62
 msgid "Damn"
 msgstr "Maldición"
 
-#: templates/minimal_layout.html:62
+#: templates/minimal_layout.html:63
 msgid "Are you sure?"
 msgstr "¿Estás seguro?"
 
-#: templates/minimal_layout.html:63
+#: templates/minimal_layout.html:64
 msgid "Delete"
 msgstr "Borrar"
 
-#: templates/minimal_layout.html:64 templates/pages/settings.html:168
+#: templates/minimal_layout.html:65 templates/pages/settings.html:168
 msgid "Ok"
 msgstr "Aceptar"
 
 #: templates/includes/modal_create_permission_level.html:25
-#: templates/minimal_layout.html:65 templates/pages/servers.html:162
+#: templates/minimal_layout.html:66 templates/pages/servers.html:162
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/minimal_layout.html:66
+#: templates/minimal_layout.html:67
 msgid "NO DATA"
 msgstr "SIN INFORMACIÓN"
 
@@ -371,7 +339,7 @@ msgid "Wizard"
 msgstr "Asistente"
 
 #: templates/includes/modal_instance_configuration.html:19
-#: templates/includes/nav.html:33
+#: templates/includes/nav.html:49
 msgid "Maps"
 msgstr "Mapas"
 
@@ -443,12 +411,12 @@ msgid "Issues"
 msgstr "Incidencias"
 
 #: templates/includes/modal_instance_issues.html:12
-#: templates/includes/server_log.html:24
+#: templates/includes/server_log.html:26
 msgid "Date"
 msgstr "Fecha"
 
 #: templates/includes/modal_instance_issues.html:12
-#: templates/includes/server_log.html:26
+#: templates/includes/server_log.html:28
 msgid "Message"
 msgstr "Mensaje"
 
@@ -497,21 +465,21 @@ msgstr "Alternar navegación"
 msgid "Website Time Zone"
 msgstr "Zona Horaria Sitio Web"
 
-#: templates/includes/nav.html:22
+#: templates/includes/nav.html:38
 msgid "Search..."
 msgstr "Buscar..."
 
-#: templates/includes/nav.html:30 templates/pages/index.html:3
+#: templates/includes/nav.html:46 templates/pages/index.html:3
 msgid "Overview"
 msgstr "General"
 
-#: templates/includes/nav.html:31 templates/pages/log.html:10
+#: templates/includes/nav.html:47 templates/pages/log.html:10
 #: templates/pages/search.html:22 templates/pages/server.html:13
 #: templates/pages/servers.html:3
 msgid "Servers"
 msgstr "Servidores"
 
-#: templates/includes/nav.html:32 templates/pages/index.html:58
+#: templates/includes/nav.html:48 templates/pages/index.html:58
 #: templates/pages/index.html:76 templates/pages/players.html:3
 #: templates/pages/search.html:61 templates/pages/server.html:28
 #: templates/pages/server.html:73 templates/pages/server.html:233
@@ -519,45 +487,45 @@ msgstr "Servidores"
 msgid "Players"
 msgstr "Jugadores"
 
-#: templates/includes/nav.html:40 templates/pages/settings.html:3
+#: templates/includes/nav.html:56 templates/pages/settings.html:3
 #: templates/pages/settings.html:9
 msgid "Settings"
 msgstr "Configuración"
 
-#: templates/includes/nav.html:42
+#: templates/includes/nav.html:58
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: templates/includes/nav.html:46 templates/pages/login.html:3
+#: templates/includes/nav.html:62 templates/pages/login.html:3
 #: templates/pages/login.html:10
 msgid "Sign In"
 msgstr "Entrar"
 
-#: templates/includes/server_log.html:7
+#: templates/includes/server_log.html:4
 msgid "Filter by"
 msgstr "Filtrado por"
 
-#: templates/includes/server_log.html:10
+#: templates/includes/server_log.html:7
 msgid "Errors"
 msgstr "Errores"
 
-#: templates/includes/server_log.html:11
+#: templates/includes/server_log.html:8
 msgid "Warnings"
 msgstr "Advertencias"
 
-#: templates/includes/server_log.html:12
+#: templates/includes/server_log.html:9
 msgid "Highlighted"
 msgstr "Destacado"
 
-#: templates/includes/server_log.html:15
+#: templates/includes/server_log.html:12
 msgid "Desc"
 msgstr "Desc"
 
-#: templates/includes/server_log.html:16
+#: templates/includes/server_log.html:13
 msgid "Asc"
 msgstr "Asc"
 
-#: templates/includes/server_log.html:25
+#: templates/includes/server_log.html:27
 msgid "Section"
 msgstr "Sección"
 
@@ -1236,7 +1204,7 @@ msgstr "Desde URL"
 #~ msgstr "La sesión ha expirado!"
 
 #~ msgid "Server binary not found"
-#~ msgstr "No se han encontrado servidores!"
+#~ msgstr "Binario de servidor no encontrado"
 
 #~ msgid "Server Offline"
 #~ msgstr "Servidor Desconectado"
@@ -1729,3 +1697,24 @@ msgstr "Desde URL"
 
 #~ msgid "Error in the {0} field - {1}"
 #~ msgstr "Error en el campo {0} - {1}"
+
+#~ msgid "Uploaded new maps ({0})"
+#~ msgstr "Subidos nuevos mapas ({0})"
+
+#~ msgid "Remove the map '{0}'"
+#~ msgstr "Borrado el mapa '{0}'"
+
+#~ msgid "Modified the configuration"
+#~ msgstr "Configuración modificada"
+
+#~ msgid "Start server"
+#~ msgstr "Iniciar servidor"
+
+#~ msgid "Stop server"
+#~ msgstr "Para servidor"
+
+#~ msgid "Send ECon command '{0}'"
+#~ msgstr "Enviado comando ECon '{0}'"
+
+#~ msgid "{0} '{1}' via ECon"
+#~ msgstr "{0} '{1}' via ECon"
