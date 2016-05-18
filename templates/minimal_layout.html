@@ -15,6 +15,7 @@
 		<link href="{{ url_for('static', filename='lib/font-awesome-4.6.1/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
 		<link href="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.css') }}" rel="stylesheet" type="text/css">
 		<link href="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.css') }}" rel="stylesheet" type="text/css">
+		<link href="{{ url_for('static', filename='lib/select2-4.0.2/select2.min.css') }}" rel="stylesheet" type="text/css">
 		{% assets filters='cssmin', output='gen/app.min.css', 'css/app.css' %}
 		  	<link rel="stylesheet" href="{{ ASSET_URL }}" type="text/css" />
 		{% endassets %}
@@ -72,6 +73,7 @@
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/chartist-0.9.7/chartist.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/clipboard-1.5.10/clipboard.min.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='lib/colorpicker-2.3.2/bootstrap-colorpicker.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='lib/select2-4.0.2/select2.min.js') }}"></script>
 		{% assets filters='jsmin', output='gen/main.min.js', 'js/main.js' %}
 		  		<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 		{% endassets %}

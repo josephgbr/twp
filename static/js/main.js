@@ -81,8 +81,22 @@ $(function(){
 	$('.colorpicker-input').colorpicker();
 	/** END: GENERAL **/
 	
+	/** TIMEZONE SELECTOR **/
+	$(document).on('change', '#tzform #tzstr', function(){
+		var $this = $(this);
+		console.log("Seleee: "+$this.val());
+		
+		$.post($SCRIPT_ROOT + '/_set_timezone', $('#tzform').serialize(), function(data){
+			check_server_data(data);
+			
+			if (data['success'])
+				window.location.reload();
+		});
+	});
+	
 	/** CSS INITIALIZATIONS **/
 	$('.carrousel-fade').each(function(){ $(this).carrouselanim(); });
+	$('.select2').each(function(){ $(this).select2(); });
 	var clipboard = new Clipboard('.btn-clipboard');
 	clipboard.on('error', function(e) {
 		var $trigger = $(e.trigger);

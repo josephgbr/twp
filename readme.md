@@ -29,6 +29,7 @@ Project Requirements:
  - [Bootstrap v3.3.6](http://getbootstrap.com/) for widgets and responsive design
  - [Bootbox v4.4.0](http://bootboxjs.com/) for dialogs
  - [Bootstrap Colorpicker v2.3.2](http://mjolnic.com/bootstrap-colorpicker/)
+ - [Select2 v4.0.2](https://select2.github.io) - JQuery replacement for select boxes
 
 ### Installation (Debian based distributions)
 _NOTE: If you want an production deploy read '[Deploying](https://github.com/CytraL/twp#-deploying)' section._

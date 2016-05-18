@@ -25,7 +25,7 @@
 						<td style='vertical-align:middle;'>{{srv.name}}</td>
 						<td style='vertical-align:middle;'>{{srv.port}}</td>
 						<td>
-							<select id='perm-{{srv.id}}' data-srvid='{{srv.id}}' class="form-control input-sm">
+							<select id='perm-{{srv.id}}' data-srvid='{{srv.id}}' class="select2 form-control input-sm">
 								<option value='-1'>{{ _('None') }}</option>
 								{% for perm in permission_levels %}
 								<option value='{{perm.id}}'>{{perm.name}}</option>

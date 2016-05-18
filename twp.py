@@ -72,7 +72,15 @@ def create_app(twpconf):
         return request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])
     @babel.timezoneselector
     def get_timezone():
-        return pytz.country_timezones[request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])][0]
+        try:
+            if 'timezone' in session:
+                tzstr = session.get('timezone')
+            else:
+                tzstr = pytz.country_timezones[request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])][0]
+        except:
+            return None
+        else:
+            return tzstr
         
     return app
 
@@ -456,7 +464,7 @@ def refresh_memory_containers():
 def refresh_host_localtime():
     dt = datetime.utcnow()
     #return jsonify(twpl.host_localtime())
-    return jsonify({'localtime':format_datetime(dt, 'short'), 'localzone':format_datetime(dt, "v")})
+    return jsonify({'localtime':format_datetime(dt, 'short'), 'localzone':format_datetime(dt, "z")})
 
 @twp.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
@@ -1068,8 +1076,8 @@ def get_current_server_instance_log(srvid, pdate=None):
                 objMatch = re.match('^\[(.+)\]\[(.+)\]:\s(.+)$',line)
                 if objMatch:
                     (date,section,message) = [int(objMatch.group(1), 16),objMatch.group(2),objMatch.group(3)]
-                    dt = datetime.fromtimestamp(time.mktime(time.localtime(date)))
-                    strDate = dt.strftime("%d-%m-%Y")
+                    dt = datetime.utcfromtimestamp(time.mktime(time.localtime(date)))
+                    strDate = format_datetime(dt, "dd-MM-yyyy")
                     if not strDate in datepages:
                         datepages.update({strDate:1})
                     else:
@@ -1083,7 +1091,7 @@ def get_current_server_instance_log(srvid, pdate=None):
                             type = 'warning'
                         elif re.match("^(?:player is ready|player has entered the game|loading done|client accepted|cid=\d authed)", message, re.IGNORECASE):
                             type = 'success'
-                        logcontent.append({'date':format_datetime(dt),
+                        logcontent.append({'date':format_datetime(dt, 'short'),
                                            'section':section,
                                            'message':message,
                                            'type':type})
@@ -1175,6 +1183,13 @@ def kick_ban_player(srvid):
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found or econ not configured!')})
     return jsonify({'notauth':True})
 
+@twp.route('/_set_timezone', methods=['POST'])
+def set_timezone():
+    tzstr = request.form['tzstr'] if 'tzstr' in request.form else None
+    if not tzstr:
+        return jsonify({'error':True, 'errormsg':_('Invalid TimeZone!')})
+    session['timezone'] = tzstr
+    return jsonify({'success':True})
 
 
 # Security Checks
@@ -1222,13 +1237,16 @@ def utility_processor():
         return twpl.get_mod_binaries(current_app.config['SERVERS_BASEPATH'], mod_folder)
     def get_app_config():
         return AppWebConfig.query.get(1)
+    def get_timezones():
+        return pytz.all_timezones
     
     return dict(get_mod_instances=get_mod_instances, 
                 get_mod_binaries=get_mod_binaries,
                 get_app_config=get_app_config,
                 get_uid_permission_level=get_session_server_permission_level,
                 SUPERUSER_ID=SUPERUSER_ID,
-                format_datetime=format_datetime)
+                format_datetime=format_datetime,
+                get_timezones=get_timezones)
 
 
 # Jobs

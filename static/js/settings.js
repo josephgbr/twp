@@ -222,13 +222,13 @@ $(function(){
 			check_server_data(data);
 			
 			$("#modal_user_permissions select").each(function(){
-				$(this).children("option")[0].selected = true;
+				$(this).val('-1').trigger('change.select2');
 			});
 			
 			if (data['success'])
 			{
 				for (var i in data['perms'])
-					$('#modal_user_permissions #perm-'+data['perms'][i][0]+' option[value='+data['perms'][i][1]+']')[0].selected = true;
+					$('#modal_user_permissions #perm-'+data['perms'][i][0]).val(data['perms'][i][1]).trigger('change.select2');
 			}
 			else
 				$('#modal_user_permissions').modal('hide');

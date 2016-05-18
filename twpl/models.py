@@ -54,6 +54,8 @@ class PermissionLevel(db.Model, JSONSERIALIZER):
     econ = db.Column(db.Boolean, default=False)
     config = db.Column(db.Boolean, default=False)
     issues = db.Column(db.Boolean, default=False)
+    
+    user_srv_inst_perm = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("permission_level"))
         
     def sudo(self):
         self.start = True
