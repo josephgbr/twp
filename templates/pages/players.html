@@ -7,7 +7,7 @@
 <div class="row">
 	<div class="panel panel-info">
 		<div class="panel-body">
-		{% if players.count() > 0 %}
+		{% if players %}
 			{{ _('List of all players connected to the machine.') }}<br/>
 			<span class="text-muted">{{ _('Updated every minute') }}</span>
 		{% else %}
@@ -15,7 +15,7 @@
 		{% endif %}
 		</div>
 		
-		{% if players.count() > 0 %}
+		{% if players %}
 		<table class="table table-condensed table-striped">
 			<thead>
 				<tr>

@@ -42,7 +42,7 @@
 	</div>
 	
 	{% set mod_instances = get_mod_instances(srv) %}
-	{% if mod_instances.count() > 0 %}
+	{% if mod_instances %}
 	{% set server_bins = get_mod_binaries(srv) %}
 	<table class="table table-condensed table-hover table-striped table-vertical-aligned">
 		<thead>

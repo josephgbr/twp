@@ -61,7 +61,8 @@ def create_app(twpconf):
     scheduler.add_job('analyze_all_server_instances', 
                       analyze_all_server_instances, 
                       trigger={'second':30, 'type':'cron'}, 
-                      replace_existing=True, args=(app,))
+                      replace_existing=True, 
+                      args=(app,))
 
     # Check Servers path
     app.config['SERVERS_BASEPATH'] = r'%s/%s' % (app.root_path, 
@@ -167,15 +168,15 @@ def search():
 
     sk = "%%%s%%" % searchword
     servers = ServerInstance.query.filter(or_(ServerInstance.name.like(sk), 
-                                                          ServerInstance.base_folder.like(sk)))
-    players = Player.query.filter(Player.name.like(sk))
+                                                          ServerInstance.base_folder.like(sk))).all()
+    players = Player.query.filter(Player.name.like(sk)).all()
     return render_template('pages/search.html', search=searchword, servers=servers, players=players)
 
 @twp.route('/players', methods=['GET'])
 def players():
     session['prev_url'] = request.path;
     
-    players = Player.query.order_by(desc(Player.last_seen_date)).order_by(desc(Player.name))
+    players = Player.query.order_by(desc(Player.last_seen_date)).order_by(desc(Player.name)).all()
     return render_template('pages/players.html', players=players)
 
 @twp.route('/maps', methods=['GET'])
@@ -188,9 +189,9 @@ def settings():
     check_session()
     session['prev_url'] = request.path;
     
-    users = User.query.filter(User.token == None).order_by(asc(User.id))
-    users_token = User.query.filter(User.token != None).order_by(asc(User.id))
-    permission_levels = PermissionLevel.query.order_by(asc(PermissionLevel.id))
+    users = User.query.filter(User.token == None).order_by(asc(User.id)).all()
+    users_token = User.query.filter(User.token != None).order_by(asc(User.id)).all()
+    permission_levels = PermissionLevel.query.order_by(asc(PermissionLevel.id)).all()
     servers = ServerInstance.query
     return render_template('pages/settings.html', users=users, servers=servers,
                            users_token=users_token, 
@@ -355,7 +356,7 @@ def server(srvid):
         flash(_('Server not found!'), "danger")
         
     users_reg = ServerStaffRegistry.query.filter(ServerStaffRegistry.server_id==srvid)\
-                                                .order_by(desc(ServerStaffRegistry.date))
+                                                .order_by(desc(ServerStaffRegistry.date)).all()
     return render_template('pages/server.html', ip=PUBLIC_IP, server=srv, netinfo=netinfo, 
                            uidperms=get_session_server_permission_level(srv.id),
                            users_reg=users_reg)
@@ -433,7 +434,7 @@ def remove_mod():
     if 'folder' in request.form:
         fullpath_folder = r'%s/%s' % (current_app.config['SERVERS_BASEPATH'], request.form['folder'])
         if os.path.exists(fullpath_folder):
-            servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(request.form['folder']))
+            servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(request.form['folder'])).all()
             for srv in servers:
                 stop_server(srv.id)
                 remove_server_instance(srv.id,1)
@@ -491,8 +492,8 @@ def get_chart_values(chart, srvid=None):
         values['players7d'] = list()
         # TODO: Filter only from today-7 to today...
         players = PlayerServerInstance.query.filter(PlayerServerInstance.server_id==srvid,
-                                                    PlayerServerInstance.date >= startday)
-        if players.count() == 0:
+                                                    PlayerServerInstance.date >= startday).all()
+        if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
         for dbplayer in players:
@@ -533,8 +534,8 @@ def get_chart_values(chart, srvid=None):
     elif chart.lower() == 'machine':
         labels['players7d'] = list()
         values['players7d'] = list()
-        players = PlayerServerInstance.query.filter(PlayerServerInstance.date >= startday)
-        if players.count() == 0:
+        players = PlayerServerInstance.query.filter(PlayerServerInstance.date >= startday).all()
+        if not players:
             return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})
         chart_data = ConfigDict()
         for dbplayer in players:
@@ -666,7 +667,7 @@ def get_user_servers_level(uid):
     check_session_admin()
     
     perm_list = []
-    perms = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == uid)
+    perms = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == uid).all()
     for perm in perms:
         perm_list.append((perm.server_id, perm.perm_id))
     return jsonify({ 'success':True, 'perms':perm_list })
@@ -1249,7 +1250,7 @@ def get_session_server_permission_level(srvid):
 @twp.context_processor
 def utility_processor():
     def get_mod_instances(mod_folder):
-        servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(mod_folder))
+        servers = ServerInstance.query.filter(ServerInstance.base_folder.ilike(mod_folder)).all()
         return servers
     def get_mod_binaries(mod_folder):
         return twpl.get_mod_binaries(current_app.config['SERVERS_BASEPATH'], mod_folder)
@@ -1308,7 +1309,7 @@ def analyze_all_server_instances(app):
                             db.session.add(playerMatch)
                         
         # Reopen Offline Servers
-        servers = ServerInstance.query.filter(ServerInstance.status==0, ServerInstance.alaunch==True)
+        servers = ServerInstance.query.filter(ServerInstance.status==0, ServerInstance.alaunch==True).all()
         for dbserver in servers:
             modfolder = r'%s/%s' % (current_app.config['SERVERS_BASEPATH'], dbserver.base_folder)
             if not os.path.isdir(modfolder):
@@ -1343,7 +1344,7 @@ def analyze_all_server_instances(app):
 
             # Open server
             dbserver.launch_date = func.now()
-            db_add_and_commit(dbserver)
+            db.session.add(dbserver)
             start_server_instance(dbserver.base_folder, dbserver.bin, dbserver.fileconfig) 
         
         db.session.commit()

@@ -139,7 +139,7 @@
 			</div>
 		</div>
 		{% endfor %}
-		{% if users_reg.count() == 0 %}
+		{% if not users_reg %}
 		<h4 class="text-center text-muted">
 			{{ _('No activity found!') }}
 		</h4>
