@@ -19,7 +19,7 @@
 #########################################################################################
 import twpl
 import subprocess, time, re, hashlib, os, sys, json, logging, time, \
-        signal, shutil, binascii
+        signal, shutil, binascii, pytz
 from mergedict import ConfigDict
 from io import BytesIO, open
 from datetime import datetime, timedelta
@@ -69,11 +69,10 @@ def create_app(twpconf):
     
     @babel.localeselector
     def get_locale():
-        #return request.accept_languages.best_match(['en'])
         return request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])
-    
-    #@babel.timezoneselector
-    #def get_timezone():
+    @babel.timezoneselector
+    def get_timezone():
+        return pytz.country_timezones[request.accept_languages.best_match(current_app.config['SUPPORT_LANGUAGES'])][0]
         
     return app
 
@@ -455,7 +454,9 @@ def refresh_memory_containers():
 
 @twp.route('/_refresh_host_localtime', methods=['POST'])
 def refresh_host_localtime():
-    return jsonify(twpl.host_localtime())
+    dt = datetime.utcnow()
+    #return jsonify(twpl.host_localtime())
+    return jsonify({'localtime':format_datetime(dt, 'short'), 'localzone':format_datetime(dt, "v")})
 
 @twp.route('/_get_all_online_servers', methods=['POST'])
 def get_all_online_servers():
@@ -558,7 +559,7 @@ def create_user_slot():
     user = User(username=token, password=token, token=token) # TODO: Perhaps best a table for slots?
     db_add_and_commit(user)
     if user.id:
-        return jsonify({'success':True, 'user':user.to_dict()})
+        return jsonify({'success':True, 'user':user.to_dict(), 'create_date_format':format_datetime(user.create_date)})
     return jsonify({'error':True,'errormsg':_("Can't generate user slot!")})
 
 @twp.route('/_remove_user/<int:uid>', methods=['POST'])

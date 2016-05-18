@@ -166,6 +166,7 @@ function get_host_localtime()
 {
 	$.post($SCRIPT_ROOT + '/_refresh_host_localtime', '', function(data) {
 		$("#localtime").text(data['localtime']);
+		$("#localzone").text(data['localzone']);
 	});
 }
 /** END: REST CALLS **/

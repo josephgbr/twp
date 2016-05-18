@@ -133,9 +133,8 @@ def host_disk_usage(partition=None):
 
 
 def host_localtime():
-    ltime = subprocess.check_output(['date +"%H:%M"'], universal_newlines=True, shell=True).split('\n')[0]
-    return {'localtime': ltime}
-
+    cmdr = subprocess.check_output(['date +"%H:%M %Z"'], universal_newlines=True, shell=True).split('\n')[0].split(' ')
+    return {'localtime':cmdr[0], 'localzone':cmdr[1]}
 
 def host_uptime():
     '''

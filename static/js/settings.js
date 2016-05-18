@@ -87,10 +87,9 @@ $(function(){
 			
 			if (data['success'] && data['user'])
 			{
-				var createDate = moment(data['user']['create_date']).utc().format("YYYY-MM-DD HH:mm:ss");
 				var row = "<tr id='user-"+data['user']['id']+"'>"+
-							"<td><i>User Slot '"+data['user']['token'].slice(0,10)+"...'</i></td>"+
-							"<td>"+createDate+"</td>"+
+							"<td><i>"+$BABEL_STR_USER_SLOT+" '"+data['user']['token'].slice(0,10)+"...'</i></td>"+
+							"<td>"+data['create_date_format']+"</td>"+
 							"<td>"+$BABEL_STR_NEVER+"</td>"+
 							"<td class='text-right'>"+
 							"<button type='button' data-uid='"+data['user']['id']+"' class='btn btn-xs btn-success copy-link-user btn-clipboard' data-clipboard-text='http://"+window.location.host+"/user_reg/"+data['user']['token']+"'>"+
