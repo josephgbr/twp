@@ -113,5 +113,6 @@ $ pybabel compile -d translations
 ```
 
 ### Limits
-- The default maximum size of upload is 16MB per mod
+- Can't use autoexec.cfg! (TWP uses the configuration file like a ID for distinguish between instances of same mod)
+- The default maximum size of upload is 16MB per mod (can change it in twp.conf)
 - The theoretical maximum time that you can have statistics on a 16-player server is 'only' of ~2,193534065×10¹² years (with sqlite)
