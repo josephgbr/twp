@@ -86,7 +86,7 @@ class TWPTestCase(unittest.TestCase):
         rv = self.app.post('/_set_server_binary/1/teeworlds_srv', data=dict(
             fileconfig='testsrv'
         ), follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         self.login('admin', 'admin')
         rv = self.app.post('/_set_server_binary/1/teeworlds_srv', data=dict(
@@ -108,7 +108,7 @@ class TWPTestCase(unittest.TestCase):
             alsrv=0,
             srvcfg=""
         ), follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         self.login('admin', 'admin')
         rv = self.app.post('/_save_server_config/1', data=dict(
@@ -128,7 +128,7 @@ class TWPTestCase(unittest.TestCase):
         ## GET SERVER CONFIG
         # NO AUTH
         rv = self.app.post('/_get_server_config/1', follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         self.login('admin', 'admin')
         rv = self.app.post('/_get_server_config/1', follow_redirects=True)
@@ -138,14 +138,14 @@ class TWPTestCase(unittest.TestCase):
         ## START SERVER
         # NO AUTH
         rv = self.app.post('/_start_server_instance/1', follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         # TODO
         
         ## STOP SERVER
         # NO AUTH
         rv = self.app.post('/_stop_server_instance/1', follow_redirects=True)
-        assert 'notauth' in rv.data
+        assert rv.status_code == 403
         # AUTH
         # TODO
         
