@@ -49,8 +49,8 @@ $ sudo apt-get install gcc python python-dev python-pip git libjpeg-dev zlib1g-d
 $ git clone https://github.com/CytraL/twp.git
 $ cd twp
 $ sudo pip install -r requirements.txt
-$ chmod a+x twp.py
-$ ./twp.py
+$ chmod a+x run.py
+$ ./run.py
 
 ```
 

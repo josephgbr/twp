@@ -18,6 +18,7 @@
 #########################################################################################
 from flask.ext.babel import Babel, _
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask import session
 from sqlalchemy import or_, func, desc
 from sqlalchemy.orm import Session
 db = SQLAlchemy()
@@ -151,3 +152,27 @@ class User(db.Model, JSONSERIALIZER):
     perms = db.relationship("UserServerInstancePermission", cascade = "all,delete", backref=db.backref("users"))
     srv_staff_reg = db.relationship("ServerStaffRegistry", cascade = "all,delete", backref=db.backref("users"))
     
+
+#################################
+# DB TOOLS
+#################################
+def db_add_and_commit(reg):
+    db.session.add(reg)
+    db.session.commit()
+    
+def db_delete_and_commit(reg):
+    db.session.delete(reg)
+    db.session.commit()
+    
+def db_create_server_staff_registry(srv, msg):
+    if 'uid' in session:
+        db_add_and_commit(ServerStaffRegistry(user_id=session['uid'],
+                                              server_id=srv,
+                                              message=msg))
+
+def db_init(app):
+    with app.app_context():
+        db.create_all()
+        app_config = AppWebConfig.query.count()
+        if app_config == 0:
+            db_add_and_commit(AppWebConfig(installed=False, brand='TWP 0.3.0', brand_url='#'))

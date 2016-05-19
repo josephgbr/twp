@@ -19,7 +19,7 @@
 from __future__ import division
 from StringIO import StringIO
 import platform, subprocess, time, os, string, re, fnmatch, tarfile, zipfile, telnetlib, random, io, \
-    copy
+    copy, hashlib
 from zipfile import ZipFile, is_zipfile
 from tools.banned_list import BannedList
 from tools.banner_generator import BannerGenerator
@@ -526,3 +526,6 @@ def HTMLColorToRGBA(colorstring):
 
     return (r, g, b, a)
 ##
+
+def str_sha512_hex_encode(strIn):
+    return hashlib.sha512(strIn.encode()).hexdigest()
