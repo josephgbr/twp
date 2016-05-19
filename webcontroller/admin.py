@@ -204,7 +204,7 @@ def _set_user_server_level(uid, srvid):
             db_delete_and_commit(perm)
     elif not perm_id == -1:
         perm = UserServerInstancePermission(user_id=uid, server_id=srvid, perm_id=perm_id)
-        db_delete_and_commit(perm)
+        db_add_and_commit(perm)
     return jsonify({ 'success':True })
 
 @twp.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
