@@ -110,7 +110,7 @@ After=network.target
 [Service]
 User=$INSTALL_USER
 Type=simple
-ExecStart=/usr/bin/python2 "$INSTALL_DIR/twp.py"
+ExecStart=/usr/bin/python2 "$INSTALL_DIR/run.py"
 WorkingDirectory=$INSTALL_DIR
 
 [Install]
@@ -144,7 +144,7 @@ else
 
 
 WORK_DIR="$INSTALL_DIR"
-SCRIPT="twp.py"
+SCRIPT="run.py"
 DAEMON="/usr/bin/python \$WORK_DIR/\$SCRIPT"
 PIDFILE="/var/run/twp.pid"
 USER="$INSTALL_USER"
