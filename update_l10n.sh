@@ -43,7 +43,7 @@ fi
 # Generates POT files
 $PYBABEL extract --charset=$CHARSET --mapping=$CFG --output=$POT   \
     --no-wrap --sort-by-file --msgid-bugs-address=$MSGID_BUGS_ADDR \
-    --copyright-holder="$COPYRIGHT_HOLDER"  "$L10NDIR"               || exit 1
+    --copyright-holder="$COPYRIGHT_HOLDER"  "$L10NDIR/.."            || exit 1
 
 # Updates existent PO files
 $PYBABEL update --input-file=$POT --output-dir="$L10NDIR" --previous || exit 1
