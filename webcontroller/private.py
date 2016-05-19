@@ -33,8 +33,8 @@ from twpl.models import *
 # GET
 #################################
 @twp.route('/settings', methods=['GET'])
+@check_session(level='user')
 def settings():
-    check_session()
     session['prev_url'] = request.path;
     
     users = User.query.filter(User.token == None).order_by(asc(User.id)).all()
@@ -46,6 +46,7 @@ def settings():
                            permission_levels=permission_levels)
     
 @twp.route('/log/<int:srvid>/<string:code>/<string:name>', methods=['GET'])
+@check_session(level='user')
 def log(srvid, code, name):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.log:
@@ -70,9 +71,8 @@ def log(srvid, code, name):
 # POST
 #################################
 @twp.route('/_set_user_password', methods=['POST'])
-def set_user_password():
-    check_session()
-    
+@check_session(level='user')
+def set_user_password():    
     if 'pass_new' in request.form and 'pass_old' in request.form:
         dbuser = User.query.filter(User.id==session['uid'], 
                                     User.password==twpl.str_sha512_hex_encode(str(request.form['pass_old']))).one()
@@ -86,6 +86,7 @@ def set_user_password():
         return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
     
 @twp.route('/_upload_maps/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def upload_maps(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:
@@ -122,6 +123,7 @@ def upload_maps(srvid):
         return jsonify({'error':True, 'errormsg':_('Error: You haven\'t permissions for upload new maps!')})
 
 @twp.route('/_remove_map/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def remove_map(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:
@@ -140,6 +142,7 @@ def remove_map(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_set_server_binary/<int:srvid>/<string:binfile>', methods=['POST'])
+@check_session(level='user')
 def set_server_binary(srvid, binfile):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.start:
@@ -154,6 +157,7 @@ def set_server_binary(srvid, binfile):
     return jsonify({'notauth':True})
 
 @twp.route('/_save_server_config/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def save_server_config(srvid):    
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:
@@ -206,6 +210,7 @@ def save_server_config(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_get_server_config/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def get_server_config(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:
@@ -230,6 +235,7 @@ def get_server_config(srvid):
 
 @twp.route('/_get_server_issues/<int:srvid>', methods=['POST'])
 @twp.route('/_get_server_issues/<int:srvid>/<int:page>', methods=['POST'])
+@check_session(level='user')
 def get_server_issues(srvid, page=0):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.issues:
@@ -242,6 +248,7 @@ def get_server_issues(srvid, page=0):
     return jsonify({'notauth':True})
 
 @twp.route('/_get_server_issues_count/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def get_server_issues_count(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.issues:
@@ -250,6 +257,7 @@ def get_server_issues_count(srvid):
     return jsonify({})
 
 @twp.route('/_get_server_maps/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def get_server_maps(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:
@@ -262,8 +270,8 @@ def get_server_maps(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_get_mod_configs/<string:mod_folder>', methods=['POST'])
+@check_session(level='user')
 def get_mod_configs(mod_folder):
-    check_session()
     jsoncfgs = {'configs':[]}
     cfgs = twpl.get_mod_configs(current_app.config['SERVERS_BASEPATH'], mod_folder)
     for config in cfgs:
@@ -274,6 +282,7 @@ def get_mod_configs(mod_folder):
     return jsonify(jsoncfgs)
 
 @twp.route('/_get_mod_wizard_config/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def get_mod_wizard_config(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.config:        
@@ -290,6 +299,7 @@ def get_mod_wizard_config(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_start_server_instance/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def start_server(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.start:        
@@ -319,6 +329,7 @@ def start_server(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_stop_server_instance/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def stop_server(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.stop:
@@ -336,6 +347,7 @@ def stop_server(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_restart_server_instance/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def restart_server(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.start and user_perm.stop:
@@ -345,6 +357,7 @@ def restart_server(srvid):
     return jsonify({'notauth':True})
 
 @twp.route('/_get_server_instance_log/<int:srvid>/<string:pdate>', methods=['POST'])
+@check_session(level='user')
 def get_current_server_instance_log(srvid, pdate=None):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.log:
@@ -397,6 +410,7 @@ def get_current_server_instance_log(srvid, pdate=None):
     return jsonify({'notauth':True})
 
 @twp.route('/_get_server_instance_log/<int:srvid>/<string:code>/<string:name>', methods=['POST'])
+@check_session(level='user')
 def get_selected_server_instance_log(srvid, code, name):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.log:
@@ -437,6 +451,7 @@ def get_selected_server_instance_log(srvid, code, name):
     return jsonify({'notauth':True})
 
 @twp.route('/_send_econ_command/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def send_econ_command(srvid):
     cmd = request.form['cmd'] if request.form.has_key('cmd') else None
     if not cmd:
@@ -459,6 +474,7 @@ def send_econ_command(srvid):
 
 @twp.route('/_kick_player/<int:srvid>', methods=['POST'])
 @twp.route('/_ban_player/<int:srvid>', methods=['POST'])
+@check_session(level='user')
 def kick_ban_player(srvid):
     user_perm = get_session_server_permission_level(srvid)
     if user_perm.econ:

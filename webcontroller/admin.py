@@ -17,7 +17,7 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.    
 #########################################################################################
 import twpl
-from twp import twp, SUPERUSER_ID, check_session_admin, get_session_user,\
+from twp import twp, SUPERUSER_ID, check_session, get_session_user,\
                 get_session_server_permission_level, allowed_file
 import time, os, shutil, binascii
 from flask import request, session, redirect, url_for, \
@@ -30,9 +30,9 @@ from twpl.models import *
 # GET
 #################################
 @twp.route('/install_mod', methods=['POST'])
+@check_session(level='admin')
 def install_mod():
     current_url = session['prev_url'] if 'prev_url' in session else url_for('twp.servers')
-    check_session_admin()
     filename = None
     if 'url' in request.form and not request.form['url'] == '':
         try:
@@ -63,9 +63,8 @@ def install_mod():
 # POST
 #################################
 @twp.route('/_remove_mod', methods=['POST'])
+@check_session(level='admin')
 def remove_mod():
-    check_session_admin()
-
     if 'folder' in request.form:
         fullpath_folder = r'%s/%s' % (current_app.config['SERVERS_BASEPATH'], request.form['folder'])
         if os.path.exists(fullpath_folder):
@@ -79,8 +78,8 @@ def remove_mod():
     return jsonify({'error':True, 'errormsg':_('Error: Old or new password not defined!')})
 
 @twp.route('/_create_user_slot', methods=['POST'])
+@check_session(level='admin')
 def create_user_slot():
-    check_session_admin()
     token = binascii.hexlify(os.urandom(24)).decode()
     user = User(username=token, password=token, token=token) # TODO: Perhaps best a table for slots?
     db_add_and_commit(user)
@@ -89,8 +88,8 @@ def create_user_slot():
     return jsonify({'error':True,'errormsg':_("Can't generate user slot!")})
 
 @twp.route('/_remove_user/<int:uid>', methods=['POST'])
+@check_session(level='admin')
 def remove_user(uid):
-    check_session_admin()
     if uid == SUPERUSER_ID:
         return jsonify({'error':True,'errormsg':_("Can't remove superuser!")})
     user = User.query.get(uid)
@@ -100,9 +99,8 @@ def remove_user(uid):
     return jsonify({'error':True,'errormsg':_("Can't found user")})
 
 @twp.route('/_change_permission_level', methods=['POST'])
+@check_session(level='admin')
 def change_permission_level():
-    check_session_admin()
-    
     perm_att = request.form['perm'].lower() if request.form.has_key('perm') else None
     id = request.form['id'] if request.form.has_key('id') else None
     if not perm_att or not id:
@@ -128,9 +126,8 @@ def change_permission_level():
     return jsonify({ 'success':True })
       
 @twp.route('/_create_permission_level', methods=['POST'])
+@check_session(level='admin')
 def create_permission_level():
-    check_session_admin()
-
     name = request.form['name'] if request.form.has_key('name') else None
     if not name:
         return jsonify({ 'error':True, 'errormsg':_('Permission need a name!') })
@@ -163,9 +160,8 @@ def create_permission_level():
     return jsonify({'success':True, 'perm':perm_level.to_dict()})
     
 @twp.route('/_remove_permission_level/<int:id>', methods=['POST'])
+@check_session(level='admin')
 def remove_permission_level(id):
-    check_session_admin()
-    
     perm_id = PermissionLevel.query.get(id)
     if not perm_id:
         return jsonify({'error':True, 'errormsg':_('Invalid Permission')})
@@ -173,9 +169,8 @@ def remove_permission_level(id):
     return jsonify({'success':True})
 
 @twp.route('/_get_user_servers_level/<int:uid>', methods=['POST'])
+@check_session(level='admin')
 def get_user_servers_level(uid):
-    check_session_admin()
-    
     perm_list = []
     perms = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == uid).all()
     for perm in perms:
@@ -183,9 +178,8 @@ def get_user_servers_level(uid):
     return jsonify({ 'success':True, 'perms':perm_list })
 
 @twp.route('/_set_user_server_level/<int:uid>/<int:srvid>', methods=['POST'])
+@check_session(level='admin')
 def _set_user_server_level(uid, srvid):
-    check_session_admin()
-    
     if uid == SUPERUSER_ID:
         return jsonify({ 'error':True, 'errormsg':"Can't define permission for superuser!" })
     
@@ -204,13 +198,12 @@ def _set_user_server_level(uid, srvid):
             db_delete_and_commit(perm)
     elif not perm_id == -1:
         perm = UserServerInstancePermission(user_id=uid, server_id=srvid, perm_id=perm_id)
-        db_add_and_commit(perm)
+        db_delete_and_commit(perm)
     return jsonify({ 'success':True })
 
 @twp.route('/_create_server_instance/<string:mod_folder>', methods=['POST'])
+@check_session(level='admin')
 def create_server_instance(mod_folder):
-    check_session_admin()
-    
     fileconfig = request.form['fileconfig']
     if not fileconfig or fileconfig == "":
         return jsonify({'error':True, 'errormsg':_('Invalid configuration file name.')})
@@ -287,9 +280,8 @@ def create_server_instance(mod_folder):
     return jsonify({'success':True})
 
 @twp.route('/_remove_server_instance/<int:id>/<int:delconfig>', methods=['POST'])
+@check_session(level='admin')
 def remove_server_instance(id, delconfig=0):
-    check_session_admin()
-
     srv = ServerInstance.query.get(id)
     if not srv:
         return jsonify({'error':True, 'errormsg':_('Invalid Operation: Server not found!')})

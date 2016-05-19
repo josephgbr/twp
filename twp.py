@@ -21,6 +21,7 @@ import subprocess, re, os, time, \
         signal, shutil, pytz
 from flask import Flask, request, session, g, redirect, url_for, abort, \
                   flash, current_app, Blueprint
+from functools import wraps
 from sqlalchemy import func, desc
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
@@ -39,6 +40,25 @@ SUPERUSER_ID = 1 # The hard-coded super-user id (a.k.a. administrator, or root u
 #################################
 # SESSION CHECKS
 #################################
+def check_session(level):
+    ''' 
+        check_session validate that the active session has a logged user with the selected level.
+        The levels can be:
+        - 'user': Only can access registered users
+        - 'admin': Only can access superuser
+    '''
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not 'logged_in' in session or not session['logged_in'] or not 'uid' in session:
+                abort(403)
+            elif level.lower() == 'admin' and not session['uid'] == SUPERUSER_ID:
+                abort(403)
+            else:
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 def check_session_expired():
     if 'logged_in' in session and session.get('last_activity') is not None:
         now = int(time.time())
@@ -49,15 +69,6 @@ def check_session_expired():
             logout()
         else:
             session['last_activity'] = now
-            
-def check_session():
-    if not 'logged_in' in session or not session['logged_in']:
-        abort(403)
-        
-def check_session_admin():
-    check_session()
-    if not 'uid' in session or not session['uid'] == SUPERUSER_ID:
-        abort(403)
 
 def get_session_user():
     if not 'logged_in' in session or not session['logged_in'] or not 'uid' in session:
@@ -67,16 +78,17 @@ def get_session_user():
 def get_session_server_permission_level(srvid):
     if not 'logged_in' in session or not session['logged_in']:
         return PermissionLevel()
-    
     if session['uid'] == SUPERUSER_ID:
         return PermissionLevel().sudo()
-
     usip = UserServerInstancePermission.query.filter(UserServerInstancePermission.user_id == session['uid'],
                                                     UserServerInstancePermission.server_id == srvid)
     if usip.count() < 1:
         return PermissionLevel()
+    
     usip = usip.one()
-    return PermissionLevel.query.get(usip.perm_id)
+    if not usip.perm:
+        return PermissionLevel()
+    return usip.perm
 
 
 #################################
