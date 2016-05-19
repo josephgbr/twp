@@ -23,7 +23,6 @@ from logging.handlers import RotatingFileHandler
 import logging
 logging.basicConfig()
 
-# Init Module
 if __name__ == "__main__":
     app = create_app(TWPConfig())
     db_init(app)

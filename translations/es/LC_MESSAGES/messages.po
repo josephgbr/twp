@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-18 07:48+0200\n"
-"PO-Revision-Date: 2016-05-18 07:48+0100\n"
+"POT-Creation-Date: 2016-05-19 04:19+0200\n"
+"PO-Revision-Date: 2016-05-19 04:19+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language: es\n"
 "Language-Team:  <dev@redneboa.es>\n"
@@ -19,184 +19,11 @@ msgstr ""
 "Generated-By: Babel 2.3.4\n"
 "X-Generator: Poedit 1.6.10\n"
 
-#: twp.py:208
-msgid "Error: {0}"
-msgstr "Error: {0}"
-
-#: twp.py:216
-msgid "Error: File type not allowed!"
-msgstr "Error: Tipo de archivo no permitido!"
-
-#: twp.py:218 twp.py:732
-msgid "Error: No file detected!"
-msgstr "Error: Archivo no detectado!"
-
-#: twp.py:222
-msgid "Mod installed successfully"
-msgstr "Mod instalado satisfactoriamente"
-
-#: twp.py:224
-msgid "Error: Can't install selected mod package"
-msgstr "Error: No se puede instalar el paquete del mod"
-
-#: twp.py:256
-msgid "You are logged in!"
-msgstr "Te has logeado correctamente!"
-
-#: twp.py:267
-msgid "Invalid username or password! ({0}/{1})"
-msgstr "Nombre de usuario o contraseña incorrectos! ({0}/{1})"
-
-#: twp.py:284
-msgid "You are logged out!"
-msgstr "Sesión cerrada correctamente!"
-
-#: twp.py:302
-msgid "Username already in use!"
-msgstr "Nombre de usuario en uso!"
-
-#: twp.py:355 twp.py:399
-msgid "Server not found!"
-msgstr "Servidor no encontrado!"
-
-#: twp.py:393 twp.py:1119
-msgid "Logfile not exists!"
-msgstr "El historial no existe!"
-
-#: twp.py:418
-msgid "Missed params!"
-msgstr "Faltan parámetros!"
-
-#: twp.py:442
-msgid "Error: Folder mod not exists!"
-msgstr "Error: La carpeta del mod no existe!"
-
-#: twp.py:443 twp.py:568
-msgid "Error: Old or new password not defined!"
-msgstr "Error: Alguna contraseña no ha sido definida!"
-
-#: twp.py:496 twp.py:538 twp.py:751 twp.py:840 twp.py:1041 twp.py:1107
-#: twp.py:1147
-msgid "Invalid Operation: Server not found!"
-msgstr "Operación Inválida: Servidor no encontrado!"
-
-#: twp.py:550
-msgid "Undefined Chart!"
-msgstr "Gráfico no definido!"
-
-#: twp.py:565
-msgid "Error: Can't change password. Check settings and try again."
-msgstr "Error: No se ha podido cambiar la contraseña. Revisa la configuración e inténtalo de nuevo."
-
-#: twp.py:578
-msgid "Can't generate user slot!"
-msgstr "No se ha podido generar un espacio de usuario!"
-
-#: twp.py:584
-msgid "Can't remove superuser!"
-msgstr "No se puede eliminar el administrador!"
-
-#: twp.py:589
-msgid "Can't found user"
-msgstr "No se ha podido encontrar al usuario"
-
-#: twp.py:598 twp.py:614
-msgid "Invalid params!"
-msgstr "Parámetros inválidos!"
-
-#: twp.py:625
-msgid "Permission need a name!"
-msgstr "El permiso necesita un nombre!"
-
-#: twp.py:630
-msgid "Permission Level name need be unique"
-msgstr "El nombre del nivel debe ser único"
-
-#: twp.py:660
-msgid "Invalid Permission"
-msgstr "Permiso inválido"
-
-#: twp.py:726
-msgid "Invalid map package"
-msgstr "Paquete de mapas inválido"
-
-#: twp.py:730
-msgid "Error: Can't upload selected maps"
-msgstr "Error: No se pueden subir los mapas seleccionados"
-
-#: twp.py:733 twp.py:911 twp.py:934 twp.py:967 twp.py:995 twp.py:1023
-msgid "Invalid Operation: Server not exists!"
-msgstr "Operación Inválida: El servidor no existe!"
-
-#: twp.py:735
-msgid "Error: You haven't permissions for upload new maps!"
-msgstr "Error: No tienes los permisos necesarios para subir mapas nuevos!"
-
-#: twp.py:750
-msgid "Error: Map not exists!"
-msgstr "Error: El mapa no existe!"
-
-#: twp.py:752
-msgid "Invalid Operation: Map not defined!"
-msgstr "Operación Inválida: Mapa no definido!"
-
-#: twp.py:761
-msgid "Invalid configuration file name."
-msgstr "Nombre de archivo de configuración inválido."
-
-#: twp.py:777
-msgid "Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again."
-msgstr "No puedes existir dos servidores con el mismo archivo de configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de nuevo."
-
-#: twp.py:788 twp.py:887
-msgid "Can't exist two servers with the same log file.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo archivo de historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
-
-#: twp.py:796
-msgid "Can't exist two servers with the same 'ec_port'.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
-
-#: twp.py:877
-msgid "Can't exist two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again."
-msgstr "No puede existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
-
-#: twp.py:1005
-msgid "Undefined server binary file!!"
-msgstr "Binario de servidor no definido!!"
-
-#: twp.py:1011
-msgid "Can't run two servers in the same port!"
-msgstr "No se pueden ejecutar dos servidores al mismo tiempo en el mismo puerto!"
-
-#: twp.py:1039
-msgid "Invalid Operation: Can't found server pid"
-msgstr "Operación Inválida: No se ha podido encontrar el 'pid' del servidor"
-
-#: twp.py:1066
-msgid "Logfile not defined!"
-msgstr "Historial no definido!"
-
-#: twp.py:1168 twp.py:1190
-msgid "Invalid Operation: Server not found or econ not configured!"
-msgstr "Operación Inválida: Servidor no encontrado o econ no configurado!"
-
-#: twp.py:1177
-msgid "Client player not defined!"
-msgstr "Jugador no definido!"
-
-#: twp.py:1185
-msgid "Can't found '{0}' player!"
-msgstr "No se ha podido encontrar al jugador '{0}'!"
-
-#: twp.py:1197
-msgid "Invalid TimeZone!"
-msgstr "Zona Horaria Inválida!"
-
-#: twp.py:1215
+#: twp.py:48
 msgid "Session timed out!"
 msgstr "La sesión ha expirado!"
 
-#: twp.py:1386
+#: twp.py:196
 msgid "Error in the '{0}' field - {1}"
 msgstr "Error en el campo '{0}' - {1}"
 
@@ -1103,6 +930,183 @@ msgstr "Desde Archivo"
 #: twpl/forms.py:40
 msgid "From URL"
 msgstr "Desde URL"
+
+#: webcontroller/admin.py:41
+msgid "Error: {0}"
+msgstr "Error: {0}"
+
+#: webcontroller/admin.py:49
+msgid "Error: File type not allowed!"
+msgstr "Error: Tipo de archivo no permitido!"
+
+#: webcontroller/admin.py:51 webcontroller/private.py:119
+msgid "Error: No file detected!"
+msgstr "Error: Archivo no detectado!"
+
+#: webcontroller/admin.py:55
+msgid "Mod installed successfully"
+msgstr "Mod instalado satisfactoriamente"
+
+#: webcontroller/admin.py:57
+msgid "Error: Can't install selected mod package"
+msgstr "Error: No se puede instalar el paquete del mod"
+
+#: webcontroller/admin.py:78
+msgid "Error: Folder mod not exists!"
+msgstr "Error: La carpeta del mod no existe!"
+
+#: webcontroller/admin.py:79 webcontroller/private.py:86
+msgid "Error: Old or new password not defined!"
+msgstr "Error: Alguna contraseña no ha sido definida!"
+
+#: webcontroller/admin.py:89
+msgid "Can't generate user slot!"
+msgstr "No se ha podido generar un espacio de usuario!"
+
+#: webcontroller/admin.py:95
+msgid "Can't remove superuser!"
+msgstr "No se puede eliminar el administrador!"
+
+#: webcontroller/admin.py:100
+msgid "Can't found user"
+msgstr "No se ha podido encontrar al usuario"
+
+#: webcontroller/admin.py:109 webcontroller/admin.py:125
+msgid "Invalid params!"
+msgstr "Parámetros inválidos!"
+
+#: webcontroller/admin.py:136
+msgid "Permission need a name!"
+msgstr "El permiso necesita un nombre!"
+
+#: webcontroller/admin.py:141
+msgid "Permission Level name need be unique"
+msgstr "El nombre del nivel debe ser único"
+
+#: webcontroller/admin.py:171
+msgid "Invalid Permission"
+msgstr "Permiso inválido"
+
+#: webcontroller/admin.py:216
+msgid "Invalid configuration file name."
+msgstr "Nombre de archivo de configuración inválido."
+
+#: webcontroller/admin.py:232
+msgid "Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again."
+msgstr "No puedes existir dos servidores con el mismo archivo de configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de nuevo."
+
+#: webcontroller/admin.py:243 webcontroller/private.py:181
+msgid "Can't exist two servers with the same log file.<br/>Please check configuration and try again."
+msgstr "No pueden existir dos servidores con el mismo archivo de historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+
+#: webcontroller/admin.py:251
+msgid "Can't exist two servers with the same 'ec_port'.<br/>Please check configuration and try again."
+msgstr "No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+
+#: webcontroller/admin.py:295 webcontroller/private.py:138
+#: webcontroller/private.py:335 webcontroller/private.py:396
+#: webcontroller/private.py:436 webcontroller/public.py:303
+#: webcontroller/public.py:345
+msgid "Invalid Operation: Server not found!"
+msgstr "Operación Inválida: Servidor no encontrado!"
+
+#: webcontroller/private.py:58 webcontroller/private.py:408
+msgid "Logfile not exists!"
+msgstr "El historial no existe!"
+
+#: webcontroller/private.py:64 webcontroller/public.py:120
+msgid "Server not found!"
+msgstr "Servidor no encontrado!"
+
+#: webcontroller/private.py:83
+msgid "Error: Can't change password. Check settings and try again."
+msgstr "Error: No se ha podido cambiar la contraseña. Revisa la configuración e inténtalo de nuevo."
+
+#: webcontroller/private.py:113
+msgid "Invalid map package"
+msgstr "Paquete de mapas inválido"
+
+#: webcontroller/private.py:117
+msgid "Error: Can't upload selected maps"
+msgstr "Error: No se pueden subir los mapas seleccionados"
+
+#: webcontroller/private.py:120 webcontroller/private.py:205
+#: webcontroller/private.py:228 webcontroller/private.py:261
+#: webcontroller/private.py:289 webcontroller/private.py:317
+msgid "Invalid Operation: Server not exists!"
+msgstr "Operación Inválida: El servidor no existe!"
+
+#: webcontroller/private.py:122
+msgid "Error: You haven't permissions for upload new maps!"
+msgstr "Error: No tienes los permisos necesarios para subir mapas nuevos!"
+
+#: webcontroller/private.py:137
+msgid "Error: Map not exists!"
+msgstr "Error: El mapa no existe!"
+
+#: webcontroller/private.py:139
+msgid "Invalid Operation: Map not defined!"
+msgstr "Operación Inválida: Mapa no definido!"
+
+#: webcontroller/private.py:171
+msgid "Can't exist two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again."
+msgstr "No puede existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+
+#: webcontroller/private.py:299
+msgid "Undefined server binary file!!"
+msgstr "Binario de servidor no definido!!"
+
+#: webcontroller/private.py:305
+msgid "Can't run two servers in the same port!"
+msgstr "No se pueden ejecutar dos servidores al mismo tiempo en el mismo puerto!"
+
+#: webcontroller/private.py:333
+msgid "Invalid Operation: Can't found server pid"
+msgstr "Operación Inválida: No se ha podido encontrar el 'pid' del servidor"
+
+#: webcontroller/private.py:355
+msgid "Logfile not defined!"
+msgstr "Historial no definido!"
+
+#: webcontroller/private.py:457 webcontroller/private.py:479
+msgid "Invalid Operation: Server not found or econ not configured!"
+msgstr "Operación Inválida: Servidor no encontrado o econ no configurado!"
+
+#: webcontroller/private.py:466
+msgid "Client player not defined!"
+msgstr "Jugador no definido!"
+
+#: webcontroller/private.py:474
+msgid "Can't found '{0}' player!"
+msgstr "No se ha podido encontrar al jugador '{0}'!"
+
+#: webcontroller/public.py:174
+msgid "You are logged in!"
+msgstr "Te has logeado correctamente!"
+
+#: webcontroller/public.py:185
+msgid "Invalid username or password! ({0}/{1})"
+msgstr "Nombre de usuario o contraseña incorrectos! ({0}/{1})"
+
+#: webcontroller/public.py:202
+msgid "You are logged out!"
+msgstr "Sesión cerrada correctamente!"
+
+#: webcontroller/public.py:220
+msgid "Username already in use!"
+msgstr "Nombre de usuario en uso!"
+
+#: webcontroller/public.py:242
+msgid "Missed params!"
+msgstr "Faltan parámetros!"
+
+#: webcontroller/public.py:357
+msgid "Undefined Chart!"
+msgstr "Gráfico no definido!"
+
+#: webcontroller/public.py:368
+msgid "Invalid TimeZone!"
+msgstr "Zona Horaria Inválida!"
 
 #~ msgid "System failure: {0}"
 #~ msgstr "Fallo del sistema: {0}"

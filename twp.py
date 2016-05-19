@@ -218,7 +218,7 @@ def create_app(twpconf):
     scheduler = APScheduler()
     scheduler.init_app(app)
     scheduler.start()
-    scheduler.add_job('analyze_all_server_instances', 
+    scheduler.add_job('twp:analyze_all_server_instances', 
                       analyze_all_server_instances, 
                       trigger={'second':30, 'type':'cron'}, 
                       replace_existing=True, 
