@@ -7,78 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TWP v0.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-19 04:19+0200\n"
+"POT-Creation-Date: 2016-05-19 17:37-0300\n"
 "PO-Revision-Date: 2016-05-19 04:19+0100\n"
 "Last-Translator: Alexandre Díaz <dev@redneboa.es>\n"
 "Language: es\n"
-"Language-Team:  <dev@redneboa.es>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: <dev@redneboa.es>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"X-Generator: Poedit 1.6.10\n"
-
-#: twp.py:48
-msgid "Session timed out!"
-msgstr "La sesión ha expirado!"
-
-#: twp.py:196
-msgid "Error in the '{0}' field - {1}"
-msgstr "Error en el campo '{0}' - {1}"
-
-#: templates/minimal_layout.html:47
-msgid "Proudly hosted on"
-msgstr "Orgullosamente hospedado en"
-
-#: templates/minimal_layout.html:56
-msgid "You haven't the permissions for do this action."
-msgstr "No tienes permisos para realizar esta acción."
-
-#: templates/minimal_layout.html:57
-msgid "ACTION NOT ALLOWED"
-msgstr "ACCIÓN NO PERMITIDA"
-
-#: templates/minimal_layout.html:58
-msgid "The session has expired"
-msgstr "La sesión ha expirado"
-
-#: templates/minimal_layout.html:59
-msgid "Session Expired!"
-msgstr "Sesión Terminada!"
-
-#: templates/minimal_layout.html:60
-msgid "Interal error has ocurred!"
-msgstr "Ha ocurrido un error interno!"
-
-#: templates/minimal_layout.html:61
-msgid "Error - Ooops!"
-msgstr "Error - Ooops!"
-
-#: templates/minimal_layout.html:62
-msgid "Damn"
-msgstr "Maldición"
-
-#: templates/minimal_layout.html:63
-msgid "Are you sure?"
-msgstr "¿Estás seguro?"
-
-#: templates/minimal_layout.html:64
-msgid "Delete"
-msgstr "Borrar"
-
-#: templates/minimal_layout.html:65 templates/pages/settings.html:168
-msgid "Ok"
-msgstr "Aceptar"
-
-#: templates/includes/modal_create_permission_level.html:25
-#: templates/minimal_layout.html:66 templates/pages/servers.html:162
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: templates/minimal_layout.html:67
-msgid "NO DATA"
-msgstr "SIN INFORMACIÓN"
 
 #: templates/includes/modal_create_banner.html:7 templates/pages/server.html:18
 msgid "Create Banner"
@@ -356,6 +294,59 @@ msgstr "Asc"
 msgid "Section"
 msgstr "Sección"
 
+#: templates/minimal_layout.html:47
+msgid "Proudly hosted on"
+msgstr "Orgullosamente hospedado en"
+
+#: templates/minimal_layout.html:56
+msgid "You haven't the permissions for do this action."
+msgstr "No tienes permisos para realizar esta acción."
+
+#: templates/minimal_layout.html:57
+msgid "ACTION NOT ALLOWED"
+msgstr "ACCIÓN NO PERMITIDA"
+
+#: templates/minimal_layout.html:58
+msgid "The session has expired"
+msgstr "La sesión ha expirado"
+
+#: templates/minimal_layout.html:59
+msgid "Session Expired!"
+msgstr "Sesión Terminada!"
+
+#: templates/minimal_layout.html:60
+msgid "Interal error has ocurred!"
+msgstr "Ha ocurrido un error interno!"
+
+#: templates/minimal_layout.html:61
+msgid "Error - Ooops!"
+msgstr "Error - Ooops!"
+
+#: templates/minimal_layout.html:62
+msgid "Damn"
+msgstr "Maldición"
+
+#: templates/minimal_layout.html:63
+msgid "Are you sure?"
+msgstr "¿Estás seguro?"
+
+#: templates/minimal_layout.html:64
+msgid "Delete"
+msgstr "Borrar"
+
+#: templates/minimal_layout.html:65 templates/pages/settings.html:168
+msgid "Ok"
+msgstr "Aceptar"
+
+#: templates/includes/modal_create_permission_level.html:25
+#: templates/minimal_layout.html:66 templates/pages/servers.html:162
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/minimal_layout.html:67
+msgid "NO DATA"
+msgstr "SIN INFORMACIÓN"
+
 #: templates/pages/index.html:19
 msgid "CPU usage:"
 msgstr "Uso CPU:"
@@ -425,8 +416,13 @@ msgid "TWP Installation"
 msgstr "TWP Instalación"
 
 #: templates/pages/install.html:14
-msgid "Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, take a moment for complete the installation."
-msgstr "Gracias por confiar en TWP para administrar tus servidores de Teeworlds.<br/>Por favor, tómate un momento para completar la instalación."
+msgid ""
+"Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, "
+"take a moment for complete the installation."
+msgstr ""
+"Gracias por confiar en TWP para administrar tus servidores de "
+"Teeworlds.<br/>Por favor, tómate un momento para completar la "
+"instalación."
 
 #: templates/pages/install.html:17 templates/pages/user_register.html:19
 msgid "Next"
@@ -506,14 +502,14 @@ msgid "Status"
 msgstr "Estado"
 
 #: templates/pages/search.html:39 templates/pages/servers.html:64
-#: templates/pages/servers.html:157
-msgid "Register Server"
-msgstr "Servidor Registrado"
-
-#: templates/pages/search.html:39 templates/pages/servers.html:64
 #: templates/pages/servers.html:156
 msgid "Not Register Server"
 msgstr "Servidor No Registrado"
+
+#: templates/pages/search.html:39 templates/pages/servers.html:64
+#: templates/pages/servers.html:157
+msgid "Register Server"
+msgstr "Servidor Registrado"
 
 #: templates/pages/search.html:40 templates/pages/servers.html:65
 #: templates/pages/servers.html:154
@@ -742,7 +738,9 @@ msgstr "Iniciando..."
 
 #: templates/pages/servers.html:160
 msgid "This can't be canceled and erase all mod data on the disk!!"
-msgstr "Esto no puede ser cancelado y se borrará toda la información del mod del disco!!"
+msgstr ""
+"Esto no puede ser cancelado y se borrará toda la información del mod del "
+"disco!!"
 
 #: templates/pages/servers.html:161
 msgid "Remove"
@@ -757,8 +755,12 @@ msgid "SERVER ONLINE"
 msgstr "SERVIDOR CONECTADO"
 
 #: templates/pages/servers.html:166
-msgid "Attetion: Server Online. The new configuration will not take effect until you restart the server."
-msgstr "Atención: Servidor Conectado. La nueva configuración no tendrá efecto hasta que no reinicies el servidor."
+msgid ""
+"Attetion: Server Online. The new configuration will not take effect until"
+" you restart the server."
+msgstr ""
+"Atención: Servidor Conectado. La nueva configuración no tendrá efecto "
+"hasta que no reinicies el servidor."
 
 #: templates/pages/servers.html:167
 msgid "Restart"
@@ -904,8 +906,20 @@ msgid "Welcome to %%s"
 msgstr "Bienvenid@ a %%s"
 
 #: templates/pages/user_register.html:16
-msgid "You are invited for be a member of the staff!<br/>Please, take a moment for complete the registration."
-msgstr "Has sido invitad@ para ser miembro de la administración!<br/>Por favor, tómate un momento para completar el registro."
+msgid ""
+"You are invited for be a member of the staff!<br/>Please, take a moment "
+"for complete the registration."
+msgstr ""
+"Has sido invitad@ para ser miembro de la administración!<br/>Por favor, "
+"tómate un momento para completar el registro."
+
+#: twp.py:68
+msgid "Session timed out!"
+msgstr "La sesión ha expirado!"
+
+#: twp.py:208
+msgid "Error in the '{0}' field - {1}"
+msgstr "Error en el campo '{0}' - {1}"
 
 #: twpl/forms.py:29 twpl/forms.py:34
 msgid "Password"
@@ -939,144 +953,167 @@ msgstr "Error: {0}"
 msgid "Error: File type not allowed!"
 msgstr "Error: Tipo de archivo no permitido!"
 
-#: webcontroller/admin.py:51 webcontroller/private.py:119
+#: webcontroller/admin.py:51 webcontroller/private.py:120
 msgid "Error: No file detected!"
 msgstr "Error: Archivo no detectado!"
 
-#: webcontroller/admin.py:55
+#: webcontroller/admin.py:57
 msgid "Mod installed successfully"
 msgstr "Mod instalado satisfactoriamente"
 
-#: webcontroller/admin.py:57
+#: webcontroller/admin.py:59
 msgid "Error: Can't install selected mod package"
 msgstr "Error: No se puede instalar el paquete del mod"
 
-#: webcontroller/admin.py:78
+#: webcontroller/admin.py:61
+msgid "Error: Package not have the followed folders:"
+msgstr ""
+
+#: webcontroller/admin.py:83
 msgid "Error: Folder mod not exists!"
 msgstr "Error: La carpeta del mod no existe!"
 
-#: webcontroller/admin.py:79 webcontroller/private.py:86
+#: webcontroller/admin.py:84 webcontroller/private.py:86
 msgid "Error: Old or new password not defined!"
 msgstr "Error: Alguna contraseña no ha sido definida!"
 
-#: webcontroller/admin.py:89
+#: webcontroller/admin.py:94
 msgid "Can't generate user slot!"
 msgstr "No se ha podido generar un espacio de usuario!"
 
-#: webcontroller/admin.py:95
+#: webcontroller/admin.py:100
 msgid "Can't remove superuser!"
 msgstr "No se puede eliminar el administrador!"
 
-#: webcontroller/admin.py:100
+#: webcontroller/admin.py:105
 msgid "Can't found user"
 msgstr "No se ha podido encontrar al usuario"
 
-#: webcontroller/admin.py:109 webcontroller/admin.py:125
+#: webcontroller/admin.py:113 webcontroller/admin.py:129
 msgid "Invalid params!"
 msgstr "Parámetros inválidos!"
 
-#: webcontroller/admin.py:136
+#: webcontroller/admin.py:139
 msgid "Permission need a name!"
 msgstr "El permiso necesita un nombre!"
 
-#: webcontroller/admin.py:141
+#: webcontroller/admin.py:144
 msgid "Permission Level name need be unique"
 msgstr "El nombre del nivel debe ser único"
 
-#: webcontroller/admin.py:171
+#: webcontroller/admin.py:173
 msgid "Invalid Permission"
 msgstr "Permiso inválido"
 
-#: webcontroller/admin.py:216
+#: webcontroller/admin.py:215
 msgid "Invalid configuration file name."
 msgstr "Nombre de archivo de configuración inválido."
 
-#: webcontroller/admin.py:232
-msgid "Can't exists two servers with the same configuration file.<br/>Please change configuration file name and try again."
-msgstr "No puedes existir dos servidores con el mismo archivo de configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de nuevo."
+#: webcontroller/admin.py:231
+msgid ""
+"Can't exists two servers with the same configuration file.<br/>Please "
+"change configuration file name and try again."
+msgstr ""
+"No puedes existir dos servidores con el mismo archivo de "
+"configuración.<br/>Por favor cambia el nombre del archivo e inténtalo de "
+"nuevo."
 
-#: webcontroller/admin.py:243 webcontroller/private.py:181
-msgid "Can't exist two servers with the same log file.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo archivo de historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+#: webcontroller/admin.py:242 webcontroller/private.py:185
+msgid ""
+"Can't exist two servers with the same log file.<br/>Please check "
+"configuration and try again."
+msgstr ""
+"No pueden existir dos servidores con el mismo archivo de "
+"historial.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
-#: webcontroller/admin.py:251
-msgid "Can't exist two servers with the same 'ec_port'.<br/>Please check configuration and try again."
-msgstr "No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+#: webcontroller/admin.py:250
+msgid ""
+"Can't exist two servers with the same 'ec_port'.<br/>Please check "
+"configuration and try again."
+msgstr ""
+"No pueden existir dos servidores con el mismo 'ec_port'.<br/>Por favor "
+"comprueba la configuración e inténtalo de nuevo."
 
-#: webcontroller/admin.py:295 webcontroller/private.py:138
-#: webcontroller/private.py:335 webcontroller/private.py:396
-#: webcontroller/private.py:436 webcontroller/public.py:303
+#: webcontroller/admin.py:293 webcontroller/private.py:140
+#: webcontroller/private.py:346 webcontroller/private.py:409
+#: webcontroller/private.py:450 webcontroller/public.py:303
 #: webcontroller/public.py:345
 msgid "Invalid Operation: Server not found!"
 msgstr "Operación Inválida: Servidor no encontrado!"
 
-#: webcontroller/private.py:58 webcontroller/private.py:408
+#: webcontroller/private.py:59 webcontroller/private.py:422
 msgid "Logfile not exists!"
 msgstr "El historial no existe!"
 
-#: webcontroller/private.py:64 webcontroller/public.py:120
+#: webcontroller/private.py:65 webcontroller/public.py:120
 msgid "Server not found!"
 msgstr "Servidor no encontrado!"
 
 #: webcontroller/private.py:83
 msgid "Error: Can't change password. Check settings and try again."
-msgstr "Error: No se ha podido cambiar la contraseña. Revisa la configuración e inténtalo de nuevo."
+msgstr ""
+"Error: No se ha podido cambiar la contraseña. Revisa la configuración e "
+"inténtalo de nuevo."
 
-#: webcontroller/private.py:113
+#: webcontroller/private.py:114
 msgid "Invalid map package"
 msgstr "Paquete de mapas inválido"
 
-#: webcontroller/private.py:117
+#: webcontroller/private.py:118
 msgid "Error: Can't upload selected maps"
 msgstr "Error: No se pueden subir los mapas seleccionados"
 
-#: webcontroller/private.py:120 webcontroller/private.py:205
-#: webcontroller/private.py:228 webcontroller/private.py:261
-#: webcontroller/private.py:289 webcontroller/private.py:317
+#: webcontroller/private.py:121 webcontroller/private.py:209
+#: webcontroller/private.py:233 webcontroller/private.py:269
+#: webcontroller/private.py:298 webcontroller/private.py:327
 msgid "Invalid Operation: Server not exists!"
 msgstr "Operación Inválida: El servidor no existe!"
 
-#: webcontroller/private.py:122
+#: webcontroller/private.py:123
 msgid "Error: You haven't permissions for upload new maps!"
 msgstr "Error: No tienes los permisos necesarios para subir mapas nuevos!"
 
-#: webcontroller/private.py:137
+#: webcontroller/private.py:139
 msgid "Error: Map not exists!"
 msgstr "Error: El mapa no existe!"
 
-#: webcontroller/private.py:139
+#: webcontroller/private.py:141
 msgid "Invalid Operation: Map not defined!"
 msgstr "Operación Inválida: Mapa no definido!"
 
-#: webcontroller/private.py:171
-msgid "Can't exist two servers with the same 'sv_port' in the same MOD.<br/>Please check configuration and try again."
-msgstr "No puede existir dos servidores con el mismo 'sv_port' en el mismo MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
+#: webcontroller/private.py:175
+msgid ""
+"Can't exist two servers with the same 'sv_port' in the same "
+"MOD.<br/>Please check configuration and try again."
+msgstr ""
+"No puede existir dos servidores con el mismo 'sv_port' en el mismo "
+"MOD.<br/>Por favor comprueba la configuración e inténtalo de nuevo."
 
-#: webcontroller/private.py:299
+#: webcontroller/private.py:309
 msgid "Undefined server binary file!!"
 msgstr "Binario de servidor no definido!!"
 
-#: webcontroller/private.py:305
+#: webcontroller/private.py:315
 msgid "Can't run two servers in the same port!"
 msgstr "No se pueden ejecutar dos servidores al mismo tiempo en el mismo puerto!"
 
-#: webcontroller/private.py:333
+#: webcontroller/private.py:344
 msgid "Invalid Operation: Can't found server pid"
 msgstr "Operación Inválida: No se ha podido encontrar el 'pid' del servidor"
 
-#: webcontroller/private.py:355
+#: webcontroller/private.py:368
 msgid "Logfile not defined!"
 msgstr "Historial no definido!"
 
-#: webcontroller/private.py:457 webcontroller/private.py:479
+#: webcontroller/private.py:472 webcontroller/private.py:495
 msgid "Invalid Operation: Server not found or econ not configured!"
 msgstr "Operación Inválida: Servidor no encontrado o econ no configurado!"
 
-#: webcontroller/private.py:466
+#: webcontroller/private.py:482
 msgid "Client player not defined!"
 msgstr "Jugador no definido!"
 
-#: webcontroller/private.py:474
+#: webcontroller/private.py:490
 msgid "Can't found '{0}' player!"
 msgstr "No se ha podido encontrar al jugador '{0}'!"
 
@@ -1722,3 +1759,4 @@ msgstr "Zona Horaria Inválida!"
 
 #~ msgid "{0} '{1}' via ECon"
 #~ msgstr "{0} '{1}' via ECon"
+
