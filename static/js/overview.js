@@ -111,6 +111,6 @@ $(function() {
 		if (data['labels'] && data['labels']['players7d'] && data['labels']['players7d'].length > 0)
 			createAnimatedChartLine('#chart-machine-players7d', data, 'players7d');
 		else
-			$('#chart-machine-players7d').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
+			$('#chart-machine-players7d').html("<h3 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-line-chart'></i></h3>");
 	});
 });

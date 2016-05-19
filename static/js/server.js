@@ -61,13 +61,13 @@ $(function(){
 		if (data['labels'] && data['labels']['players7d'] && data['labels']['players7d'].length > 0)
 			createAnimatedChartLine('#chart-players-7d', data, 'players7d');
 		else
-			$('#chart-players-7d').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
+			$('#chart-players-7d').html("<h3 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-line-chart'></i></h3>");
 
 		// Top Clans
 		if (data['labels'] && data['labels']['topclan'] && data['labels']['topclan'].length > 0)
 			createAnimatedChartDonut('#chart-active-clan', data, 'topclan');
 		else
-			$('#chart-active-clan').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
+			$('#chart-active-clan').html("<h3 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-pie-chart'></i></h3>");
 		
 		// Top Countries
 		if (data['labels'] && data['labels']['topcountry'] && data['labels']['topcountry'].length > 0)
@@ -88,7 +88,7 @@ $(function(){
 			createAnimatedChartDonut('#chart-active-country', data, 'topcountry');
 		}
 		else
-			$('#chart-active-country').html("<h1 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-meh-o'></i></h1>");
+			$('#chart-active-country').html("<h3 class='text-center text-muted'>"+$BABEL_STR_NO_DATA+"<br/><i class='fa fa-pie-chart'></i></h3>");
 	});
 	
 	// ColorPicker Modal

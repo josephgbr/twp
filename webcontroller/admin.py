@@ -51,11 +51,17 @@ def install_mod():
             flash(_('Error: No file detected!'), 'danger')
             
     if filename:
-        if twpl.install_server_mod(r'%s/%s' % (current_app.config['UPLOAD_FOLDER'], filename), current_app.config['SERVERS_BASEPATH']):
+        status,errors = twpl.install_server_mod(r'%s/%s' % (current_app.config['UPLOAD_FOLDER'], filename), 
+                                               current_app.config['SERVERS_BASEPATH'])
+        if status:
             flash(_('Mod installed successfully'), 'info')
-        else:
+        elif not status and not errors:
             flash(_('Error: Can\'t install selected mod package'), 'danger')
-            
+        else:
+            msg = _('Error: Package not have the followed folders:')+' '
+            for err in errors:
+                msg += err+', '
+            flash(msg, 'danger')
     return redirect(current_url)
 
 

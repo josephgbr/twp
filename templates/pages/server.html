@@ -123,11 +123,11 @@
 
 		
 		{% if session.logged_in and session.uid == SUPERUSER_ID %}
-		<div class="col-md-12 col-xs-12">
+		<div class="col-md-12 col-xs-12" style="margin-top:5em;">
 			<p style="margin-top:1em"><strong>{{_("USER'S ACTIVITY REGISTRY")}}</strong><span class="line-divisor-section"></span></p>
 		</div>
 		{% for reg in users_reg %}
-		<div class="col-md-12 col-xs-12" style="font-size:x-small;">
+		<div class="col-md-6 col-md-offset-3 col-xs-12" style="font-size:x-small;">
 			<div class="panel">
 				<div class="panel-heading">
 					<b>{{reg.user.username.upper()}} {% if reg.user_id == SUPERUSER_ID %}({{_('Administrator')}}){% endif %}</b>

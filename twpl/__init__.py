@@ -372,14 +372,19 @@ def download_mod_from_url(url, dest):
     return matchObj.group(1)
 
 def install_server_mod(filepath, dest):    
-    if not check_mod_package(filepath):
-        return False
+    check_status = check_mod_package(filepath)
+    if check_status:
+        return (False, check_status)
     
-    if tarfile.is_tarfile(filepath):
-        extract_targz(filepath, dest, True)
-    elif zipfile.is_zipfile(filepath):
-        extract_zip(filepath, dest, True)
-    return True
+    try:
+        if tarfile.is_tarfile(filepath):
+            extract_targz(filepath, dest, True)
+        elif zipfile.is_zipfile(filepath):
+            extract_zip(filepath, dest, True)
+    except Exception:
+        return (False,False)
+    
+    return (True,False)
 
 def check_mod_package(filepath):
     checkFolders = {'data/':False, 'data/maps/': False, 'data/mapres/': False}
@@ -418,12 +423,8 @@ def check_mod_package(filepath):
                 return False
         finally:
             zip_file.close()
-    
-    for chkFld in checkFolders.values():
-        if not chkFld:
-            return False
-        
-    return True
+
+    return [chkFld for chkFld in checkFolders.keys() if checkFolders[chkFld] == False]
         
 def write_config_param(filename, param, new_value):
     replaced = False

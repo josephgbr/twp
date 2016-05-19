@@ -369,6 +369,9 @@ $(function(){
 		var $btngroup =  $('#btn-play-srv-'+srvid);
 		var $btnlist = $btngroup.find('.dropdown-toggle');
 		
+		if ($this.hasClass('disabled'))
+			return false;
+		
 		$this.addClass('disabled btn-warning').removeClass('btn-success');
 		$btnlist.addClass('disabled btn-warning').removeClass('btn-success');
 		$listline.find("button[data-target='#modal_instance_configuration']").addClass('disabled hidden');
