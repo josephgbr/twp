@@ -7,14 +7,15 @@ msgstr ""
 "Project-Id-Version: TWP v0.3.0\n"
 "Report-Msgid-Bugs-To: https://github.com/CytraL/twp/issues\n"
 "POT-Creation-Date: 2016-05-19 17:37-0300\n"
-"PO-Revision-Date: 2016-05-08 11:54-0200\n"
+"PO-Revision-Date: 2016-05-19 17:45-0200\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
-"Language: pt_BR\n"
 "Language-Team: Brazilian Portuguese\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Virtaal 0.7.1\n"
 "Generated-By: Babel 2.3.4\n"
 
 #: templates/includes/modal_create_banner.html:7 templates/pages/server.html:18
@@ -51,7 +52,7 @@ msgstr "Visualizar"
 
 #: templates/includes/modal_create_banner.html:54
 msgid "Server Banner"
-msgstr ""
+msgstr "Banner do servidor"
 
 #: templates/includes/modal_create_banner.html:56
 msgid "Share URL"
@@ -59,15 +60,15 @@ msgstr "Compartilhar URL"
 
 #: templates/includes/modal_create_permission_level.html:6
 msgid "Create Permission Level"
-msgstr ""
+msgstr "Criar nível de permissão"
 
 #: templates/includes/modal_create_permission_level.html:15
 msgid "Permission Name"
-msgstr ""
+msgstr "Nome da permissão"
 
 #: templates/includes/modal_create_permission_level.html:26
 msgid "Create"
-msgstr ""
+msgstr "Criar"
 
 #: templates/includes/modal_external_console.html:6
 msgid "External Console"
@@ -202,11 +203,11 @@ msgstr "Criar instância"
 
 #: templates/includes/modal_user_permissions.html:6
 msgid "User Permissions"
-msgstr ""
+msgstr "Permissões de usuário"
 
 #: templates/includes/modal_user_permissions.html:17
 msgid "Server"
-msgstr ""
+msgstr "Servidor"
 
 #: templates/includes/modal_user_permissions.html:18
 #: templates/pages/search.html:29 templates/pages/servers.html:52
@@ -215,11 +216,11 @@ msgstr "Porta"
 
 #: templates/includes/modal_user_permissions.html:19
 msgid "Level"
-msgstr ""
+msgstr "Nível"
 
 #: templates/includes/modal_user_permissions.html:29
 msgid "None"
-msgstr ""
+msgstr "Nenhum"
 
 #: templates/includes/nav.html:6
 msgid "Toggle navigation"
@@ -227,7 +228,7 @@ msgstr "Alternar navegação"
 
 #: templates/includes/nav.html:16
 msgid "Website Time Zone"
-msgstr ""
+msgstr "Fuso horário do site"
 
 #: templates/includes/nav.html:38
 msgid "Search..."
@@ -299,11 +300,11 @@ msgstr "Hospedado com orgulho em"
 
 #: templates/minimal_layout.html:56
 msgid "You haven't the permissions for do this action."
-msgstr ""
+msgstr "Você não tem permissões para fazer esta ação."
 
 #: templates/minimal_layout.html:57
 msgid "ACTION NOT ALLOWED"
-msgstr ""
+msgstr "AÇÃO NÃO PERMITIDA"
 
 #: templates/minimal_layout.html:58
 msgid "The session has expired"
@@ -335,7 +336,7 @@ msgstr "Excluir"
 
 #: templates/minimal_layout.html:65 templates/pages/settings.html:168
 msgid "Ok"
-msgstr ""
+msgstr "OK"
 
 #: templates/includes/modal_create_permission_level.html:25
 #: templates/minimal_layout.html:66 templates/pages/servers.html:162
@@ -344,7 +345,7 @@ msgstr "Cancelar"
 
 #: templates/minimal_layout.html:67
 msgid "NO DATA"
-msgstr ""
+msgstr "NENHUM DADO"
 
 #: templates/pages/index.html:19
 msgid "CPU usage:"
@@ -408,49 +409,51 @@ msgstr "livre"
 
 #: templates/pages/install.html:2
 msgid "Installation"
-msgstr ""
+msgstr "Instalação"
 
 #: templates/pages/install.html:12
 msgid "TWP Installation"
-msgstr ""
+msgstr "Instalação do TWP"
 
 #: templates/pages/install.html:14
 msgid ""
 "Thanks for trust in TWP for manage your Teeworlds servers.<br/>Please, "
 "take a moment for complete the installation."
 msgstr ""
+"Obrigado por confiar no TWP para gerenciar seus servidores do Teeworlds.<br/>"
+"Por favor, aloque algum tempo para completar a instalação."
 
 #: templates/pages/install.html:17 templates/pages/user_register.html:19
 msgid "Next"
-msgstr ""
+msgstr "Próximo"
 
 #: templates/pages/install.html:21 templates/pages/install.html:22
 msgid "Admin Username"
-msgstr ""
+msgstr "Nome de usuário administrador"
 
 #: templates/pages/install.html:23 templates/pages/install.html:24
 msgid "Admin Password"
-msgstr ""
+msgstr "Senha do administrador"
 
 #: templates/pages/install.html:25 templates/pages/install.html:26
 msgid "Repeat Admin Password"
-msgstr ""
+msgstr "Repetir senha do administrador"
 
 #: templates/pages/install.html:27 templates/pages/install.html:28
 msgid "Brand"
-msgstr ""
+msgstr "Marca"
 
 #: templates/pages/install.html:29 templates/pages/install.html:30
 msgid "Brand URL"
-msgstr ""
+msgstr "URL da marca"
 
 #: templates/pages/install.html:32 twpl/forms.py:36
 msgid "Finish"
-msgstr ""
+msgstr "Finalizar"
 
 #: templates/pages/install.html:59
 msgid "Password doesn't match!"
-msgstr ""
+msgstr "A senha não confere!"
 
 #: templates/pages/log.html:3
 msgid "Server Log"
@@ -581,15 +584,15 @@ msgstr "Top 5 - Países"
 
 #: templates/pages/server.html:127
 msgid "USER'S ACTIVITY REGISTRY"
-msgstr ""
+msgstr "REGISTRO DE ATIVIDADE DO USUÁRIO"
 
 #: templates/pages/server.html:133
 msgid "Administrator"
-msgstr ""
+msgstr "Administrador"
 
 #: templates/pages/server.html:144
 msgid "No activity found!"
-msgstr ""
+msgstr "Nenhuma atividade encontrada!"
 
 #: templates/pages/server.html:154
 msgid "Score"
@@ -617,27 +620,27 @@ msgstr "Desconhecido"
 
 #: templates/pages/server.html:235
 msgid "Year(s)"
-msgstr ""
+msgstr "Ano(s)"
 
 #: templates/pages/server.html:236
 msgid "Month(s)"
-msgstr ""
+msgstr "Mês/Meses"
 
 #: templates/pages/server.html:237
 msgid "Day(s)"
-msgstr ""
+msgstr "Dia(s)"
 
 #: templates/pages/server.html:238
 msgid "Hour(s)"
-msgstr ""
+msgstr "Hora(s)"
 
 #: templates/pages/server.html:239
 msgid "Minute(s)"
-msgstr ""
+msgstr "Minuto(s)"
 
 #: templates/pages/server.html:240
 msgid "Second(s)"
-msgstr ""
+msgstr "Segundo(s)"
 
 #: templates/pages/servers.html:13
 msgid "Install Mod"
@@ -653,11 +656,11 @@ msgstr "Remover Mod"
 
 #: templates/pages/servers.html:63 templates/pages/servers.html:168
 msgid "Auto-Launch"
-msgstr ""
+msgstr "Auto-iniciar"
 
 #: templates/pages/servers.html:63 templates/pages/servers.html:169
 msgid "Not Auto-Launch"
-msgstr ""
+msgstr "Não auto-iniciar"
 
 #: templates/pages/servers.html:75 templates/pages/settings.html:86
 msgid "Config"
@@ -746,107 +749,109 @@ msgstr "Remover mapa"
 
 #: templates/pages/servers.html:165
 msgid "SERVER ONLINE"
-msgstr ""
+msgstr "SERVIDOR ONLINE"
 
 #: templates/pages/servers.html:166
 msgid ""
 "Attetion: Server Online. The new configuration will not take effect until"
 " you restart the server."
 msgstr ""
+"Atenção: Servidor online. A nova configuração não surtirá efeito até você "
+"reiniciá-lo."
 
 #: templates/pages/servers.html:167
 msgid "Restart"
-msgstr ""
+msgstr "Reiniciar"
 
 #: templates/pages/settings.html:17
 msgid "Users"
-msgstr ""
+msgstr "Usuários"
 
 #: templates/pages/settings.html:19
 msgid "Create Slot"
-msgstr ""
+msgstr "Criar slot"
 
 #: templates/pages/settings.html:26 twpl/forms.py:28 twpl/forms.py:33
 msgid "Username"
-msgstr ""
+msgstr "Nome de usuário"
 
 #: templates/pages/settings.html:27
 msgid "Create Date"
-msgstr ""
+msgstr "Criar data"
 
 #: templates/pages/settings.html:28
 msgid "Last Login Date"
-msgstr ""
+msgstr "Data do último login"
 
 #: templates/pages/settings.html:38 templates/pages/settings.html:53
 #: templates/pages/settings.html:173
 msgid "Never"
-msgstr ""
+msgstr "Nunca"
 
 #: templates/pages/settings.html:41 templates/pages/settings.html:59
 #: templates/pages/settings.html:175
 msgid "Permissions"
-msgstr ""
+msgstr "Permissões"
 
 #: templates/pages/settings.html:43
 msgid "Remove User"
-msgstr ""
+msgstr "Remover usuário"
 
 #: templates/pages/settings.html:51 templates/pages/settings.html:176
 msgid "User Slot"
-msgstr ""
+msgstr "Slot de usuário"
 
 #: templates/pages/settings.html:56 templates/pages/settings.html:174
 msgid "Copy Link"
-msgstr ""
+msgstr "Copiar link"
 
 #: templates/pages/settings.html:61
 msgid "Cancel User Slot"
-msgstr ""
+msgstr "Cancelar slot de usuário"
 
 #: templates/pages/settings.html:72
 msgid "Permission Levels"
-msgstr ""
+msgstr "Níveis de permissão"
 
 #: templates/pages/settings.html:75
 msgid "Create Permission"
-msgstr ""
+msgstr "Criar permissão"
 
 #: templates/pages/settings.html:84
 msgid "Can start server?"
-msgstr ""
+msgstr "Pode iniciar o servidor?"
 
 #: templates/pages/settings.html:85
 msgid "Can stop server?"
-msgstr ""
+msgstr "Pode parar o servidor?"
 
 #: templates/pages/settings.html:86
 msgid "Can change configuration?"
-msgstr ""
+msgstr "Pode alterar a configuração?"
 
 #: templates/pages/settings.html:87
 msgid "Can use 'econ'?"
-msgstr ""
+msgstr "Pode usar 'econ'?"
 
 #: templates/pages/settings.html:87
 msgid "ECon"
-msgstr ""
+msgstr "ECon"
 
 #: templates/pages/settings.html:88
 msgid "Can view issues?"
-msgstr ""
+msgstr "Pode visualizar problemas?"
 
 #: templates/pages/settings.html:89
 msgid "Can view logs?"
-msgstr ""
+msgstr "Pode visualizar logs?"
 
 #: templates/pages/settings.html:104 templates/pages/settings.html:171
 msgid "Remove Permission Level"
-msgstr ""
+msgstr "Remover nível de permissão"
 
 #: templates/pages/settings.html:116
 msgid "Change Password"
-msgstr ""
+msgstr "Alterar a senha"
 
 #: templates/pages/settings.html:121
 msgid "Old password:"
@@ -866,42 +871,44 @@ msgstr "Alterar"
 
 #: templates/pages/settings.html:165
 msgid "Can't be empty"
-msgstr ""
+msgstr "Não pode estar vazio"
 
 #: templates/pages/settings.html:166
 msgid "Passwords doesn't match!"
-msgstr ""
+msgstr "Senhas não conferem!"
 
 #: templates/pages/settings.html:167
 msgid "Password changed successfully :)"
-msgstr ""
+msgstr "A senha foi alterada com sucesso :)"
 
 #: templates/pages/settings.html:169
 msgid "Configuration Changed"
-msgstr ""
+msgstr "Configuração alterada"
 
 #: templates/pages/settings.html:170
 msgid "Permission Level"
-msgstr ""
+msgstr "Nível de permissão"
 
 #: templates/pages/settings.html:172
 msgid "User"
-msgstr ""
+msgstr "Usuário"
 
 #: templates/pages/user_register.html:2
 msgid "User Registration"
-msgstr ""
+msgstr "Registro de usuário"
 
 #: templates/pages/user_register.html:14
 #, python-format
 msgid "Welcome to %%s"
-msgstr ""
+msgstr "Bem-vindo a %%s"
 
 #: templates/pages/user_register.html:16
 msgid ""
 "You are invited for be a member of the staff!<br/>Please, take a moment "
 "for complete the registration."
 msgstr ""
+"Você está convidado para ser um membro da equipe!<br/>Por favor, dedique um "
+"momento para completar o registro."
 
 #: twp.py:68
 msgid "Session timed out!"
@@ -909,11 +916,11 @@ msgstr "Esgotou o tempo limite da sessão!"
 
 #: twp.py:208
 msgid "Error in the '{0}' field - {1}"
-msgstr ""
+msgstr "Erro no campo '{0}' - {1}"
 
 #: twpl/forms.py:29 twpl/forms.py:34
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 #: twpl/forms.py:30
 msgid "Submit"
@@ -921,15 +928,15 @@ msgstr "Enviar"
 
 #: twpl/forms.py:34
 msgid "Passwords must match"
-msgstr ""
+msgstr "Senhas devem ser idênticas"
 
 #: twpl/forms.py:35
 msgid "Repeat Password"
-msgstr ""
+msgstr "Repetir senha"
 
 #: twpl/forms.py:39
 msgid "From File"
-msgstr ""
+msgstr "Do arquivo"
 
 #: twpl/forms.py:40
 msgid "From URL"
@@ -937,11 +944,11 @@ msgstr "Da URL"
 
 #: webcontroller/admin.py:41
 msgid "Error: {0}"
-msgstr ""
+msgstr "Erro: {0}"
 
 #: webcontroller/admin.py:49
 msgid "Error: File type not allowed!"
-msgstr ""
+msgstr "Erro: Tipo de arquivo não permitido!"
 
 #: webcontroller/admin.py:51 webcontroller/private.py:120
 msgid "Error: No file detected!"
@@ -957,7 +964,7 @@ msgstr "Erro: Não foi possível instalar o pacote do mod selecionado"
 
 #: webcontroller/admin.py:61
 msgid "Error: Package not have the followed folders:"
-msgstr ""
+msgstr "Erro: O pacote não possui as seguintes pastas:"
 
 #: webcontroller/admin.py:83
 msgid "Error: Folder mod not exists!"
@@ -969,31 +976,31 @@ msgstr "Erro: Senha antiga ou nome não definidos!"
 
 #: webcontroller/admin.py:94
 msgid "Can't generate user slot!"
-msgstr ""
+msgstr "Não foi possível gerar slot de usuário!"
 
 #: webcontroller/admin.py:100
 msgid "Can't remove superuser!"
-msgstr ""
+msgstr "Não é possível remover o superusuário!"
 
 #: webcontroller/admin.py:105
 msgid "Can't found user"
-msgstr ""
+msgstr "Não foi possível localizar o usuário"
 
 #: webcontroller/admin.py:113 webcontroller/admin.py:129
 msgid "Invalid params!"
-msgstr ""
+msgstr "Parâmetros inválidos!"
 
 #: webcontroller/admin.py:139
 msgid "Permission need a name!"
-msgstr ""
+msgstr "Permissão requer um nome!"
 
 #: webcontroller/admin.py:144
 msgid "Permission Level name need be unique"
-msgstr ""
+msgstr "Nível de permissão requer um nome exclusivo"
 
 #: webcontroller/admin.py:173
 msgid "Invalid Permission"
-msgstr ""
+msgstr "Permissão inválida"
 
 #: webcontroller/admin.py:215
 msgid "Invalid configuration file name."
@@ -1004,18 +1011,24 @@ msgid ""
 "Can't exists two servers with the same configuration file.<br/>Please "
 "change configuration file name and try again."
 msgstr ""
+"Não é possível existir dois servidores com o mesmo arquivo de "
+"configuração.<br/>Por favor, altere o nome do arquivo e tente novamente."
 
 #: webcontroller/admin.py:242 webcontroller/private.py:185
 msgid ""
 "Can't exist two servers with the same log file.<br/>Please check "
 "configuration and try again."
 msgstr ""
+"Não pode haver dois servidores com o mesmo o arquivo de log.<br/>Por favor, "
+"verifique a configuração e tente novamente."
 
 #: webcontroller/admin.py:250
 msgid ""
 "Can't exist two servers with the same 'ec_port'.<br/>Please check "
 "configuration and try again."
 msgstr ""
+"Não pode haver dois servidores com a mesma 'ec_port'.<br/>Por favor, "
+"verifique a configuração e tente novamente."
 
 #: webcontroller/admin.py:293 webcontroller/private.py:140
 #: webcontroller/private.py:346 webcontroller/private.py:409
@@ -1035,6 +1048,8 @@ msgstr "Servidor não encontrado!"
 #: webcontroller/private.py:83
 msgid "Error: Can't change password. Check settings and try again."
 msgstr ""
+"Erro: Não foi possível alterar a senha. Verifique as configurações e tente "
+"novamente."
 
 #: webcontroller/private.py:114
 msgid "Invalid map package"
@@ -1067,6 +1082,8 @@ msgid ""
 "Can't exist two servers with the same 'sv_port' in the same "
 "MOD.<br/>Please check configuration and try again."
 msgstr ""
+"Não pode haver dois servidores com a mesma 'sv_port' no mesmo MOD.<br/>Por "
+"favor, verifique a configuração e tente novamente."
 
 #: webcontroller/private.py:309
 msgid "Undefined server binary file!!"
@@ -1110,11 +1127,11 @@ msgstr "Você está desconectado!"
 
 #: webcontroller/public.py:220
 msgid "Username already in use!"
-msgstr ""
+msgstr "Nome de usuário já está sendo usado!"
 
 #: webcontroller/public.py:242
 msgid "Missed params!"
-msgstr ""
+msgstr "Parâmetros faltando!"
 
 #: webcontroller/public.py:357
 msgid "Undefined Chart!"
@@ -1122,7 +1139,7 @@ msgstr "Gráfico não definido!"
 
 #: webcontroller/public.py:368
 msgid "Invalid TimeZone!"
-msgstr ""
+msgstr "Fuso horário inválido!"
 
 #~ msgid "Settings updates successfully"
 #~ msgstr "Configurações atualizadas com sucesso"
@@ -1228,4 +1245,3 @@ msgstr ""
 
 #~ msgid "Server Local Time"
 #~ msgstr "Horário local do servidor"
-
